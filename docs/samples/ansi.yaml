@@ -1,6 +1,6 @@
 name: qwerty-ansi
 name8: q-ansi
-description: QWERTY-US layout.
+description: standard QWERTY-US layout
 version: 1.0.0
 geometry: ANSI
 
