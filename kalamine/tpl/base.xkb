@@ -1,0 +1,43 @@
+//
+// File          : ${fileName}.xkb
+// Project page  : http://fabi1cazenave.github.com/qwerty-lafayette/
+// Author        : ${author}
+// Version       : ${version}
+// Last change   : ${lastChange}
+// License       : ${license}
+//
+// ${description}
+//
+// To apply this keymap, use:
+//   xkbcomp -w9 ${fileName}.xkb $DISPLAY
+//
+
+xkb_keymap {
+  xkb_keycodes      { include "evdev" };
+  xkb_types         { include "complete" };
+  xkb_compatibility { include "complete" };
+
+  // Base layer + dead key
+  // LAFAYETTE::GEOMETRY_qwerty
+
+  partial alphanumeric_keys modifier_keys
+  xkb_symbols "OneDeadKey" {
+    include "pc"
+
+    // The “OneDeadKey” is an ISO_Level3_Latch, i.e. a “dead AltGr” key.
+    // This is the only way to have a multi-purpose dead key with XKB.
+
+    name[group1]= "${description}";
+    key.type[group1] = "FOUR_LEVEL";
+
+    // Options
+    // include "capslock(swapescape)"  // Swap CapsLock and Escape -- Vim powwa!
+    // include "compose(menu)"         // Compose on the 'Menu' key
+
+    LAFAYETTE::LAYOUT
+  };
+
+  //xkb_geometry { include "pc(pc105)" };
+};
+
+// vim: ft=xkb:fdm=indent:ts=2

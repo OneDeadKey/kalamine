@@ -1,0 +1,80 @@
+# The dead keys below are used by the MacOSX and Windows drivers.  In order to
+# work with the Linux driver, their name must match the XKB definition:
+# 'acute' <=> dead_acute, 'grave' <=> dead_grave, etc.
+
+# The only exception is the 'lafayette' key, which is:
+#   - a standard dead key for the MacOSX and Windows drivers;
+#   - a dead AltGr key (ISO_Level3_Latch) for the Linux driver.
+
+---
+
+- char: "\u20e1"  # | ⃡|
+  name: lafayette
+  base: ''        # computed from the imported layout
+  alt:  ''        # computed from the imported layout
+  alt_space: "'"  # apostrophe (can be overriden by the `space.1dk` key)
+  alt_self:  "'"  # apostrophe (can be overriden from the imported layout)
+
+- char: "\u0302"  # | ̂|
+  name: circumflex
+  base: aceghijosuwyzACEGHIJOSUWYZ
+  alt:  âĉêĝĥîĵôŝûŵŷẑÂĈÊĜĤÎĴÔŜÛŴŶẐ
+  alt_space: '^'  # U+005E CIRCUMFLEX ACCENT
+  alt_self:  '^'  # U+005E CIRCUMFLEX ACCENT
+
+- char: "\u0308"  # | ̈|
+  name: diaeresis
+  base: aehiotuwxyAEHIOUWXY
+  alt:  äëḧïöẗüẅẍÿÄËḦÏÖÜẄẌŸ
+  alt_space: '"'  # U+0022 QUOTATION MARK
+  alt_self:  '¨'  # U+00A8 DIAERESIS
+
+- char: "\u0301"  # | ́|
+  name: acute
+  base: acegiklmnoprsuwyzACEGIKLMNOPRSUWYZ
+  alt:  áćéǵíḱĺḿńóṕŕśúẃýźÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ
+  alt_space: '´'  # U+00B4 ACUTE ACCENT
+  alt_self:  '´'  # U+00B4 ACUTE ACCENT
+
+- char: "\u0300"  # | ̀|
+  name: grave
+  base: aeinouwyAEINOUWY
+  alt:  àèìǹòùẁỳÀÈÌǸÒÙẀỲ
+  alt_space: '`'  # U+0060 GRAVE ACCENT
+  alt_self:  '`'  # U+0060 GRAVE ACCENT
+
+- char: "\u0303"  # | ̃|
+  name: tilde
+  base: aeinouvyAEINOUVY
+  alt:  ãẽĩñõũṽỹÃẼĨÑÕŨṼỸ
+  alt_space: '~'  # U+007E TILDE
+  alt_self:  '~'  # U+007E TILDE
+
+- char: "\u0307"  # | ̇|
+  name: abovedot
+  base: abcdefghijlmnoprstwxyzABCDEFGHILMNOPRSTWXYZ
+  alt:  ȧḃċḋėḟġḣıȷŀṁṅȯṗṙṡṫẇẋẏżȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ
+  alt_space: '˙'  # U+02D9 DOT ABOVE
+  alt_self:  '˙'  # U+02D9 DOT ABOVE
+
+- char: "\u030a"  # | ̊|
+  name: abovering
+  base: auwyAU
+  alt:  åůẘẙÅŮ
+  alt_space: '˚'  # U+02DA RING ABOVE
+  alt_self:  '˚'  # U+02DA RING ABOVE
+
+- char: "\u0327"  # | ̧|
+  name: cedilla
+  base: cdeghklnrstCDEGHKLNRST
+  alt:  çḑȩģḩķļņŗşţÇḐȨĢḨĶĻŅŖŞŢ
+  alt_space: '¸'  # U+00B8 CEDILLA
+  alt_self:  '¸'  # U+00B8 CEDILLA
+
+- char: "\u0328"  # | ̨|
+  name: ogonek
+  base: aeiouAEIOU
+  alt:  ąęįǫųĄĘĮǪŲ
+  alt_space: '˛'  # U+02DB OGONEK
+  alt_self:  '˛'  # U+02DB OGONEK
+

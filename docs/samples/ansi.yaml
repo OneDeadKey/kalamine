@@ -1,10 +1,3 @@
-# kalamine
-
-A yaml-powered Keyboard Layout Maker, blatantly stolen from the [qwerty-lafayette](http://qwerty-lafayette.org) project.
-
-Define a keyboard layout in YAML:
-
-```yaml
 name: qwerty-ansi
 name8: q-ansi
 description: QWERTY-US layout.
@@ -28,19 +21,3 @@ base: |
   ┃       ┃       ┃       ┃                                ┃       ┃       ┃       ┃       ┃
   ┃ Ctrl  ┃ super ┃ Alt   ┃ ␣                              ┃ Alt   ┃ super ┃ menu  ┃ Ctrl  ┃
   ┗━━━━━━━┻━━━━━━━┻━━━━━━━┹────────────────────────────────┺━━━━━━━┻━━━━━━━┻━━━━━━━┻━━━━━━━┛
-```
-
-Build it:
-
-```bash
-kalamine qwerty-ansi.yaml
-```
-
-Get all keyboard drivers:
-
-```bash
-dist
-    q-ansi.keylayout  # Mac OSX
-    q-ansi.klc        # Windows
-    q-ansi.xkb        # GNU Linux
-```

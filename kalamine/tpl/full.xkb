@@ -1,0 +1,63 @@
+//
+// File          : ${fileName}.xkb
+// Project page  : http://fabi1cazenave.github.com/qwerty-lafayette/
+// Author        : ${author}
+// Version       : ${version}
+// Last change   : ${lastChange}
+// License       : ${license}
+//
+// ${description}
+//
+// To apply this keymap, use:
+//   xkbcomp -w9 ${fileName}.xkb $DISPLAY
+//
+
+xkb_keymap {
+  xkb_keycodes      { include "evdev" };
+  xkb_types         { include "complete" };
+  xkb_compatibility { include "complete" };
+
+  // Base layer + dead key
+  // LAFAYETTE::GEOMETRY_qwerty
+
+  // AltGr layer
+  // LAFAYETTE::GEOMETRY_altgr
+
+  partial alphanumeric_keys modifier_keys
+  xkb_symbols "OneDeadKey" {
+    include "pc"
+
+    // The “OneDeadKey” is an ISO_Level3_Latch, i.e. a “dead AltGr” key.
+    // This is the only way to have a multi-purpose dead key with XKB.
+
+    // The real AltGr key should be an ISO_Level5_Switch; however,
+    // ISO_Level5_Switch does not work as expected when applying this layout
+    // with xkbcomp, so let’s use two groups instead and make the AltGr key a
+    // group selector.
+
+    name[group1]= "${description}";
+    name[group2]= "AltGr";
+
+    key.type[group1] = "FOUR_LEVEL";
+    key.type[group2] = "TWO_LEVEL";
+
+    // Options
+    // include "capslock(swapescape)"  // Swap CapsLock and Escape -- Vim powwa!
+    // include "compose(menu)"         // Compose on the 'Menu' key
+
+    LAFAYETTE::LAYOUT
+
+    // AltGr
+    // Note: the `ISO_Level5_Latch` here is meaningless but helps with Chromium
+    // (no idea why).
+    key <RALT> {
+      type = "TWO_LEVEL",
+      symbols = [ ISO_Level5_Latch, ISO_Level5_Latch ],
+      actions = [ SetGroup(group=2), SetGroup(group=2) ]
+    };
+  };
+
+  //xkb_geometry { include "pc(pc105)" };
+};
+
+// vim: ft=xkb:fdm=indent:ts=2

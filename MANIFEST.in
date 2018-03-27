@@ -1,0 +1,2 @@
+include kalamine/data/*
+include kalamine/tpl/*

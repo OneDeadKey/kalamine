@@ -1,0 +1,123 @@
+klc:
+  # digits
+  ae01: '02	1'
+  ae02: '03	2'
+  ae03: '04	3'
+  ae04: '05	4'
+  ae05: '06	5'
+  ae06: '07	6'
+  ae07: '08	7'
+  ae08: '09	8'
+  ae09: '0a	9'
+  ae10: '0b	0'
+
+  # letters, first row
+  ad01: '10	Q'
+  ad02: '11	W'
+  ad03: '12	E'
+  ad04: '13	R'
+  ad05: '14	T'
+  ad06: '15	Y'
+  ad07: '16	U'
+  ad08: '17	I'
+  ad09: '18	O'
+  ad10: '19	P'
+
+  # letters, second row
+  ac01: '1e	A'
+  ac02: '1f	S'
+  ac03: '20	D'
+  ac04: '21	F'
+  ac05: '22	G'
+  ac06: '23	H'
+  ac07: '24	J'
+  ac08: '25	K'
+  ac09: '26	L'
+  ac10: '27	OEM_1'
+
+  # letters, third row
+  ab01: '2c	Z'
+  ab02: '2d	X'
+  ab03: '2e	C'
+  ab04: '2f	V'
+  ab05: '30	B'
+  ab06: '31	N'
+  ab07: '32	M'
+  ab08: '33	OEM_COMMA'
+  ab09: '34	OEM_PERIOD'
+  ab10: '35	OEM_2'
+
+  # pinky keys
+  tlde: '29	OEM_3'
+  ae11: '0c	OEM_MINUS'
+  ae12: '0d	OEM_PLUS'
+  ad11: '1a	OEM_4'
+  ad12: '1b	OEM_6'
+  ac11: '28	OEM_7'
+  bksl: '2b	OEM_5'
+  lsgt: '56	OEM_102'
+
+  # space bar
+  spce: '39	SPACE'
+
+osx:
+  # digits
+  ae01: 18  # 1
+  ae02: 19  # 2
+  ae03: 20  # 3
+  ae04: 21  # 4
+  ae05: 23  # 5
+  ae06: 22  # 6
+  ae07: 26  # 7
+  ae08: 28  # 8
+  ae09: 25  # 9
+  ae10: 29  # 0
+
+  # letters, first row
+  ad01: 12  # Q
+  ad02: 13  # W
+  ad03: 14  # E
+  ad04: 15  # R
+  ad05: 17  # T
+  ad06: 16  # Y
+  ad07: 32  # U
+  ad08: 34  # I
+  ad09: 31  # O
+  ad10: 35  # P
+
+  # letters, second row
+  ac01:  0  # A
+  ac02:  1  # S
+  ac03:  2  # D
+  ac04:  3  # F
+  ac05:  5  # G
+  ac06:  4  # H
+  ac07: 38  # J
+  ac08: 40  # K
+  ac09: 37  # L
+  ac10: 41  # ★
+
+  # letters, third row
+  ab01:  6  # Z
+  ab02:  7  # X
+  ab03:  8  # C
+  ab04:  9  # V
+  ab05: 11  # B
+  ab06: 45  # N
+  ab07: 46  # M
+  ab08: 43  # ,
+  ab09: 47  # .
+  ab10: 44  # /
+
+  # pinky keys
+  tlde: 50  # ~
+  ae11: 27  # -
+  ae12: 24  # =
+  ad11: 33  # [
+  ad12: 30  # ]
+  ac11: 39  # '
+  bksl: 42  # \
+  lsgt: 10  # <
+
+  # space bar
+  spce: 49
