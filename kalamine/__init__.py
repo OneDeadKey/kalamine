@@ -715,3 +715,19 @@ def make_layout(filePath):
     xkb_out = substitute_meta(xkb_out, layout.meta)
     open(xkb_path, 'w').write(xkb_out)
     print('... ' + xkb_path)
+
+    # XKB patch
+    if 'variant' in layout.meta and 'locale' in layout.meta:
+        # locale = layout.meta['locale']
+        # dir_path = os.path.join(os.path.dirname('dist/xkb'), locale)
+        dir_path = 'dist/xkb/' + layout.meta['locale']
+        xkb_path = dir_path + '/' + layout.meta['variant']
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        xkb_out = openLocalFile(xkb_tpl + '_patch').read()
+        xkb_out = substitute_lines(xkb_out, 'GEOMETRY_qwerty', layout_qwerty)
+        xkb_out = substitute_lines(xkb_out, 'GEOMETRY_altgr', layout_altgr)
+        xkb_out = substitute_lines(xkb_out, 'LAYOUT', layout.xkb)
+        xkb_out = substitute_meta(xkb_out, layout.meta)
+        open(xkb_path, 'w').write(xkb_out)
+        print('... ' + xkb_path)

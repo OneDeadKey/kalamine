@@ -1,6 +1,9 @@
 name: qwerty-prog
 name8: q-prog
+variant: q-prog
+locale: us
 description: QWERTY-intl layout, developer variant
+url: http://fabi1cazenave.github.com/kalamine/
 version: 0.6.0
 geometry: ANSI
 

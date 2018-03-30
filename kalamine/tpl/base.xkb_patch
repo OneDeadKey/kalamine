@@ -1,0 +1,24 @@
+// Project page  : ${url}
+// Author        : ${author}
+// Version       : ${version}
+// Last change   : ${lastChange}
+// License       : ${license}
+//
+// ${description}
+//
+// Base layer + dead key
+// LAFAYETTE::GEOMETRY_qwerty
+
+partial alphanumeric_keys modifier_keys
+xkb_symbols "${variant}" {
+    include "pc"
+
+    // The “OneDeadKey” is an ISO_Level3_Latch, i.e. a “dead AltGr” key.
+    // This is the only way to have a multi-purpose dead key with XKB.
+
+    name[group1]= "${description}";
+    key.type[group1] = "FOUR_LEVEL";
+
+    LAFAYETTE::LAYOUT
+};
+// vim: ft=xkb:fdm=indent:ts=2

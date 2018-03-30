@@ -1,5 +1,3 @@
-//
-// File          : ${fileName}.xkb
 // Project page  : ${url}
 // Author        : ${author}
 // Version       : ${version}
@@ -8,23 +6,14 @@
 //
 // ${description}
 //
-// To apply this keymap, use:
-//   xkbcomp -w9 ${fileName}.xkb $DISPLAY
+// Base layer + dead key
+// LAFAYETTE::GEOMETRY_qwerty
 //
+// AltGr layer
+// LAFAYETTE::GEOMETRY_altgr
 
-xkb_keymap {
-  xkb_keycodes      { include "evdev" };
-  xkb_types         { include "complete" };
-  xkb_compatibility { include "complete" };
-
-  // Base layer + dead key
-  // LAFAYETTE::GEOMETRY_qwerty
-
-  // AltGr layer
-  // LAFAYETTE::GEOMETRY_altgr
-
-  partial alphanumeric_keys modifier_keys
-  xkb_symbols "${variant}" {
+partial alphanumeric_keys modifier_keys
+xkb_symbols "${variant}" {
     include "pc"
 
     // The “OneDeadKey” is an ISO_Level3_Latch, i.e. a “dead AltGr” key.
@@ -41,10 +30,6 @@ xkb_keymap {
     key.type[group1] = "FOUR_LEVEL";
     key.type[group2] = "TWO_LEVEL";
 
-    // Options
-    // include "capslock(swapescape)"  // Swap CapsLock and Escape -- Vim powwa!
-    // include "compose(menu)"         // Compose on the 'Menu' key
-
     LAFAYETTE::LAYOUT
 
     // AltGr
@@ -55,9 +40,5 @@ xkb_keymap {
       symbols = [ ISO_Level5_Latch, ISO_Level5_Latch ],
       actions = [ SetGroup(group=2), SetGroup(group=2) ]
     };
-  };
-
-  //xkb_geometry { include "pc(pc105)" };
 };
-
 // vim: ft=xkb:fdm=indent:ts=2
