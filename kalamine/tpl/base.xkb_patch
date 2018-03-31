@@ -21,4 +21,4 @@ xkb_symbols "${variant}" {
 
     LAFAYETTE::LAYOUT
 };
-// vim: ft=xkb:fdm=indent:ts=2
+// vim: ft=xkb:fdm=indent:ts=4:nowrap

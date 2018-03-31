@@ -33,12 +33,11 @@ xkb_symbols "${variant}" {
     LAFAYETTE::LAYOUT
 
     // AltGr
-    // Note: the `ISO_Level5_Latch` here is meaningless but helps with Chromium
-    // (no idea why).
+    // Note: the `ISO_Level5_Latch` here is meaningless but helps with Chromium.
     key <RALT> {
-      type = "TWO_LEVEL",
-      symbols = [ ISO_Level5_Latch, ISO_Level5_Latch ],
-      actions = [ SetGroup(group=2), SetGroup(group=2) ]
+        type = "TWO_LEVEL",
+        symbols = [ ISO_Level5_Latch, ISO_Level5_Latch ],
+        actions = [ SetGroup(group=2), SetGroup(group=2) ]
     };
 };
-// vim: ft=xkb:fdm=indent:ts=2
+// vim: ft=xkb:fdm=indent:ts=4:nowrap
