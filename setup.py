@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='kalamine',
-      version='0.1.1',
+      version='0.2.1',
       description='Keyboard Layout Maker',
       url='http://github.com/fabi1cazenave/kalamine',
       author='Fabien Cazenave',
@@ -9,5 +9,6 @@ setup(name='kalamine',
       license='MIT',
       packages=['kalamine'],
       scripts=['bin/kalamine'],
+      install_requires=['pyyaml'],
       include_package_data=True,
       zip_safe=False)
