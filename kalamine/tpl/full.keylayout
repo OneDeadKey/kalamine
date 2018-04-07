@@ -2,7 +2,7 @@
 <!DOCTYPE keyboard SYSTEM "file://localhost/System/Library/DTDs/KeyboardLayout.dtd">
 <!-- ${description}
   File          : ${fileName}.keylayout
-  Project page  : http://fabi1cazenave.github.com/qwerty-lafayette/
+  Project page  : ${url}
   Author        : ${author}
   Version       : ${version}
   Last change   : ${lastChange}
@@ -27,13 +27,13 @@
   ┃ Ctrl  ┃ super ┃ Alt   ┃                             49 ┃ AltGr ┃ super ┃ menu  ┃ Ctrl  ┃
   ┗━━━━━━━┻━━━━━━━┻━━━━━━━┹────────────────────────────────┺━━━━━━━┻━━━━━━━┻━━━━━━━┻━━━━━━━┛
 
-  Qwerty+Lafayette layer
-  LAFAYETTE::GEOMETRY_qwerty
+  Base+1dk layer
+  KALAMINE::GEOMETRY_base
 
   Option layer - to be customized!
-  LAFAYETTE::GEOMETRY_altgr
+  KALAMINE::GEOMETRY_altgr
   -->
-<keyboard group="0" id="0" name="US Lafayette" maxout="1">
+<keyboard group="0" id="0" name="${description}" maxout="1">
   <layouts>
     <layout first="0" last="17" modifiers="commonModifiers" mapSet="ANSI" />
   </layouts>
@@ -69,7 +69,7 @@
     <keyMap index="0">
       <key code="49"  action="space" />
 
-      LAFAYETTE::LAYOUT_0
+      KALAMINE::LAYOUT_0
 
       <!-- Other keys -->
       <key code="36"  output="&#x000D;" />
@@ -139,7 +139,7 @@
     <keyMap index="1">
       <key code="49"  action="nbsp" />
 
-      LAFAYETTE::LAYOUT_1
+      KALAMINE::LAYOUT_1
 
       <!-- Other keys -->
       <key code="36"  output="&#x000D;" />
@@ -209,7 +209,7 @@
     <keyMap index="2">
       <key code="49"  action="space" />
 
-      LAFAYETTE::LAYOUT_2
+      KALAMINE::LAYOUT_2
 
       <!-- Other keys -->
       <key code="36"  output="&#x000D;" />
@@ -279,7 +279,7 @@
     <keyMap index="3">
       <key code="49"  output="&#x001B;" />
 
-      LAFAYETTE::LAYOUT_3
+      KALAMINE::LAYOUT_3
 
       <!-- Other keys -->
       <key code="36"  output="&#x000D;" />
@@ -349,7 +349,7 @@
     <keyMap index="4">
       <key code="49"  output=" " />
 
-      LAFAYETTE::LAYOUT_4
+      KALAMINE::LAYOUT_4
 
       <!-- Other keys -->
       <key code="36"  output="&#x000D;" />
@@ -759,10 +759,10 @@
   </keyMapSet>
 
   <actions>
-    LAFAYETTE::ACTIONS
+    KALAMINE::ACTIONS
   </actions>
 
   <terminators>
-    LAFAYETTE::TERMINATORS
+    KALAMINE::TERMINATORS
   </terminators>
 </keyboard>

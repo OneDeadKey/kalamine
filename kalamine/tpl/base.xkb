@@ -1,6 +1,6 @@
 //
 // File          : ${fileName}.xkb
-// Project page  : http://fabi1cazenave.github.com/qwerty-lafayette/
+// Project page  : ${url}
 // Author        : ${author}
 // Version       : ${version}
 // Last change   : ${lastChange}
@@ -9,16 +9,16 @@
 // ${description}
 //
 // To apply this keymap, use:
-//   xkbcomp -w9 ${fileName}.xkb $DISPLAY
+//   xkbcomp ${fileName}.xkb $DISPLAY
 //
 
 xkb_keymap {
-  xkb_keycodes      { include "evdev" };
+  xkb_keycodes      { include "evdev"    };
   xkb_types         { include "complete" };
   xkb_compatibility { include "complete" };
 
   // Base layer + dead key
-  // LAFAYETTE::GEOMETRY_qwerty
+  // KALAMINE::GEOMETRY_base
 
   partial alphanumeric_keys modifier_keys
   xkb_symbols "OneDeadKey" {
@@ -30,14 +30,7 @@ xkb_keymap {
     name[group1]= "${description}";
     key.type[group1] = "FOUR_LEVEL";
 
-    // Options
-    // include "capslock(swapescape)"  // Swap CapsLock and Escape -- Vim powwa!
-    // include "compose(menu)"         // Compose on the 'Menu' key
-
-    LAFAYETTE::LAYOUT
+    KALAMINE::LAYOUT
   };
-
-  //xkb_geometry { include "pc(pc105)" };
 };
-
-// vim: ft=xkb:fdm=indent:ts=2
+// vim: ft=xkb:fdm=indent:ts=2:nowrap

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import sys
-from kalamine import make_layout
+from kalamine import Layout, Template
 
-for f in sys.argv[1:]:  # who needs argparse / docopt?
-    make_layout(f)
+for file in sys.argv[1:]:  # who needs argparse / docopt?
+    layout = Layout(file)
+    tpl = Template(layout)
+    tpl.make_all('dist')
