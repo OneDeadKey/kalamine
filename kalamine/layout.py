@@ -3,7 +3,7 @@ import datetime
 import os
 import yaml
 
-from .utils import remove_spaces_before_combining_chars, open_local_file
+from .utils import open_local_file, text_to_lines
 
 
 ##
@@ -42,7 +42,7 @@ def xml_proof(char):
         return '&#x{0};'.format(hex_ord(char))
 
 
-def yaml_load(filename):
+def load_data(filename):
     return yaml.load(open_local_file(os.path.join('data', filename)))
 
 
@@ -66,10 +66,10 @@ SPACEBAR = {
 }
 
 
-GEOMETRY = yaml_load('geometry.yaml')
-DEAD_KEYS = yaml_load('dead_keys.yaml')
-KEY_CODES = yaml_load('key_codes.yaml')
-XKB_KEY_SYM = yaml_load('key_sym.yaml')
+GEOMETRY = load_data('geometry.yaml')
+DEAD_KEYS = load_data('dead_keys.yaml')
+KEY_CODES = load_data('key_codes.yaml')
+XKB_KEY_SYM = load_data('key_sym.yaml')
 
 LAFAYETTE_KEY = '\u20e1'  # must match the value in dead_keys.yaml
 
@@ -107,68 +107,73 @@ LAYER_KEYS = [
 class Layout:
     """ Lafayette-style keyboard layout: base + dead key + altgr layers. """
 
-    def __init__(self, filePath):
+    def __init__(self, filepath, extends=''):
         """ Import a keyboard layout to instanciate the object. """
 
+        # initialize a blank layout
         self.layers = [{}, {}, {}, {}, {}, {}]
         self.dead_keys = {}  # dictionary subset of DEAD_KEYS
         self.dk_index = []   # ordered keys of the above dictionary
         self.meta = CONFIG   # default parameters, hardcoded
         self.has_altgr = False
-
-        # metadata: self.meta
-        cfg = yaml.load(open(filePath))
-        for k in cfg:
-            if k != 'base' and k != 'altgr' and k != 'spacebar':
-                self.meta[k] = cfg[k]
-        fileName = os.path.splitext(os.path.basename(filePath))[0]
-        self.meta['name'] = cfg['name'] if 'name' in cfg else fileName
-        self.meta['name8'] = cfg['name8'] if 'name8' in cfg \
-            else self.meta['name'][0:8]
-        self.meta['fileName'] = self.meta['name8'].lower()
-        self.meta['lastChange'] = datetime.date.today().isoformat()
-
-        # keyboard layers: self.layers & self.dead_keys
-        rows = GEOMETRY[self.meta['geometry']]['rows']
-        base = remove_spaces_before_combining_chars(cfg['base']).split('\n')
-        self._parse_template(base, rows, 0)
-        self._parse_template(base, rows, 2)
-        self._parse_lafayette_keys()
-
-        # optional AltGr layer
-        if 'altgr' in cfg:
-            tmp = remove_spaces_before_combining_chars(cfg['altgr'])
-            self._parse_template(tmp.split('\n'), rows, 4)
-            self.has_altgr = True
-
-        # space bar
+        self.has_1dk = False
         spc = SPACEBAR
-        if 'spacebar' in cfg:
-            for k in cfg['spacebar']:
-                spc[k] = cfg['spacebar'][k]
-        self.layers[0]['spce'] = ' '
-        self.layers[1]['spce'] = spc['shift']
-        self.layers[2]['spce'] = spc['1dk']
-        self.layers[3]['spce'] = spc['shift_1dk'] if 'shift_1dk' in spc \
-            else spc['1dk']
-        if self.has_altgr:
-            self.layers[4]['spce'] = spc['altgr']
-            self.layers[5]['spce'] = spc['altgr_shift']
 
-        # active dead keys: self.dk_index
-        for dk in DEAD_KEYS:
-            if dk['char'] in self.dead_keys:
-                self.dk_index.append(dk['char'])
+        for file in ([filepath] if extends == '' else [extends, filepath]):
+            """ Append data from YAML layout(s). """
 
-        # 1dk behavior: alt_self (double-press), alt_space (1dk+space)
-        if LAFAYETTE_KEY in self.dead_keys:
-            odk = self.dead_keys[LAFAYETTE_KEY]
-            odk['alt_space'] = spc['1dk']
-            odk['alt_self'] = "'"
-            for key in self.layers[0]:
-                if self.layers[0][key] == LAFAYETTE_KEY:
-                    odk['alt_self'] = self.layers[2][key]
-                    break
+            # metadata: self.meta
+            cfg = yaml.load(open(file))
+            for k in cfg:
+                if k != 'base' and k != 'altgr' and k != 'spacebar':
+                    self.meta[k] = cfg[k]
+            fileName = os.path.splitext(os.path.basename(file))[0]
+            self.meta['name'] = cfg['name'] if 'name' in cfg else fileName
+            self.meta['name8'] = cfg['name8'] if 'name8' in cfg \
+                else self.meta['name'][0:8]
+            self.meta['fileName'] = self.meta['name8'].lower()
+            self.meta['lastChange'] = datetime.date.today().isoformat()
+
+            # keyboard layers: self.layers & self.dead_keys
+            rows = GEOMETRY[self.meta['geometry']]['rows']
+            base = text_to_lines(cfg['base'])
+            self._parse_template(base, rows, 0)
+            self._parse_template(base, rows, 2)
+            self._parse_lafayette_keys()
+
+            # optional AltGr layer
+            if 'altgr' in cfg:
+                self.has_altgr = True
+                self._parse_template(text_to_lines(cfg['altgr']), rows, 4)
+
+            # space bar
+            if 'spacebar' in cfg:
+                for k in cfg['spacebar']:
+                    spc[k] = cfg['spacebar'][k]
+            self.layers[0]['spce'] = ' '
+            self.layers[1]['spce'] = spc['shift']
+            self.layers[2]['spce'] = spc['1dk']
+            self.layers[3]['spce'] = spc['shift_1dk'] if 'shift_1dk' in spc \
+                else spc['1dk']
+            if self.has_altgr:
+                self.layers[4]['spce'] = spc['altgr']
+                self.layers[5]['spce'] = spc['altgr_shift']
+
+            # active dead keys: self.dk_index
+            for dk in DEAD_KEYS:
+                if dk['char'] in self.dead_keys:
+                    self.dk_index.append(dk['char'])
+
+            # 1dk behavior: alt_self (double-press), alt_space (1dk+space)
+            if LAFAYETTE_KEY in self.dead_keys:
+                self.has_1dk = True
+                odk = self.dead_keys[LAFAYETTE_KEY]
+                odk['alt_space'] = spc['1dk']
+                odk['alt_self'] = "'"
+                for key in self.layers[0]:
+                    if self.layers[0][key] == LAFAYETTE_KEY:
+                        odk['alt_self'] = self.layers[2][key]
+                        break
 
     def _parse_lafayette_keys(self):
         """ populates the `base` and `alt` props for the Lafayette dead key """
@@ -298,7 +303,7 @@ class Layout:
     """
 
     @property
-    def xkb(self):
+    def xkb_keymap(self):
         """ Linux layout. """
 
         showDescription = True
@@ -349,11 +354,10 @@ class Layout:
     """
     Windows: KLC
     To be used by the MS Keyboard Layout Creator to generate an installer.
-    Warning: the file must be encoded in UTF16-LE.
     """
 
     @property
-    def klc(self):
+    def klc_keymap(self):
         """ Windows layout, main part. """
 
         supportedSymbols = \
@@ -489,45 +493,51 @@ class Layout:
 
     """
     MacOS X: keylayout
+    https://developer.apple.com/library/content/technotes/tn2056/_index.html
     """
 
-    def get_osx_keymap(self, index):
+    @property
+    def osx_keymap(self):
         """ Mac OSX layout, main part. """
 
-        layer = self.layers[[0, 1, 0, 4, 5][index]]
-        caps = index == 2
+        str = []
+        for index in range(5):
+            layer = self.layers[[0, 1, 0, 4, 5][index]]
+            caps = index == 2
 
-        def has_dead_keys(letter):
-            for k in self.dead_keys:
-                if letter in self.dead_keys[k]['base']:
-                    return True
-            return False
+            def has_dead_keys(letter):
+                for k in self.dead_keys:
+                    if letter in self.dead_keys[k]['base']:
+                        return True
+                return False
 
-        output = []
-        for keyName in LAYER_KEYS:
-            if keyName.startswith('-'):
-                if len(output):
-                    output.append('')
-                output.append('<!--' + keyName[1:] + ' -->')
-                continue
+            output = []
+            for keyName in LAYER_KEYS:
+                if keyName.startswith('-'):
+                    if len(output):
+                        output.append('')
+                    output.append('<!--' + keyName[1:] + ' -->')
+                    continue
 
-            symbol = '&#x0010;'
-            finalKey = True
+                symbol = '&#x0010;'
+                finalKey = True
 
-            if keyName in layer:
-                key = layer[keyName]
-                if key in self.dead_keys:
-                    symbol = 'dead_' + self.dead_keys[key]['name']
-                    finalKey = False
-                else:
-                    symbol = xml_proof(key.upper() if caps else key)
-                    finalKey = not has_dead_keys(key)
+                if keyName in layer:
+                    key = layer[keyName]
+                    if key in self.dead_keys:
+                        symbol = 'dead_' + self.dead_keys[key]['name']
+                        finalKey = False
+                    else:
+                        symbol = xml_proof(key.upper() if caps else key)
+                        finalKey = not has_dead_keys(key)
 
-            c = 'code="{0}"'.format(KEY_CODES['osx'][keyName]).ljust(10)
-            a = '{0}="{1}"'.format('output' if finalKey else 'action', symbol)
-            output.append('<key {0} {1} />'.format(c, a))
+                c = 'code="{0}"'.format(KEY_CODES['osx'][keyName]).ljust(10)
+                a = '{0}="{1}"'.format('output' if finalKey
+                                       else 'action', symbol)
+                output.append('<key {0} {1} />'.format(c, a))
 
-        return output
+            str.append(output)
+        return str
 
     @property
     def osx_actions(self):

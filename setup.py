@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name='kalamine',
-    version='0.2.3',
+    version='0.3.0',
     description='a yaml-centric Keyboard Layout Maker',
     long_description=readme,
     url='http://github.com/fabi1cazenave/kalamine',
@@ -21,7 +21,10 @@ setup(
     ],
     packages=['kalamine'],
     scripts=['bin/kalamine'],
-    install_requires=['pyyaml'],
+    install_requires=[
+        'pyyaml',
+        'click'
+    ],
     include_package_data=True,
     zip_safe=False
 )

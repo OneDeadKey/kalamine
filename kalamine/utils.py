@@ -3,7 +3,7 @@ import os
 import unicodedata
 
 
-def add_spaces_before_combining_chars(text):
+def _add_spaces_before_combining_chars(text):
     out = ''
     for char in text:
         if unicodedata.combining(char):
@@ -13,7 +13,7 @@ def add_spaces_before_combining_chars(text):
     return out
 
 
-def remove_spaces_before_combining_chars(text):
+def _remove_spaces_before_combining_chars(text):
     out = list('')
     for char in text:
         if unicodedata.combining(char):
@@ -27,10 +27,14 @@ def lines_to_text(lines, indent=''):
     out = ''
     for line in lines:
         if len(line):
-            out += indent + add_spaces_before_combining_chars(line)
+            out += indent + _add_spaces_before_combining_chars(line)
         out += '\n'
     return out[:-1]
 
 
-def open_local_file(fileName):
-    return open(os.path.join(os.path.dirname(__file__), fileName))
+def text_to_lines(text):
+    return _remove_spaces_before_combining_chars(text).split('\n')
+
+
+def open_local_file(file_name):
+    return open(os.path.join(os.path.dirname(__file__), file_name))
