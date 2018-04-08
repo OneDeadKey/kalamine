@@ -38,21 +38,27 @@ class Template:
     """ System-specific layout template. """
 
     def __init__(self, layout):
-        self.tpl = 'full' if layout.has_altgr else 'base'
         self.base = layout.get_geometry([0, 2])  # base + 1dk
+        self.full = layout.get_geometry([0, 4])  # base + altgr
         self.altgr = layout.get_geometry([4])    # altgr only
         self.layout = layout
 
     def load_tpl(self, ext):
-        out = open_local_file(os.path.join('tpl', self.tpl + ext)).read()
+        tpl = 'base'
+        if self.layout.has_altgr:
+            tpl = 'full'
+            if self.layout.has_1dk and ext.startswith('.xkb'):
+                tpl = 'full_1dk'
+        out = open_local_file(os.path.join('tpl', tpl + ext)).read()
         out = substitute_lines(out, 'GEOMETRY_base', self.base)
+        out = substitute_lines(out, 'GEOMETRY_full', self.full)
         out = substitute_lines(out, 'GEOMETRY_altgr', self.altgr)
         for key, value in self.layout.meta.items():
             out = substitute_token(out, key, value)
         return out
 
     @property
-    def xkb(self):
+    def xkb(self):  # will not work with Wayland
         """ GNU/Linux driver (standalone / user-space) """
         out = self.load_tpl('.xkb')
         out = substitute_lines(out, 'LAYOUT', self.layout.xkb_keymap)
@@ -62,7 +68,7 @@ class Template:
     def xkb_patch(self):
         """ GNU/Linux driver (system patch) """
         out = self.load_tpl('.xkb_patch')
-        out = substitute_lines(out, 'LAYOUT', self.layout.xkb_keymap)
+        out = substitute_lines(out, 'LAYOUT', self.layout.xkb_patch)
         return out
 
     @property

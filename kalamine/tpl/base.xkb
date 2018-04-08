@@ -9,7 +9,7 @@
 // ${description}
 //
 // To apply this keymap, use:
-//   xkbcomp ${fileName}.xkb $DISPLAY
+//   xkbcomp -w9 ${fileName}.xkb $DISPLAY
 //
 
 xkb_keymap {
@@ -17,15 +17,11 @@ xkb_keymap {
   xkb_types         { include "complete" };
   xkb_compatibility { include "complete" };
 
-  // Base layer + dead key
   // KALAMINE::GEOMETRY_base
 
   partial alphanumeric_keys modifier_keys
   xkb_symbols "OneDeadKey" {
     include "pc"
-
-    // The “OneDeadKey” is an ISO_Level3_Latch, i.e. a “dead AltGr” key.
-    // This is the only way to have a multi-purpose dead key with XKB.
 
     name[group1]= "${description}";
     key.type[group1] = "FOUR_LEVEL";

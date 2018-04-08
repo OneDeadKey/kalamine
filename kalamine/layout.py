@@ -297,13 +297,11 @@ class Layout:
 
     """
     GNU/Linux: XKB
-    - standalone xkb file to be used by `setxkbcomp` (not working in Wayland)
-    - system-wide installer script for Xorg
-    - system-wide installer script for Wayland
+    - standalone xkb file to be used by `setxkbcomp` (Xorg only)
+    - system-wide installer script for Xorg & Wayland
     """
 
-    @property
-    def xkb_keymap(self):
+    def get_xkb_keymap(self, eight_levels):
         """ Linux layout. """
 
         showDescription = True
@@ -342,18 +340,48 @@ class Layout:
                 description += ' ' + desc
                 symbols.append(symbol.ljust(maxLength))
 
-            s = 'key <{}> {{[ {}, {}, {}, {}],[ {}, {}]}};' if self.has_altgr \
-                else 'key <{}> {{[ {}, {}, {}, {}]}};'
+            s = 'key <{}> {{[ {}, {}, {}, {}]}};'  # 4-level layout by default
+            if self.has_altgr and self.has_1dk:
+                """ 6 layers are needed: they won't fit on the 4-level format.
+                System XKB files require a Neo-like eight-level solution.
+                Standalone XKB files work best with a dual-group solution:
+                one 4-level group for base+1dk, one two-level group for AltGr.
+                """
+                if eight_levels:  # system XKB file (patch)
+                    s = 'key <{}> {{[ {}, {}, {}, {}, {}, {}, {}, {}]}};'
+                    symbols.append('VoidSymbol'.ljust(maxLength))
+                    symbols.append('VoidSymbol'.ljust(maxLength))
+                else:  # user-space XKB file (standalone)
+                    s = 'key <{}> {{[ {}, {}, {}, {}],[ {}, {}]}};'
+            elif self.has_altgr:
+                del symbols[3]
+                del symbols[2]
+
             line = s.format(* [keyName.upper()] + symbols)
             if showDescription:
                 line += description.rstrip()
+                if line.endswith('\\'):
+                    line += ' '  # escape trailing backslash
             output.append(line)
 
         return output
 
+    @property
+    def xkb_keymap(self):  # will not work with Wayland
+        """ Linux layout, user-space file (standalone). """
+        return self.get_xkb_keymap(False)
+
+    @property
+    def xkb_patch(self):
+        """ Linux layout, system file (patch). """
+        return self.get_xkb_keymap(True)
+
     """
     Windows: KLC
     To be used by the MS Keyboard Layout Creator to generate an installer.
+    https://www.microsoft.com/en-us/download/details.aspx?id=22339
+    https://levicki.net/articles/2006/09/29/HOWTO_Build_keyboard_layouts_for_Windows_x64.php
+    Also supported by KbdEdit: http://www.kbdedit.com/ (non-free).
     """
 
     @property

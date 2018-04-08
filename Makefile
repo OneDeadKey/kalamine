@@ -7,15 +7,15 @@ clean:
 lint:
 	flake8 kalamine
 
-publish-deps:
-	pip3 install --user twine wheel
-
 publish:
-	flake8 kalamine
+	#flake8 kalamine
 	rm -rf dist/*
 	python3 setup.py bdist_wheel
 	python3 setup.py sdist
 	twine upload dist/*
 
-install:
+publish-deps:
+	pip3 install --user twine wheel
+
+dev:
 	pip3 install --user -e .
