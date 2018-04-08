@@ -1,5 +1,5 @@
 all:
-	./bin/kalamine docs/samples/*.yaml
+	kalamine docs/samples/*.yaml
 
 clean:
 	rm -rf dist/*

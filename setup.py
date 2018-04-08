@@ -20,7 +20,11 @@ setup(
         'Programming Language :: Python :: 3',
     ],
     packages=['kalamine'],
-    scripts=['bin/kalamine'],
+    entry_points={
+        'console_scripts': [
+            'kalamine = kalamine.main:make'
+        ]
+    },
     install_requires=[
         'pyyaml',
         'click'
