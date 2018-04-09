@@ -99,14 +99,9 @@ class Template:
         if not os.path.exists(subdir):
             os.makedirs(subdir)
 
-        # Windows driver (the utf-8 template is converted to a utf-16le file)
+        # Windows driver
         klc_path = out_path('.klc')
         open(klc_path, 'w', encoding='utf-16le').write(self.klc)
-        print('... ' + klc_path)
-
-        # a utf-8 version can't hurt (easier to diff)
-        klc_path = out_path('.klc_utf8')
-        open(klc_path, 'w').write(self.klc)
         print('... ' + klc_path)
 
         # Mac OSX driver
@@ -114,16 +109,7 @@ class Template:
         open(osx_path, 'w').write(self.keylayout)
         print('... ' + osx_path)
 
-        # Linux driver, user space
+        # Linux driver, user-space
         xkb_path = out_path('.xkb')
         open(xkb_path, 'w').write(self.xkb)
         print('... ' + xkb_path)
-
-        # Linux driver, XKB patch
-        if 'variant' in self.layout.meta and 'locale' in self.layout.meta:
-            dir_path = os.path.join(subdir, 'xkb', self.layout.meta['locale'])
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path)
-            xkb_path = os.path.join(dir_path, self.layout.meta['variant'])
-            open(xkb_path, 'w').write(self.xkb_patch)
-            print('... ' + xkb_path)
