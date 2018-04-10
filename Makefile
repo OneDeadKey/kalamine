@@ -2,7 +2,11 @@ all:
 	kalamine docs/samples/*.yaml
 
 clean:
-	rm -rf dist/*
+	rm -rf build
+	rm -rf dist
+	rm -rf include
+	rm -rf kalamine.egg-info
+	rm -rf kalamine/__pycache__
 
 lint:
 	flake8 kalamine

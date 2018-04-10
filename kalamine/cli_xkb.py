@@ -66,8 +66,8 @@ def open_symbols(path, name):
 
 
 def get_rules_locale(tree, locale):
-    return tree.xpath('//layout/configItem/name[text()="' + locale +
-                      '"]/../..')[0]
+    query = '//layout/configItem/name[text()="{}"]/../..'.format(locale)
+    return tree.xpath(query)[0]
 
 
 def open_rules(path, locale, name, update_if_cleaned=False):
@@ -78,9 +78,9 @@ def open_rules(path, locale, name, update_if_cleaned=False):
 
     layout = get_rules_locale(tree, locale)
     for signature in ['lafayette', 'kalamine']:
-        for variant in layout.xpath('//variant[@type="' + signature
-                                    + '"]/configItem/name[text()="'
-                                    + name + '"]/../..'):
+        query = '//variant[@type="{}"]/configItem/name[text()="{}"]/../..'.\
+                format(signature, name)
+        for variant in layout.xpath(query):
             variant.getparent().remove(variant)
             modified_tree = True
 
@@ -117,7 +117,7 @@ def apply(input, extends):
     f = tempfile.NamedTemporaryFile(mode='w+', suffix='.xkb')
     try:
         f.write(tpl.xkb)
-        os.system('xkbcomp -w9 ' + f.name + ' $DISPLAY')
+        os.system('xkbcomp -w9 {} $DISPLAY'.format(f.name))
     finally:
         f.close()
 
@@ -161,7 +161,7 @@ def install(input, extends):
         print('... ' + path)
 
     print('Successfully installed. You can try the layout with:')
-    print('    setxkbmap ' + locale + ' -variant ' + name)
+    print('    setxkbmap {} -variant {}'.format(locale, name))
 
 
 @cli.command()
@@ -178,7 +178,7 @@ def list():
             id = locale + '/' + name
             if id not in layouts:
                 layouts.append(id)
-                print(id + ' - ' + desc)
+                print('{:<24}   {}'.format(id, desc))
 
 
 @cli.command()
