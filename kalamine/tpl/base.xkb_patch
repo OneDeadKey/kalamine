@@ -15,4 +15,3 @@ xkb_symbols "${variant}" {
 
     KALAMINE::LAYOUT
 };
-// vim: ft=xkb:fdm=indent:ts=4:nowrap

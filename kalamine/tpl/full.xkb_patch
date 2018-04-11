@@ -17,4 +17,3 @@ xkb_symbols "${variant}" {
 
     include "level3(ralt_switch)"
 };
-// vim: ft=xkb:fdm=indent:ts=4:nowrap

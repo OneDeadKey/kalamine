@@ -24,4 +24,3 @@ xkb_symbols "${variant}" {
     // The real AltGr key is an ISO_Level5_Switch.
     include "level5(ralt_switch)"
 };
-// vim: ft=xkb:fdm=indent:ts=4:nowrap
