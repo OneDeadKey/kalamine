@@ -1,5 +1,5 @@
-all:
-	kalamine docs/samples/*.yaml
+al:
+	kalamine layouts/*.yaml
 
 clean:
 	rm -rf build
@@ -12,7 +12,7 @@ lint:
 	flake8 kalamine
 
 publish:
-	#flake8 kalamine
+	flake8 kalamine
 	rm -rf dist/*
 	python3 setup.py bdist_wheel
 	python3 setup.py sdist
