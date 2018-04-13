@@ -1,7 +1,7 @@
 Kalamine
 ========
 
-A yaml-centric Keyboard Layout Maker, blatantly stolen from the
+A cross-platform Keyboard Layout Maker, blatantly stolen from the
 `qwerty-lafayette <http://qwerty-lafayette.org>`_ project.
 
 
@@ -46,10 +46,10 @@ Get all keyboard drivers:
 
 .. code-block:: bash
 
-    dist
-        q-ansi.keylayout  # MacOSX
-        q-ansi.klc        # Windows
-        q-ansi.xkb        # Linux
+    dist/
+    ├── q-ansi.klc        # Windows
+    ├── q-ansi.keylayout  # MacOSX
+    └── q-ansi.xkb        # Linux
 
 
 Install
@@ -60,19 +60,22 @@ Windows
 
 * download a keyboard layout installer:
 
-  * `MSKLC <https://www.microsoft.com/en-us/download/details.aspx?id=22339>`_ — proprietary freeware, compatible with Windows XP, Vista, Seven, 8, 8.1:
-  * `KBDEdit <http://www.kbdedit.com/>`_ — proprietary shareware, compatible with Windows XP, Vista, Seven, 8, 8.1 *and* 10;
+  * either MSKLC_ — proprietary freeware, compatible with Windows XP, Vista, Seven, 8, 8.1,
+  * or KbdEdit_ — proprietary shareware, compatible with Windows XP, Vista, Seven, 8, 8.1 *and* 10;
 
 * run this installer to generate a setup program;
 * run the setup program;
 * the keyboard layout appears in the language bar.
+
+.. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=22339
+.. _KbdEdit: http://www.kbdedit.com/
 
 MacOSX
 ``````
 
 * copy your ``*.keylayout`` file into:
 
-  * ``~/Library/Keyboard Layouts`` for the current user only,
+  * either ``~/Library/Keyboard Layouts`` for the current user only,
   * or ``/Library/Keyboard Layouts`` for all users;
 
 * restart your session;
@@ -106,9 +109,9 @@ To apply a keyboard layout in user-space:
     # equivalent to `xkbcomp -w10 layout.xkb $DISPLAY`
     xkalamine apply layout.yaml
 
-This has limitations: it doesn’t work at all on Wayland, the keyboard layout doesn’t show up in the Gnome keyboard manager, and on some distros, media keys might stop working.
+This has limitations: it doesn’t work on Wayland and the keyboard layout doesn’t show up in the Gnome keyboard manager. Besides, on some distros, media keys might stop working.
 
-Installing the keyboard layout directly in `/usr/share/X11/xkb` solves all these issues:
+The proper way to install a keyboard layout on Linux is to modify directly the files in ``/usr/share/X11/xkb``. This is where ``xkalamine`` comes in:
 
 .. code-block:: bash
 
