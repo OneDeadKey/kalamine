@@ -1,4 +1,4 @@
-al:
+all:
 	kalamine layouts/*.yaml
 
 clean:
