@@ -77,12 +77,12 @@ def get_symbol_mark(name):
     }
 
 
-def update_symbols_locale(path, names, keymaps=[]):
+def update_symbols_locale(path, named_layouts):
     """ Update Kalamine layouts in an xkb/symbols file. """
 
     text = ''
     modified_text = False
-    NAMES = list(map(lambda n: n.upper(), names))
+    NAMES = list(map(lambda n: n.upper(), named_layouts.keys()))
 
     def is_marked_for_deletion(line):
         if line.startswith('// KALAMINE::'):
@@ -123,25 +123,25 @@ def update_symbols_locale(path, names, keymaps=[]):
             symbols.truncate()
 
         # add new Kalamine layouts
-        for name, section in zip(names, keymaps):
-            print('      + ' + name)
-            MARK = get_symbol_mark(name)
-            symbols.write('\n')
-            symbols.write(MARK['begin'])
-            symbols.write(section.rstrip() + '\n')
-            symbols.write(MARK['end'])
+        for name, layout in named_layouts.items():
+            if layout is None:
+                print('      - ' + name)
+            else:
+                print('      + ' + name)
+                tpl = Template(layout)
+                MARK = get_symbol_mark(name)
+                symbols.write('\n')
+                symbols.write(MARK['begin'])
+                symbols.write(tpl.xkb_patch.rstrip() + '\n')
+                symbols.write(MARK['end'])
 
         symbols.close()
 
 
-def update_symbols(kbindex, remove=False):
+def update_symbols(kbindex):
     """ Update Kalamine layouts in all xkb/symbols files. """
 
-    def get_keymap(layout_descriptor):
-        tpl = Template(layout_descriptor['layout'])
-        return tpl.xkb_patch
-
-    for locale, layouts in kbindex.items():
+    for locale, named_layouts in kbindex.items():
         path = os.path.join(XKB, 'symbols', locale)
         if not os.path.exists(path):
             exit_LocaleNotSupported(locale)
@@ -153,9 +153,7 @@ def update_symbols(kbindex, remove=False):
                 print('... ' + path + '.orig (backup)')
 
             print('... ' + path)
-            names = list(map(lambda l: l['name'], layouts))
-            keymaps = [] if remove else map(get_keymap, layouts)
-            update_symbols_locale(path, names, keymaps)
+            update_symbols_locale(path, named_layouts)
 
         except Exception as e:
             exit_FileNotWritable(e, path)
@@ -194,7 +192,7 @@ def add_rules_variant(variant_list, name, description):
             ), type='kalamine'))
 
 
-def update_rules(kbindex, remove=False):
+def update_rules(kbindex):
     """ Update references in XKB/rules/{base,evdev}.xml. """
 
     for filename in ['base.xml', 'evdev.xml']:
@@ -202,15 +200,15 @@ def update_rules(kbindex, remove=False):
             path = os.path.join(XKB, 'rules', filename)
             tree = etree.parse(path, etree.XMLParser(remove_blank_text=True))
 
-            for locale, layouts in kbindex.items():
+            for locale, named_layouts in kbindex.items():
                 vlist = get_rules_locale(tree, locale).xpath('variantList')
                 if len(vlist) != 1:
                     exit('Error: unexpected xml format in %s.' % path)
-                for info in layouts:
-                    remove_rules_variant(vlist[0], info['name'])
-                    if 'layout' in info and not remove:
-                        description = info['layout'].meta['description']
-                        add_rules_variant(vlist[0], info['name'], description)
+                for name, layout in named_layouts.items():
+                    remove_rules_variant(vlist[0], name)
+                    if layout is not None:
+                        description = layout.meta['description']
+                        add_rules_variant(vlist[0], name, description)
 
             tree.write(path, pretty_print=True, xml_declaration=True,
                        encoding='utf-8')
@@ -313,20 +311,15 @@ def install(layouts, extends):
     if len(layouts) == 0:
         return
 
-    # sort layouts by locale
     kbindex = {}
     for file in layouts:
         layout = Layout(file, extends)
         locale = layout.meta['locale']
-
+        variant = layout.meta['variant']
         if locale not in kbindex:
-            kbindex[locale] = []  # list('')
-        kbindex[locale].append({
-            'name': layout.meta['variant'],
-            'layout': layout
-        })
+            kbindex[locale] = {}
+        kbindex[locale][variant] = layout
 
-    # add references in XKB/rules/{base,evdev}.xml
     update_symbols(kbindex)  # XKB/symbols/{locales}
     update_rules(kbindex)    # XKB/rules/{base,evdev}.xml
 
@@ -334,20 +327,18 @@ def install(layouts, extends):
     print('Successfully installed. You can try the layout{} with:'.format(
         '(s)' if len(layouts) > 1 else ''
     ))
-    for locale, layouts in kbindex.items():
-        for info in layouts:
-            print('    setxkbmap {} -variant {}'.format(locale, info['name']))
+    for locale, named_layouts in kbindex.items():
+        for name in named_layouts.keys():
+            print('    setxkbmap {} -variant {}'.format(locale, name))
     print()
 
 
-# @cli.command()
-# @click.argument('mask', nargs=-1)
-# def list(mask):
 @cli.command(name='list')
-def list_layouts():
+@click.argument('mask', default='*')
+def list_layouts(mask):
     """ List all installed Kalamine layouts. """
 
-    for id, desc in sorted(list_rules().items()):
+    for id, desc in sorted(list_rules(mask).items()):
         print('{:<24}   {}'.format(id, desc))
 
 
@@ -361,8 +352,8 @@ def remove(layout_id):
         print('Use `xkalamine list` to list all installed layouts.')
         sys.exit(1)
 
-    # this will make sense some day, I promise
     info = layout_id.split('/')
-    kbindex = {info[0]: [{'name': info[1]}]}
-    update_symbols(kbindex, True)  # XKB/symbols/{locales}
-    update_rules(kbindex, True)    # XKB/rules/{base,evdev}.xml
+    kbindex = {info[0]: {info[1]: None}}  # { $locale: { $name: None } }
+
+    update_symbols(kbindex)  # XKB/symbols/{locales}
+    update_rules(kbindex)    # XKB/rules/{base,evdev}.xml
