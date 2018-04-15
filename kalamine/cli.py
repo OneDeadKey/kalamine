@@ -41,7 +41,7 @@ def make(input, extends, out):
         elif output_file.endswith('.xkb'):
             open(output_file, 'w').write(tpl.xkb)
         else:
-            print('Unsupported out format.')
+            print('Unsupported output format.')
             return
 
         # successfully converted, display file name
