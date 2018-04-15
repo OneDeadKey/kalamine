@@ -324,7 +324,7 @@ def install(layouts, extends):
 
     print()
     print('Successfully installed. You can try the layout{} with:'.format(
-        '(s)' if len(layouts) > 1 else ''
+        's' if len(layouts) > 1 else ''
     ))
     for locale, named_layouts in kbindex.items():
         for name in named_layouts.keys():
