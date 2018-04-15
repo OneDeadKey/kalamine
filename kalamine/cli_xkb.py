@@ -231,8 +231,7 @@ def list_rules(mask=''):
         m = mask.split('/')
         if len(m) != 2:
             exit('Error: expecting a [locale]/[variant] mask.')
-        locale_mask = m[0]
-        variant_mask = m[1]
+        locale_mask, variant_mask = m
 
     layouts = {}
     for filename in ['base.xml', 'evdev.xml']:
@@ -343,17 +342,16 @@ def list_layouts(mask):
 
 
 @cli.command()
-@click.argument('layout_id')  # [locale]/[name]
-def remove(layout_id):
+@click.argument('mask')  # [locale]/[name]
+def remove(mask):
     """ Remove an existing Kalamine layout. """
 
-    if layout_id not in list_rules():
-        print('Error: %s is not installed.' % layout_id)
-        print('Use `xkalamine list` to list all installed layouts.')
-        sys.exit(1)
-
-    info = layout_id.split('/')
-    kbindex = {info[0]: {info[1]: None}}  # { $locale: { $name: None } }
+    kbindex = {}
+    for layout_id in list_rules(mask):
+        locale, variant = layout_id.split('/')
+        if locale not in kbindex:
+            kbindex[locale] = {}
+        kbindex[locale][variant] = None
 
     update_symbols(kbindex)  # XKB/symbols/{locales}
     update_rules(kbindex)    # XKB/rules/{base,evdev}.xml
