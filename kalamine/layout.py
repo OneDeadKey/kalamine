@@ -112,9 +112,9 @@ class Layout:
 
         # initialize a blank layout
         self.layers = [{}, {}, {}, {}, {}, {}]
-        self.dead_keys = {}  # dictionary subset of DEAD_KEYS
-        self.dk_index = []   # ordered keys of the above dictionary
-        self.meta = CONFIG   # default parameters, hardcoded
+        self.dead_keys = {}        # dictionary subset of DEAD_KEYS
+        self.dk_index = []         # ordered keys of the above dictionary
+        self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
         spc = SPACEBAR
