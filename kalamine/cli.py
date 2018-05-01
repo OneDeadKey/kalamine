@@ -30,19 +30,15 @@ def make_all(layout, subdir):
 
 @click.command()
 @click.argument('input', nargs=-1, type=click.Path(exists=True))
-@click.option('--extends',
-              default='',
-              type=click.Path(),
-              help='Optional, keyboard layout to extend.')
 @click.option('--out',
               default='all',
               type=click.Path(),
               help='Keyboard driver(s) to generate.')
-def make(input, extends, out):
+def make(input, out):
     """ Convert yaml layout descriptions into OS-specific keyboard layouts. """
 
     for input_file in input:
-        layout = KeyboardLayout(input_file, extends)
+        layout = KeyboardLayout(input_file)
 
         # default: build all in the `dist` subdirectory
         if out == 'all':

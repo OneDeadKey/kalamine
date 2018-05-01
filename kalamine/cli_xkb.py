@@ -7,8 +7,6 @@ import tempfile
 from .layout import KeyboardLayout
 from .xkb_manager import update_symbols, update_rules, list_rules
 
-HELP_EXTENDS = 'Optional, keyboard layout to extend.'
-
 
 @click.group()
 def cli():
@@ -18,12 +16,10 @@ def cli():
 
 @cli.command()
 @click.argument('input', nargs=1, type=click.Path(exists=True))
-@click.option('--extends', default='', type=click.Path(), help=HELP_EXTENDS)
-def apply(input, extends):
+def apply(input):
     """ Apply a Kalamine layout. """
 
-    layout = KeyboardLayout(input, extends)
-
+    layout = KeyboardLayout(input)
     f = tempfile.NamedTemporaryFile(mode='w+', suffix='.xkb')
     try:
         f.write(layout.xkb)
@@ -34,15 +30,14 @@ def apply(input, extends):
 
 @cli.command()
 @click.argument('layouts', nargs=-1, type=click.Path(exists=True))
-@click.option('--extends', default='', type=click.Path(), help=HELP_EXTENDS)
-def install(layouts, extends):
+def install(layouts):
     """ Install a list of Kalamine layouts. """
     if len(layouts) == 0:
         return
 
     kbindex = {}
     for file in layouts:
-        layout = KeyboardLayout(file, extends)
+        layout = KeyboardLayout(file)
         locale = layout.meta['locale']
         variant = layout.meta['variant']
         if locale not in kbindex:
