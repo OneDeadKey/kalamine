@@ -5,7 +5,7 @@ with open('README.rst') as f:
 
 setup(
     name='kalamine',
-    version='0.4.3',
+    version='0.5.0',
     description='a cross-platform Keyboard Layout Maker',
     long_description=readme,
     url='http://github.com/fabi1cazenave/kalamine',
@@ -13,7 +13,7 @@ setup(
     author_email='fabien@cazenave.cc',
     license='MIT',
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',

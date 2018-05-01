@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 import datetime
 import os
+import re
 import yaml
 
-from .utils import open_local_file, text_to_lines
+from .template import xkb_keymap, \
+    osx_keymap, osx_actions, osx_terminators, \
+    klc_keymap, klc_deadkeys, klc_dk_index
+
+from .utils import open_local_file, load_data, text_to_lines, lines_to_text, \
+    DEAD_KEYS, LAYER_KEYS, LAFAYETTE_KEY
 
 
 ##
-# Helpers
+# Helpers & Constants
 #
 
 
@@ -31,25 +37,43 @@ def upper_key(letter):
         return ' '
 
 
-def hex_ord(char):
-    return hex(ord(char))[2:].zfill(4)
+def substitute_lines(text, variable, lines):
+    prefix = 'KALAMINE::'
+    exp = re.compile('.*' + prefix + variable + '.*')
+
+    indent = ''
+    for line in text.split('\n'):
+        m = exp.match(line)
+        if m:
+            indent = m.group().split(prefix)[0]
+            break
+
+    return exp.sub(lines_to_text(lines, indent), text)
 
 
-def xml_proof(char):
-    if char not in '<&"\u00a0>':
-        return char
-    else:
-        return '&#x{0};'.format(hex_ord(char))
+def substitute_token(text, token, value):
+    exp = re.compile('\$\{' + token + '(=[^\}]*){0,1}\}')
+    return exp.sub(value, text)
 
 
-def load_data(filename):
-    return yaml.load(open_local_file(os.path.join('data', filename)))
+def load_tpl(layout, ext):
+    tpl = 'base'
+    if layout.has_altgr:
+        tpl = 'full'
+        if layout.has_1dk and ext.startswith('.xkb'):
+            tpl = 'full_1dk'
+    out = open_local_file(os.path.join('tpl', tpl + ext)).read()
+    out = substitute_lines(out, 'GEOMETRY_base', layout.base)
+    out = substitute_lines(out, 'GEOMETRY_full', layout.full)
+    out = substitute_lines(out, 'GEOMETRY_altgr', layout.altgr)
+    for key, value in layout.meta.items():
+        out = substitute_token(out, key, value)
+    return out
 
 
 ##
 # Constants
 #
-
 
 CONFIG = {
     'author': 'Fabien Cazenave',
@@ -65,38 +89,7 @@ SPACEBAR = {
     '1dk_shift':   "'"   # U+0027 APOSTROPHE
 }
 
-
 GEOMETRY = load_data('geometry.yaml')
-DEAD_KEYS = load_data('dead_keys.yaml')
-KEY_CODES = load_data('key_codes.yaml')
-XKB_KEY_SYM = load_data('key_sym.yaml')
-
-LAFAYETTE_KEY = '\u20e1'  # must match the value in dead_keys.yaml
-
-LAYER_KEYS = [
-    '- Digits',
-    'ae01', 'ae02', 'ae03', 'ae04', 'ae05',
-    'ae06', 'ae07', 'ae08', 'ae09', 'ae10',
-
-    '- Letters, first row',
-    'ad01', 'ad02', 'ad03', 'ad04', 'ad05',
-    'ad06', 'ad07', 'ad08', 'ad09', 'ad10',
-
-    '- Letters, second row',
-    'ac01', 'ac02', 'ac03', 'ac04', 'ac05',
-    'ac06', 'ac07', 'ac08', 'ac09', 'ac10',
-
-    '- Letters, third row',
-    'ab01', 'ab02', 'ab03', 'ab04', 'ab05',
-    'ab06', 'ab07', 'ab08', 'ab09', 'ab10',
-
-    '- Pinky keys',
-    'ae11', 'ae12', 'ad11', 'ad12', 'ac11',
-    'tlde', 'bksl', 'lsgt',
-
-    '- Space bar',
-    'spce'
-]
 
 
 ##
@@ -104,7 +97,7 @@ LAYER_KEYS = [
 #
 
 
-class Layout:
+class KeyboardLayout:
     """ Lafayette-style keyboard layout: base + dead key + altgr layers. """
 
     def __init__(self, filepath, extends=''):
@@ -117,7 +110,7 @@ class Layout:
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
-        spc = SPACEBAR
+        spc = SPACEBAR.copy()
 
         for file in ([filepath] if extends == '' else [extends, filepath]):
             """ Append data from YAML layout(s). """
@@ -242,6 +235,10 @@ class Layout:
 
             j += 1
 
+    ###
+    # Geometry: base, full, altgr
+    #
+
     def _fill_template(self, template, rows, layerNumber):
         """ Fill a template with a keyboard layer. """
 
@@ -286,7 +283,7 @@ class Layout:
 
         return template
 
-    def get_geometry(self, layers=[0], name='ISO'):
+    def _get_geometry(self, layers=[0], name='ISO'):
         """ `geometry` view of the requested layers. """
 
         rows = GEOMETRY[name]['rows']
@@ -295,374 +292,52 @@ class Layout:
             template = self._fill_template(template, rows, i)
         return template
 
-    """
-    GNU/Linux: XKB
-    - standalone xkb file to be used by `setxkbcomp` (Xorg only)
-    - system-wide installer script for Xorg & Wayland
-    """
-
-    def get_xkb_keymap(self, eight_levels):
-        """ Linux layout. """
-
-        showDescription = True
-        maxLength = 16  # `ISO_Level3_Latch` should be the longest symbol name
-
-        output = []
-        for keyName in LAYER_KEYS:
-            if keyName.startswith('-'):  # separator
-                if len(output):
-                    output.append('')
-                output.append('//' + keyName[1:])
-                continue
-
-            symbols = []
-            description = ' //'
-            for layer in self.layers:
-                if keyName in layer:
-                    symbol = layer[keyName]
-                    desc = symbol
-                    if symbol in self.dead_keys:
-                        dk = self.dead_keys[symbol]
-                        desc = dk['alt_self']
-                        if dk['char'] == LAFAYETTE_KEY:
-                            symbol = 'ISO_Level3_Latch'
-                        else:
-                            symbol = 'dead_' + dk['name']
-                    elif symbol in XKB_KEY_SYM \
-                            and len(XKB_KEY_SYM[symbol]) <= maxLength:
-                        symbol = XKB_KEY_SYM[symbol]
-                    else:
-                        symbol = 'U' + hex_ord(symbol).upper()
-                else:
-                    desc = ' '
-                    symbol = 'VoidSymbol'
-
-                description += ' ' + desc
-                symbols.append(symbol.ljust(maxLength))
-
-            s = 'key <{}> {{[ {}, {}, {}, {}]}};'  # 4-level layout by default
-            if self.has_altgr and self.has_1dk:
-                """ 6 layers are needed: they won't fit on the 4-level format.
-                System XKB files require a Neo-like eight-level solution.
-                Standalone XKB files work best with a dual-group solution:
-                one 4-level group for base+1dk, one two-level group for AltGr.
-                """
-                if eight_levels:  # system XKB file (patch)
-                    s = 'key <{}> {{[ {}, {}, {}, {}, {}, {}, {}, {}]}};'
-                    symbols.append('VoidSymbol'.ljust(maxLength))
-                    symbols.append('VoidSymbol'.ljust(maxLength))
-                else:  # user-space XKB file (standalone)
-                    s = 'key <{}> {{[ {}, {}, {}, {}],[ {}, {}]}};'
-            elif self.has_altgr:
-                del symbols[3]
-                del symbols[2]
-
-            line = s.format(* [keyName.upper()] + symbols)
-            if showDescription:
-                line += description.rstrip()
-                if line.endswith('\\'):
-                    line += ' '  # escape trailing backslash
-            output.append(line)
-
-        return output
+    @property
+    def base(self):
+        return self._get_geometry([0, 2])  # base + 1dk
 
     @property
-    def xkb_keymap(self):  # will not work with Wayland
-        """ Linux layout, user-space file (standalone). """
-        return self.get_xkb_keymap(False)
+    def full(self):
+        return self._get_geometry([0, 4])  # base + altgr
+
+    @property
+    def altgr(self):
+        return self._get_geometry([4])     # altgr only
+
+    ###
+    # OS-specific drivers: keylayout, klc, xkb, xkb_patch
+    #
+
+    @property
+    def keylayout(self):
+        """ Mac OSX driver """
+        out = load_tpl(self, '.keylayout')
+        for i, layer in enumerate(osx_keymap(self)):
+            out = substitute_lines(out, 'LAYER_' + str(i), layer)
+        out = substitute_lines(out, 'ACTIONS', osx_actions(self))
+        out = substitute_lines(out, 'TERMINATORS', osx_terminators(self))
+        return out
+
+    @property
+    def klc(self):
+        """ Windows driver (warning: must be encoded in utf-16le) """
+        out = load_tpl(self, '.klc')
+        out = substitute_lines(out, 'LAYOUT', klc_keymap(self))
+        out = substitute_lines(out, 'DEAD_KEYS', klc_deadkeys(self))
+        out = substitute_lines(out, 'DEAD_KEY_INDEX', klc_dk_index(self))
+        out = substitute_token(out, 'encoding', 'utf-16le')
+        return out
+
+    @property
+    def xkb(self):  # will not work with Wayland
+        """ GNU/Linux driver (standalone / user-space) """
+        out = load_tpl(self, '.xkb')
+        out = substitute_lines(out, 'LAYOUT', xkb_keymap(self, False))
+        return out
 
     @property
     def xkb_patch(self):
-        """ Linux layout, system file (patch). """
-        return self.get_xkb_keymap(True)
-
-    """
-    Windows: KLC
-    To be used by the MS Keyboard Layout Creator to generate an installer.
-    https://www.microsoft.com/en-us/download/details.aspx?id=22339
-    https://levicki.net/articles/2006/09/29/HOWTO_Build_keyboard_layouts_for_Windows_x64.php
-    Also supported by KbdEdit: http://www.kbdedit.com/ (non-free).
-    """
-
-    @property
-    def klc_keymap(self):
-        """ Windows layout, main part. """
-
-        supportedSymbols = \
-            '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-
-        output = []
-        for keyName in LAYER_KEYS:
-            if keyName.startswith('-'):
-                if len(output):
-                    output.append('')
-                output.append('//' + keyName[1:])
-                continue
-
-            symbols = []
-            description = '//'
-            alpha = False
-
-            for i in [0, 1, 4, 5]:
-                layer = self.layers[i]
-
-                if keyName in layer:
-                    symbol = layer[keyName]
-                    desc = symbol
-                    if symbol in self.dead_keys:
-                        desc = self.dead_keys[symbol]['alt_space']
-                        symbol = hex_ord(desc) + '@'
-                    else:
-                        if i == 0:
-                            alpha = symbol.upper() != symbol
-                        if symbol not in supportedSymbols:
-                            symbol = hex_ord(symbol)
-                    symbols.append(symbol)
-                else:
-                    desc = ' '
-                    symbols.append('-1')
-                description += ' ' + desc
-
-            if (self.has_altgr):
-                output.append('\t'.join([
-                    KEY_CODES['klc'][keyName],     # scan code & virtual key
-                    '1' if alpha else '0',         # affected by CapsLock?
-                    symbols[0], symbols[1], '-1',  # base layer
-                    symbols[2], symbols[3],        # altgr layer
-                    description.strip()
-                ]))
-            else:
-                output.append('\t'.join([
-                    KEY_CODES['klc'][keyName],     # scan code & virtual key
-                    '1' if alpha else '0',         # affected by CapsLock?
-                    symbols[0], symbols[1], '-1',  # base layer
-                    description.strip()
-                ]))
-
-        return output
-
-    @property
-    def klc_deadkeys(self):
-        """ Windows layout, dead keys. """
-
-        output = []
-
-        def appendLine(base, alt):
-            s = '{0}\t{1}\t// {2} -> {3}'
-            output.append(s.format(hex_ord(base), hex_ord(alt), base, alt))
-
-        for k in self.dk_index:
-            dk = self.dead_keys[k]
-
-            output.append('// DEADKEY: ' + dk['name'].upper() + ' //{{{')
-            output.append('DEADKEY\t' + hex_ord(dk['alt_space']))
-            output.append('')
-
-            if k == LAFAYETTE_KEY:
-                output.extend(self.klc_dk_lafayette)
-            else:
-                for i in range(len(dk['base'])):
-                    appendLine(dk['base'][i], dk['alt'][i])
-
-            output.append('')
-            output.append('// Space bar')
-            appendLine('\u00a0', dk['alt_space'])
-            appendLine('\u0020', dk['alt_space'])
-
-            output.append('//}}}')
-            output.append('')
-
-        return output[:-1]
-
-    @property
-    def klc_dk_index(self):
-        """ Windows layout, dead key index. """
-
-        output = []
-        for k in self.dk_index:
-            dk = self.dead_keys[k]
-            output.append('{0}\t"{1}"'.format(hex_ord(dk['alt_space']),
-                                              dk['name'].upper()))
-        return output
-
-    @property
-    def klc_dk_lafayette(self):
-        """ Windows layout, Lafayette key. """
-
-        output = []
-        for i in [0, 1]:
-            baseLayer = self.layers[i]
-            extLayer = self.layers[i + 2]
-
-            for keyName in LAYER_KEYS:
-                if keyName.startswith('- Space') or keyName == 'spce':
-                    continue
-                if keyName.startswith('-'):
-                    if len(output):
-                        output.append('')
-                    output.append('//' + keyName[1:])
-                    continue
-                elif keyName in extLayer:
-                    base = baseLayer[keyName]
-                    if base in self.dead_keys:
-                        base = self.dead_keys[base]['alt_space']
-                    ext = extLayer[keyName]
-                    if (ext in self.dead_keys):
-                        ext = self.dead_keys[ext]['alt_space']
-                        lafayette = hex_ord(ext) + '@'
-                    else:
-                        lafayette = hex_ord(ext)
-
-                    output.append('\t'.join([
-                        hex_ord(base), lafayette, '// ' + base + ' -> ' + ext
-                    ]))
-
-        return output
-
-    """
-    MacOS X: keylayout
-    https://developer.apple.com/library/content/technotes/tn2056/_index.html
-    """
-
-    @property
-    def osx_keymap(self):
-        """ Mac OSX layout, main part. """
-
-        str = []
-        for index in range(5):
-            layer = self.layers[[0, 1, 0, 4, 5][index]]
-            caps = index == 2
-
-            def has_dead_keys(letter):
-                for k in self.dead_keys:
-                    if letter in self.dead_keys[k]['base']:
-                        return True
-                return False
-
-            output = []
-            for keyName in LAYER_KEYS:
-                if keyName.startswith('-'):
-                    if len(output):
-                        output.append('')
-                    output.append('<!--' + keyName[1:] + ' -->')
-                    continue
-
-                symbol = '&#x0010;'
-                finalKey = True
-
-                if keyName in layer:
-                    key = layer[keyName]
-                    if key in self.dead_keys:
-                        symbol = 'dead_' + self.dead_keys[key]['name']
-                        finalKey = False
-                    else:
-                        symbol = xml_proof(key.upper() if caps else key)
-                        finalKey = not has_dead_keys(key)
-
-                c = 'code="{0}"'.format(KEY_CODES['osx'][keyName]).ljust(10)
-                a = '{0}="{1}"'.format('output' if finalKey
-                                       else 'action', symbol)
-                output.append('<key {0} {1} />'.format(c, a))
-
-            str.append(output)
-        return str
-
-    @property
-    def osx_actions(self):
-        """ Mac OSX layout, dead key actions. """
-
-        output = []
-        deadKeys = []
-        dkIndex = []
-
-        def when(state, action):
-            s = 'state="{0}"'.format(state).ljust(18)
-            if action in self.dead_keys:
-                a = 'next="{0}"'.format(self.dead_keys[action]['name'])
-            elif action.startswith('dead_'):
-                a = 'next="{0}"'.format(action[5:])
-            else:
-                a = 'output="{0}"'.format(xml_proof(action))
-            return '  <when {0} {1} />'.format(s, a)
-
-        # spacebar actions
-        output.append('<!-- Spacebar -->')
-        output.append('<action id="space">')
-        output.append(when('none', ' '))
-        for k in self.dk_index:
-            dk = self.dead_keys[k]
-            output.append(when(dk['name'], dk['alt_space']))
-        output.append('</action>')
-        output.append('<action id="nbsp">')
-        output.append(when('none', '&#x00a0;'))
-        for k in self.dk_index:
-            dk = self.dead_keys[k]
-            output.append(when(dk['name'], dk['alt_space']))
-        output.append('</action>')
-
-        # all other actions
-        for keyName in LAYER_KEYS:
-            if keyName.startswith('-'):
-                output.append('')
-                output.append('<!--' + keyName[1:] + ' -->')
-                continue
-
-            for i in [0, 1]:
-                if keyName not in self.layers[i]:
-                    continue
-
-                key = self.layers[i][keyName]
-                if i and key == self.layers[0][keyName]:
-                    continue
-                if key in self.dead_keys:
-                    symbol = 'dead_' + self.dead_keys[key]['name']
-                else:
-                    symbol = xml_proof(key)
-
-                action = []
-                for k in self.dk_index:
-                    dk = self.dead_keys[k]
-                    if key in dk['base']:
-                        idx = dk['base'].index(key)
-                        action.append(when(dk['name'], dk['alt'][idx]))
-
-                if key in self.dead_keys:
-                    deadKeys.append('<action id="{0}">'.format(symbol))
-                    deadKeys.append(when('none', symbol))
-                    deadKeys.extend(action)
-                    deadKeys.append('</action>')
-                    dkIndex.append(symbol)
-                elif len(action):
-                    output.append('<action id="{0}">'.format(symbol))
-                    output.append(when('none', symbol))
-                    output.extend(action)
-                    output.append('</action>')
-
-            for i in [2, 3, 4, 5]:
-                if keyName not in self.layers[i]:
-                    continue
-                key = self.layers[i][keyName]
-                if key not in self.dead_keys:
-                    continue
-                symbol = 'dead_' + self.dead_keys[key]['name']
-                if symbol in dkIndex:
-                    continue
-                deadKeys.append('<action id="{0}">'.format(symbol))
-                deadKeys.append(when('none', symbol))
-                deadKeys.extend(action)
-                deadKeys.append('</action>')
-                dkIndex.append(symbol)
-
-        return deadKeys + [''] + output
-
-    @property
-    def osx_terminators(self):
-        """ Mac OSX layout, dead key terminators. """
-
-        output = []
-        for k in self.dk_index:
-            dk = self.dead_keys[k]
-            s = 'state="{0}"'.format(dk['name']).ljust(18)
-            o = 'output="{0}"'.format(xml_proof(dk['alt_self']))
-            output.append(' <when {0} {1} />'.format(s, o))
-        return output
+        """ GNU/Linux driver (system patch) """
+        out = load_tpl(self, '.xkb_patch')
+        out = substitute_lines(out, 'LAYOUT', xkb_keymap(self, True))
+        return out
