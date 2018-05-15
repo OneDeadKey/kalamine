@@ -5,7 +5,7 @@ import platform
 import tempfile
 
 from .layout import KeyboardLayout
-from .xkb_manager import update_symbols, update_rules, list_rules
+from .xkb_manager import XKBManager
 
 
 @click.group()
@@ -35,23 +35,17 @@ def install(layouts):
     if len(layouts) == 0:
         return
 
-    kbindex = {}
+    xkb = XKBManager()
     for file in layouts:
-        layout = KeyboardLayout(file)
-        locale = layout.meta['locale']
-        variant = layout.meta['variant']
-        if locale not in kbindex:
-            kbindex[locale] = {}
-        kbindex[locale][variant] = layout
-
-    update_symbols(kbindex)  # XKB/symbols/{locales}
-    update_rules(kbindex)    # XKB/rules/{base,evdev}.xml
+        xkb.add(KeyboardLayout(file))
+    index = xkb.index
+    xkb.update()
 
     print()
     print('Successfully installed. You can try the layout{} with:'.format(
         's' if len(layouts) > 1 else ''
     ))
-    for locale, named_layouts in kbindex.items():
+    for locale, named_layouts in index:
         for name in named_layouts.keys():
             print('    setxkbmap {} -variant {}'.format(locale, name))
     print()
@@ -63,7 +57,9 @@ def install(layouts):
 def list_layouts(mask, all):
     """ List all installed Kalamine layouts. """
 
-    for id, desc in sorted(list_rules(mask, all).items()):
+    xkb = XKBManager()
+    list = xkb.list_all(mask) if all else xkb.list(mask)
+    for id, desc in sorted(list.items()):
         print('{:<24}   {}'.format(id, desc))
 
 
@@ -72,12 +68,7 @@ def list_layouts(mask, all):
 def remove(mask):
     """ Remove an existing Kalamine layout. """
 
-    kbindex = {}
-    for layout_id in list_rules(mask):
-        locale, variant = layout_id.split('/')
-        if locale not in kbindex:
-            kbindex[locale] = {}
-        kbindex[locale][variant] = None
-
-    update_symbols(kbindex)  # XKB/symbols/{locales}
-    update_rules(kbindex)    # XKB/rules/{base,evdev}.xml
+    xkb = XKBManager()
+    for layout_id in xkb.list(mask):
+        xkb.remove(layout_id)
+    xkb.update()

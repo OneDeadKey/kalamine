@@ -7,7 +7,41 @@ import traceback
 from lxml import etree
 from lxml.builder import E
 
-XKB = '/usr/share/X11/xkb/'
+
+class XKBManager:
+    """ Wrapper to list/add/remove keyboard drivers to XKB. """
+
+    def __init__(self, xkb_root='/usr/share/X11/xkb/'):
+        self._rootdir = xkb_root
+        self._index = {}
+
+    @property
+    def index(self):
+        return self._index.items()
+
+    def add(self, layout):
+        locale = layout.meta['locale']
+        variant = layout.meta['variant']
+        if locale not in self._index:
+            self._index[locale] = {}
+        self._index[locale][variant] = layout
+
+    def remove(self, layout_id):
+        locale, variant = layout_id.split('/')
+        if locale not in self._index:
+            self._index[locale] = {}
+        self._index[locale][variant] = None
+
+    def update(self):
+        update_symbols(self._rootdir, self._index)  # XKB/symbols/{locales}
+        update_rules(self._rootdir, self._index)  # XKB/rules/{base,evdev}.xml
+        self._index = {}
+
+    def list(self, mask=''):
+        return list_rules(self._rootdir, mask)
+
+    def list_all(self, mask=''):
+        return list_rules(self._rootdir, mask, True)
 
 
 ###############################################################################
@@ -132,11 +166,11 @@ def update_symbols_locale(path, named_layouts):
         symbols.close()
 
 
-def update_symbols(kbindex):
+def update_symbols(xkb_root, kbindex):
     """ Update Kalamine layouts in all xkb/symbols files. """
 
     for locale, named_layouts in kbindex.items():
-        path = os.path.join(XKB, 'symbols', locale)
+        path = os.path.join(xkb_root, 'symbols', locale)
         if not os.path.exists(path):
             exit_LocaleNotSupported(locale)
 
@@ -186,12 +220,12 @@ def add_rules_variant(variant_list, name, description):
             ), type='kalamine'))
 
 
-def update_rules(kbindex):
+def update_rules(xkb_root, kbindex):
     """ Update references in XKB/rules/{base,evdev}.xml. """
 
     for filename in ['base.xml', 'evdev.xml']:
         try:
-            path = os.path.join(XKB, 'rules', filename)
+            path = os.path.join(xkb_root, 'rules', filename)
             tree = etree.parse(path, etree.XMLParser(remove_blank_text=True))
 
             for locale, named_layouts in kbindex.items():
@@ -212,7 +246,7 @@ def update_rules(kbindex):
             exit_FileNotWritable(e, path)
 
 
-def list_rules(mask='', include_non_kalamine_variants=False):
+def list_rules(xkb_root, mask='', include_non_kalamine_variants=False):
     """ List all installed Kalamine layouts. """
 
     def matches(string, mask):
@@ -233,7 +267,7 @@ def list_rules(mask='', include_non_kalamine_variants=False):
 
     layouts = {}
     for filename in ['base.xml', 'evdev.xml']:
-        tree = etree.parse(os.path.join(XKB, 'rules', filename))
+        tree = etree.parse(os.path.join(xkb_root, 'rules', filename))
         for variant in tree.xpath(query):
             locale = variant.xpath('../../configItem/name')[0].text
             name = variant.xpath('configItem/name')[0].text
