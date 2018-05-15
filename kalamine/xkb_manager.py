@@ -212,7 +212,7 @@ def update_rules(kbindex):
             exit_FileNotWritable(e, path)
 
 
-def list_rules(mask=''):
+def list_rules(mask='', include_non_kalamine_variants=False):
     """ List all installed Kalamine layouts. """
 
     def matches(string, mask):
@@ -227,10 +227,14 @@ def list_rules(mask=''):
             exit('Error: expecting a [locale]/[variant] mask.')
         locale_mask, variant_mask = m
 
+    query = '//variant'
+    if not include_non_kalamine_variants:
+        query += '[@type]'
+
     layouts = {}
     for filename in ['base.xml', 'evdev.xml']:
         tree = etree.parse(os.path.join(XKB, 'rules', filename))
-        for variant in tree.xpath('//variant[@type]'):
+        for variant in tree.xpath(query):
             locale = variant.xpath('../../configItem/name')[0].text
             name = variant.xpath('configItem/name')[0].text
             desc = variant.xpath('configItem/description')[0].text

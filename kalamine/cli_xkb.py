@@ -59,10 +59,11 @@ def install(layouts):
 
 @cli.command(name='list')
 @click.argument('mask', default='*')
-def list_layouts(mask):
+@click.option('--all', '-a', is_flag=True)
+def list_layouts(mask, all):
     """ List all installed Kalamine layouts. """
 
-    for id, desc in sorted(list_rules(mask).items()):
+    for id, desc in sorted(list_rules(mask, all).items()):
         print('{:<24}   {}'.format(id, desc))
 
 
