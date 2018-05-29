@@ -14,17 +14,18 @@ def make_all(layout, subdir):
 
     # Windows driver
     klc_path = out_path('.klc')
-    open(klc_path, 'w', encoding='utf-16le').write(layout.klc)
+    open(klc_path, 'w',
+         encoding='utf-16le', newline='\r\n').write(layout.klc)
     print('... ' + klc_path)
 
     # Mac OSX driver
     osx_path = out_path('.keylayout')
-    open(osx_path, 'w').write(layout.keylayout)
+    open(osx_path, 'w', newline='\n').write(layout.keylayout)
     print('... ' + osx_path)
 
     # Linux driver, user-space
     xkb_path = out_path('.xkb')
-    open(xkb_path, 'w').write(layout.xkb)
+    open(xkb_path, 'w', newline='\n').write(layout.xkb)
     print('... ' + xkb_path)
 
 
@@ -53,11 +54,12 @@ def make(input, out):
 
         # detailed output
         if output_file.endswith('.klc'):
-            open(output_file, 'w', encoding='utf-16le').write(layout.klc)
+            open(output_file, 'w',
+                 encoding='utf-16le', newline='\r\n').write(layout.klc)
         elif output_file.endswith('.keylayout'):
-            open(output_file, 'w').write(layout.keylayout)
+            open(output_file, 'w', newline='\n').write(layout.keylayout)
         elif output_file.endswith('.xkb'):
-            open(output_file, 'w').write(layout.xkb)
+            open(output_file, 'w', newline='\n').write(layout.xkb)
         else:
             print('Unsupported output format.')
             return

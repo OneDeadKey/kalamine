@@ -18,7 +18,7 @@ LOCALEID	"0000040c"
 VERSION	1.0
 
 // Base layer + dead key
-// KALAMINE::GEOMETRY_qwerty
+// KALAMINE::GEOMETRY_base
 
 // AltGr layer
 // KALAMINE::GEOMETRY_altgr
@@ -137,4 +137,4 @@ LANGUAGENAMES
 0409	French (France)
 
 ENDKBD
-// vim: ft=xkb:ts=12:fdm=marker:fmr=//{{{,}}}
+// vim: ft=xkb:ts=12:fdm=marker:fmr=//{{{,}}}:nowrap

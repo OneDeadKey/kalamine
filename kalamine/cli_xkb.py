@@ -23,7 +23,7 @@ def apply(input):
     f = tempfile.NamedTemporaryFile(mode='w+', suffix='.xkb')
     try:
         f.write(layout.xkb)
-        os.system('xkbcomp -w9 %s $DISPLAY' % f.name)
+        os.system('xkbcomp -w0 %s $DISPLAY' % f.name)
     finally:
         f.close()
 

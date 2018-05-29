@@ -324,7 +324,7 @@ class KeyboardLayout:
 
     @property
     def klc(self):
-        """ Windows driver (warning: must be encoded in utf-16le) """
+        """ Windows driver (warning: requires CR/LF + UTF16LE encoding) """
         out = load_tpl(self, '.klc')
         out = substitute_lines(out, 'LAYOUT', klc_keymap(self))
         out = substitute_lines(out, 'DEAD_KEYS', klc_deadkeys(self))

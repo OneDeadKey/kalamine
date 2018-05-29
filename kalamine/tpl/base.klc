@@ -127,4 +127,4 @@ LANGUAGENAMES
 0409	French (France)
 
 ENDKBD
-// vim: ft=xkb:ts=12:fdm=marker:fmr=//{{{,}}}
+// vim: ft=xkb:ts=12:fdm=marker:fmr=//{{{,}}}:nowrap
