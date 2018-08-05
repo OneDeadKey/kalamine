@@ -121,7 +121,8 @@ class KeyboardLayout:
 
         # metadata: self.meta
         for k in cfg:
-            if k != 'base' and k != 'altgr' and k != 'spacebar':
+            if k != 'base' and k != 'full' and k != 'altgr' \
+                    and k != 'spacebar':
                 self.meta[k] = cfg[k]
         filename = os.path.splitext(os.path.basename(filepath))[0]
         self.meta['name'] = cfg['name'] if 'name' in cfg else filename
@@ -132,15 +133,19 @@ class KeyboardLayout:
 
         # keyboard layers: self.layers & self.dead_keys
         rows = GEOMETRY[self.meta['geometry']]['rows']
-        base = text_to_lines(cfg['base'])
-        self._parse_template(base, rows, 0)
-        self._parse_template(base, rows, 2)
-        self._parse_lafayette_keys()
-
-        # optional AltGr layer
-        if 'altgr' in cfg:
+        if 'full' in cfg:
+            full = text_to_lines(cfg['full'])
+            self._parse_template(full, rows, 0)
+            self._parse_template(full, rows, 4)
             self.has_altgr = True
-            self._parse_template(text_to_lines(cfg['altgr']), rows, 4)
+        else:
+            base = text_to_lines(cfg['base'])
+            self._parse_template(base, rows, 0)
+            self._parse_template(base, rows, 2)
+            self._parse_lafayette_keys()
+            if 'altgr' in cfg:
+                self.has_altgr = True
+                self._parse_template(text_to_lines(cfg['altgr']), rows, 4)
 
         # space bar
         spc = SPACEBAR.copy()
