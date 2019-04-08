@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import json
 import os
 import re
 import yaml
@@ -350,3 +351,44 @@ class KeyboardLayout:
         out = load_tpl(self, '.xkb_patch')
         out = substitute_lines(out, 'LAYOUT', xkb_keymap(self, True))
         return out
+
+    @property
+    def json(self):
+        """ JSON data """
+        layout = {}
+        for keyName in LAYER_KEYS:
+            if keyName.startswith('-'):
+                continue
+            chars = list('')
+            for i in [0, 1, 4, 5]:
+                if keyName in self.layers[i]:
+                    chars.append(self.layers[i][keyName])
+            if len(chars):
+                layout[keyName.upper()] = chars
+        dead_keys = {}
+        if self.has_1dk:
+            base = ''
+            alt = ''
+            for (name, char) in self.layers[2].items():
+                base += self.layers[0][name]
+                alt += char
+            for (name, char) in self.layers[3].items():
+                base += self.layers[1][name]
+                alt += char
+            dead_keys['1dk'] = {
+                'base': base,
+                'alt': alt,
+            }
+        for (c, dk) in self.dead_keys.items():
+            dead_keys[dk['name']] = {
+                'base': dk['base'],
+                'alt':  dk['alt'],
+                'alt_space': dk['alt_space'],
+                'alt_self':  dk['alt_self'],
+            }
+        return json.dumps({
+            'meta': self.meta,
+            'layout': layout,
+            'dead_keys': dead_keys,
+            'has_altgr': self.has_altgr
+        }, indent=2)

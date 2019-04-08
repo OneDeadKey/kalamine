@@ -28,6 +28,11 @@ def make_all(layout, subdir):
     open(xkb_path, 'w', newline='\n').write(layout.xkb)
     print('... ' + xkb_path)
 
+    # JSON data
+    json_path = out_path('.json')
+    open(json_path, 'w', newline='\n').write(layout.json)
+    print('... ' + json_path)
+
 
 @click.command()
 @click.argument('input', nargs=-1, type=click.Path(exists=True))
@@ -60,12 +65,15 @@ def make(input, out):
             open(output_file, 'w', newline='\n').write(layout.keylayout)
         elif output_file.endswith('.xkb'):
             open(output_file, 'w', newline='\n').write(layout.xkb)
+        elif output_file.endswith('.json'):
+            open(output_file, 'w', newline='\n').write(layout.json)
         else:
             print('Unsupported output format.')
             return
 
         # successfully converted, display file name
         print('... ' + output_file)
+
 
 if __name__ == '__main__':
     make()
