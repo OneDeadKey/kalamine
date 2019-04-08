@@ -143,7 +143,6 @@ class KeyboardLayout:
             base = text_to_lines(cfg['base'])
             self._parse_template(base, rows, 0)
             self._parse_template(base, rows, 2)
-            self._parse_lafayette_keys()
             if 'altgr' in cfg:
                 self.has_altgr = True
                 self._parse_template(text_to_lines(cfg['altgr']), rows, 4)
@@ -177,33 +176,6 @@ class KeyboardLayout:
                 if self.layers[0][key] == LAFAYETTE_KEY:
                     odk['alt_self'] = self.layers[2][key]
                     break
-
-    def _parse_lafayette_keys(self):
-        """ populates the `base` and `alt` props for the Lafayette dead key """
-
-        if LAFAYETTE_KEY not in self.dead_keys:
-            return
-
-        base0 = list('')
-        base1 = list('')
-        alt0 = list('')
-        alt1 = list('')
-
-        for keyName in LAYER_KEYS:
-            if keyName.startswith('-'):
-                continue
-
-            if keyName in self.layers[2]:
-                base0.append(self.layers[0][keyName])
-                alt0.append(self.layers[2][keyName])
-
-            if keyName in self.layers[3]:
-                base1.append(self.layers[1][keyName])
-                alt1.append(self.layers[3][keyName])
-
-        lafayette = self.dead_keys[LAFAYETTE_KEY]
-        lafayette['base'] = ''.join(base0) + ''.join(base1)
-        lafayette['alt'] = ''.join(alt0) + ''.join(alt1)
 
     def _parse_template(self, template, rows, layerNumber):
         """ Extract a keyboard layer from a template. """
