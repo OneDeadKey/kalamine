@@ -1,12 +1,12 @@
 Kalamine
-========
+================================================================================
 
 A cross-platform Keyboard Layout Maker, blatantly stolen from the
-`qwerty-lafayette <http://qwerty-lafayette.org>`_ project.
+`qwerty-lafayette <https://qwerty-lafayette.org>`_ project.
 
 
 Basic Usage
------------
+--------------------------------------------------------------------------------
 
 Draw your keyboard layout in ASCII-art and include it in a YAML document:
 
@@ -49,11 +49,12 @@ Get all keyboard drivers:
     dist/
     ├── q-ansi.klc        # Windows
     ├── q-ansi.keylayout  # MacOSX
-    └── q-ansi.xkb        # Linux
+    ├── q-ansi.xkb        # Linux
+    └── q-ansi.json
 
 
 Install
--------
+--------------------------------------------------------------------------------
 
 Windows
 ```````
@@ -98,7 +99,7 @@ To get back to the standard us-qwerty layout:
 
 
 XKalamine
----------
+--------------------------------------------------------------------------------
 
 ``xkalamine`` is a Linux-specific tool for managing keyboard layouts with ``xkb``.
 

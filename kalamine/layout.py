@@ -10,7 +10,7 @@ from .template import xkb_keymap, \
     klc_keymap, klc_deadkeys, klc_dk_index
 
 from .utils import open_local_file, load_data, text_to_lines, lines_to_text, \
-    DEAD_KEYS, LAYER_KEYS, LAFAYETTE_KEY
+    DEAD_KEYS, LAYER_KEYS, ODK_ID
 
 
 ##
@@ -167,13 +167,13 @@ class KeyboardLayout:
                 self.dk_index.append(dk['char'])
 
         # 1dk behavior: alt_self (double-press), alt_space (1dk+space)
-        if LAFAYETTE_KEY in self.dead_keys:
+        if ODK_ID in self.dead_keys:
             self.has_1dk = True
-            odk = self.dead_keys[LAFAYETTE_KEY]
+            odk = self.dead_keys[ODK_ID]
             odk['alt_space'] = spc['1dk']
             odk['alt_self'] = "'"
             for key in self.layers[0]:
-                if self.layers[0][key] == LAFAYETTE_KEY:
+                if self.layers[0][key] == ODK_ID:
                     odk['alt_self'] = self.layers[2][key]
                     break
 
@@ -182,7 +182,7 @@ class KeyboardLayout:
 
         if layerNumber == 0:  # base layer
             colOffset = 0
-        else:  # AltGr or dead key (lafayette)
+        else:  # AltGr or 1dk
             colOffset = 2
 
         j = 0
@@ -227,7 +227,7 @@ class KeyboardLayout:
         if layerNumber == 0:  # base layer
             colOffset = 0
             shiftPrevails = True
-        else:  # AltGr or dead key (lafayette)
+        else:  # AltGr or 1dk
             colOffset = 2
             shiftPrevails = False
 

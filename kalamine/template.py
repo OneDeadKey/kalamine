@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from .utils import load_data, LAYER_KEYS, LAFAYETTE_KEY
+from .utils import load_data, LAYER_KEYS, ODK_ID
 
 
 ##
@@ -51,7 +51,7 @@ def xkb_keymap(layout, eight_levels):
                 if symbol in layout.dead_keys:
                     dk = layout.dead_keys[symbol]
                     desc = dk['alt_self']
-                    if dk['char'] == LAFAYETTE_KEY:
+                    if dk['char'] == ODK_ID:
                         symbol = 'ISO_Level3_Latch'
                     else:
                         symbol = 'dead_' + dk['name']
@@ -176,8 +176,8 @@ def klc_deadkeys(layout):
         output.append('DEADKEY\t' + hex_ord(dk['alt_space']))
         output.append('')
 
-        if k == LAFAYETTE_KEY:
-            output.extend(klc_dk_lafayette(layout))
+        if k == ODK_ID:
+            output.extend(klc_1dk(layout))
         else:
             for i in range(len(dk['base'])):
                 appendLine(dk['base'][i], dk['alt'][i])
@@ -204,8 +204,8 @@ def klc_dk_index(layout):
     return output
 
 
-def klc_dk_lafayette(layout):
-    """ Windows layout, Lafayette key. """
+def klc_1dk(layout):
+    """ Windows layout, 1dk. """
 
     output = []
     for i in [0, 1]:
@@ -227,12 +227,12 @@ def klc_dk_lafayette(layout):
                 ext = extLayer[keyName]
                 if (ext in layout.dead_keys):
                     ext = layout.dead_keys[ext]['alt_space']
-                    lafayette = hex_ord(ext) + '@'
+                    odk = hex_ord(ext) + '@'
                 else:
-                    lafayette = hex_ord(ext)
+                    odk = hex_ord(ext)
 
                 output.append('\t'.join([
-                    hex_ord(base), lafayette, '// ' + base + ' -> ' + ext
+                    hex_ord(base), odk, '// ' + base + ' -> ' + ext
                 ]))
 
     return output

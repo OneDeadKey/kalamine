@@ -25,7 +25,7 @@ def load_data(filename):
 
 
 DEAD_KEYS = load_data('dead_keys.yaml')
-LAFAYETTE_KEY = '**'  # must match the value in dead_keys.yaml
+ODK_ID = '**'  # must match the value in dead_keys.yaml
 LAYER_KEYS = [
     '- Digits',
     'ae01', 'ae02', 'ae03', 'ae04', 'ae05',
