@@ -2,48 +2,48 @@
 # work with the Linux driver, their name must match the XKB definition:
 # 'acute' <=> dead_acute, 'grave' <=> dead_grave, etc.
 
-# The only exception is the '1dk' (“lafayette”) key, which is:
+# The only exception is the '1dk' key, which is:
 #   - a standard dead key for the MacOSX and Windows drivers;
 #   - a dead AltGr key (ISO_Level3_Latch) for the Linux driver.
 
 ---
 
-- char: "\u20e1"  # | ⃡|
-  name: lafayette
+- char: '**'
+  name: 1dk
   base: ''        # computed from the imported layout
   alt:  ''        # computed from the imported layout
   alt_space: "'"  # apostrophe (can be overriden by the `space.1dk` key)
   alt_self:  "'"  # apostrophe (can be overriden from the imported layout)
 
-- char: "\u0300"  # | ̀|
+- char: '*`'
   name: grave
   base: aeinouwyAEINOUWY
   alt:  àèìǹòùẁỳÀÈÌǸÒÙẀỲ
   alt_space: '`'  # U+0060 GRAVE ACCENT
   alt_self:  '`'  # U+0060 GRAVE ACCENT
 
-- char: "\u0301"  # | ́|
+- char: '*´'
   name: acute
   base: acegiklmnoprsuwyzACEGIKLMNOPRSUWYZ
   alt:  áćéǵíḱĺḿńóṕŕśúẃýźÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ
-  alt_space: '´'  # U+00B4 ACUTE ACCENT
+  alt_space: "'"  # U+0027 APOSTROPHE
   alt_self:  '´'  # U+00B4 ACUTE ACCENT
 
-- char: "\u0302"  # | ̂|
+- char: '*^'
   name: circumflex
   base: aceghijosuwyzACEGHIJOSUWYZ
   alt:  âĉêĝĥîĵôŝûŵŷẑÂĈÊĜĤÎĴÔŜÛŴŶẐ
   alt_space: '^'  # U+005E CIRCUMFLEX ACCENT
   alt_self:  '^'  # U+005E CIRCUMFLEX ACCENT
 
-- char: "\u0303"  # | ̃|
+- char: '*~'
   name: tilde
   base: aeinouvyAEINOUVY
   alt:  ãẽĩñõũṽỹÃẼĨÑÕŨṼỸ
   alt_space: '~'  # U+007E TILDE
   alt_self:  '~'  # U+007E TILDE
 
-- char: "\u0304"  # | ̄|
+- char: '*¯'
   name: macron
   base: aeiouAEIOU
   alt:  āēīōūĀĒĪŌŪ
@@ -54,35 +54,35 @@
   alt_space: '¯'  # U+00AF MACRON
   alt_self:  'ˉ'  # U+02C9 MODIFIER LETTER MACRON
 
-- char: "\u0307"  # | ̇|
+- char: '*˙'
   name: abovedot
   base: abcdefghijlmnoprstwxyzABCDEFGHILMNOPRSTWXYZ
   alt:  ȧḃċḋėḟġḣıȷŀṁṅȯṗṙṡṫẇẋẏżȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ
   alt_space: '˙'  # U+02D9 DOT ABOVE
   alt_self:  '˙'  # U+02D9 DOT ABOVE
 
-- char: "\u0308"  # | ̈|
+- char: '*¨'
   name: diaeresis
   base: aehiotuwxyAEHIOUWXY
   alt:  äëḧïöẗüẅẍÿÄËḦÏÖÜẄẌŸ
   alt_space: '"'  # U+0022 QUOTATION MARK
   alt_self:  '¨'  # U+00A8 DIAERESIS
 
-- char: "\u030a"  # | ̊|
+- char: '*˚'
   name: abovering
   base: auwyAU
   alt:  åůẘẙÅŮ
   alt_space: '˚'  # U+02DA RING ABOVE
   alt_self:  '˚'  # U+02DA RING ABOVE
 
-- char: "\u0327"  # | ̧|
+- char: '*¸'
   name: cedilla
   base: cdeghklnrstCDEGHKLNRST
   alt:  çḑȩģḩķļņŗşţÇḐȨĢḨĶĻŅŖŞŢ
   alt_space: '¸'  # U+00B8 CEDILLA
   alt_self:  '¸'  # U+00B8 CEDILLA
 
-- char: "\u0328"  # | ̨|
+- char: '*˛'
   name: ogonek
   base: aeiouAEIOU
   alt:  ąęįǫųĄĘĮǪŲ

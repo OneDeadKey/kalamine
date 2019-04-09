@@ -1,40 +1,19 @@
 #!/usr/bin/env python3
 import os
-import unicodedata
 import yaml
-
-
-def _add_spaces_before_combining_chars(text):
-    out = ''
-    for char in text:
-        if unicodedata.combining(char):
-            out += ' ' + char
-        else:
-            out += char
-    return out
-
-
-def _remove_spaces_before_combining_chars(text):
-    out = list('')
-    for char in text:
-        if unicodedata.combining(char):
-            out[-1] = char
-        else:
-            out.append(char)
-    return ''.join(out)
 
 
 def lines_to_text(lines, indent=''):
     out = ''
     for line in lines:
         if len(line):
-            out += indent + _add_spaces_before_combining_chars(line)
+            out += indent + line
         out += '\n'
     return out[:-1]
 
 
 def text_to_lines(text):
-    return _remove_spaces_before_combining_chars(text).split('\n')
+    return text.split('\n')
 
 
 def open_local_file(file_name):
@@ -46,7 +25,7 @@ def load_data(filename):
 
 
 DEAD_KEYS = load_data('dead_keys.yaml')
-LAFAYETTE_KEY = '\u20e1'  # must match the value in dead_keys.yaml
+LAFAYETTE_KEY = '**'  # must match the value in dead_keys.yaml
 LAYER_KEYS = [
     '- Digits',
     'ae01', 'ae02', 'ae03', 'ae04', 'ae05',

@@ -194,17 +194,17 @@ class KeyboardLayout:
             shift = list(template[1 + j * 3])
 
             for key in keys:
-                baseKey = base[i]
-                shiftKey = shift[i]
+                baseKey = ('*' if base[i - 1] == '*' else '') + base[i]
+                shiftKey = ('*' if shift[i - 1] == '*' else '') + shift[i]
 
                 if layerNumber == 0 and baseKey == ' ':  # 'shift' prevails
                     baseKey = shiftKey.lower()
                 if layerNumber != 0 and shiftKey == ' ':
                     shiftKey = upper_key(baseKey)
 
-                if (baseKey != ' '):
+                if baseKey != ' ':
                     self.layers[layerNumber + 0][key] = baseKey
-                if (shiftKey != ' '):
+                if shiftKey != ' ':
                     self.layers[layerNumber + 1][key] = shiftKey
 
                 for dk in DEAD_KEYS:
