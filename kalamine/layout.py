@@ -248,14 +248,25 @@ class KeyboardLayout:
                 if key in self.layers[layerNumber + 1]:
                     shiftKey = self.layers[layerNumber + 1][key]
 
+                dead_base = len(baseKey) == 2 and baseKey[0] == '*'
+                dead_shift = len(shiftKey) == 2 and shiftKey[0] == '*'
+
                 if shiftPrevails:
-                    shift[i] = shiftKey
+                    shift[i] = shiftKey[-1]
+                    if dead_shift:
+                        shift[i-1] = '*'
                     if upper_key(baseKey) != shiftKey:
-                        base[i] = baseKey
+                        base[i] = baseKey[-1]
+                        if dead_base:
+                            base[i-1] = '*'
                 else:
-                    base[i] = baseKey
+                    base[i] = baseKey[-1]
+                    if dead_base:
+                        base[i-1] = '*'
                     if upper_key(baseKey) != shiftKey:
-                        shift[i] = shiftKey
+                        shift[i] = shiftKey[-1]
+                        if dead_shift:
+                            shift[i-1] = '*'
 
                 i += 6
 
