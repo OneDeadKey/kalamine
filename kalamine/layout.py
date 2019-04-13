@@ -349,25 +349,27 @@ class KeyboardLayout:
             if len(chars):
                 layout[keyName.upper()] = chars
         dead_keys = {}
-        if self.has_1dk:
-            base = ''
-            alt = ''
-            for (name, char) in self.layers[2].items():
-                base += self.layers[0][name]
-                alt += char
-            for (name, char) in self.layers[3].items():
-                base += self.layers[1][name]
-                alt += char
-            dead_keys['1dk'] = {
-                'base': base,
-                'alt': alt,
-            }
         for (c, dk) in self.dead_keys.items():
             dead_keys[dk['name']] = {
                 'base': dk['base'],
                 'alt':  dk['alt'],
                 'alt_space': dk['alt_space'],
                 'alt_self':  dk['alt_self'],
+            }
+        if self.has_1dk:
+            base = ''
+            alt = ''
+            for i in [0, 1]:
+                for (name, alt_char) in self.layers[i + 2].items():
+                    base_char = self.layers[i][name]
+                    if name != 'spce' and base_char != '**':
+                        base += base_char
+                        alt += alt_char
+            dead_keys['1dk'] = {
+                'base': base,
+                'alt': alt,
+                'alt_space': '*',
+                'alt_self': '*',
             }
         return json.dumps({
             'meta': self.meta,
