@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import datetime
-import json
 import os
 import re
 import sys
@@ -100,7 +99,7 @@ GEOMETRY = load_data('geometry.yaml')
 
 
 class KeyboardLayout:
-    """ Lafayette-style keyboard layout: base + dead key + altgr layers. """
+    """ Lafayette-style keyboard layout: base + 1dk + altgr layers. """
 
     def __init__(self, filepath):
         """ Import a keyboard layout to instanciate the object. """
@@ -172,16 +171,23 @@ class KeyboardLayout:
             if dk['char'] in self.dead_keys:
                 self.dk_index.append(dk['char'])
 
-        # 1dk behavior: alt_self (double-press), alt_space (1dk+space)
+        # 1dk behavior
         if ODK_ID in self.dead_keys:
             self.has_1dk = True
             odk = self.dead_keys[ODK_ID]
+            # alt_self (double-press), alt_space (1dk+space)
             odk['alt_space'] = spc['1dk']
-            odk['alt_self'] = "'"
             for key in self.layers[0]:
                 if self.layers[0][key] == ODK_ID:
                     odk['alt_self'] = self.layers[2][key]
                     break
+            # copy the 2nd and 3rd layers to the dead key
+            for i in [0, 1]:
+                for (name, alt_char) in self.layers[i + 2].items():
+                    base_char = self.layers[i][name]
+                    if name != 'spce' and base_char != ODK_ID:
+                        odk['base'] += base_char
+                        odk['alt'] += alt_char
 
     def _parse_template(self, template, rows, layerNumber):
         """ Extract a keyboard layer from a template. """
@@ -341,45 +347,25 @@ class KeyboardLayout:
         out = substitute_lines(out, 'LAYOUT', xkb_keymap(self, True))
         return out
 
+    ###
+    # JSON output: keymap (base+altgr layers) and dead keys
+    #
+
     @property
     def json(self):
-        """ JSON data """
-        layout = {}
-        for keyName in LAYER_KEYS:
-            if keyName.startswith('-'):
+        keymap = {}
+        for key_name in LAYER_KEYS:
+            if key_name.startswith('-'):
                 continue
             chars = list('')
             for i in [0, 1, 4, 5]:
-                if keyName in self.layers[i]:
-                    chars.append(self.layers[i][keyName])
+                if key_name in self.layers[i]:
+                    chars.append(self.layers[i][key_name])
             if len(chars):
-                layout[keyName.upper()] = chars
-        dead_keys = {}
-        for (c, dk) in self.dead_keys.items():
-            dead_keys[dk['name']] = {
-                'base': dk['base'],
-                'alt':  dk['alt'],
-                'alt_space': dk['alt_space'],
-                'alt_self':  dk['alt_self'],
-            }
-        if self.has_1dk:
-            base = ''
-            alt = ''
-            for i in [0, 1]:
-                for (name, alt_char) in self.layers[i + 2].items():
-                    base_char = self.layers[i][name]
-                    if name != 'spce' and base_char != '**':
-                        base += base_char
-                        alt += alt_char
-            dead_keys['1dk'] = {
-                'base': base,
-                'alt': alt,
-                'alt_space': '*',
-                'alt_self': '*',
-            }
-        return json.dumps({
+                keymap[key_name.upper()] = chars
+        return {
             'meta': self.meta,
-            'layout': layout,
-            'dead_keys': dead_keys,
+            'layout': keymap,
+            'dead_keys': list(self.dead_keys.values()),
             'has_altgr': self.has_altgr
-        }, indent=2)
+        }
