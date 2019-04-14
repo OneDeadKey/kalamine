@@ -53,7 +53,7 @@ def substitute_lines(text, variable, lines):
 
 
 def substitute_token(text, token, value):
-    exp = re.compile('\$\{' + token + '(=[^\}]*){0,1}\}')
+    exp = re.compile('\\$\\{' + token + '(=[^\\}]*){0,1}\\}')
     return exp.sub(value, text)
 
 
