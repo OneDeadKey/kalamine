@@ -21,7 +21,8 @@ def open_local_file(file_name):
 
 
 def load_data(filename):
-    return yaml.load(open_local_file(os.path.join('data', filename)))
+    return yaml.load(open_local_file(os.path.join('data', filename)),
+                     Loader=yaml.SafeLoader)
 
 
 DEAD_KEYS = load_data('dead_keys.yaml')
