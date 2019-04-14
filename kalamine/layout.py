@@ -3,6 +3,7 @@ import datetime
 import json
 import os
 import re
+import sys
 import yaml
 
 from .template import xkb_keymap, \
@@ -113,12 +114,17 @@ class KeyboardLayout:
         self.has_1dk = False
 
         # load the YAML data (and its ancessor, if any)
-        cfg = yaml.load(open(filepath))
-        if 'extends' in cfg:
-            path = os.path.join(os.path.dirname(filepath), cfg['extends'])
-            ext = yaml.load(open(path))
-            ext.update(cfg)
-            cfg = ext
+        try:
+            cfg = yaml.load(open(filepath), Loader=yaml.SafeLoader)
+            if 'extends' in cfg:
+                path = os.path.join(os.path.dirname(filepath), cfg['extends'])
+                ext = yaml.load(open(path), Loader=yaml.SafeLoader)
+                ext.update(cfg)
+                cfg = ext
+        except Exception as e:
+            print('File could not be parsed.')
+            print('Error: {}.'.format(e))
+            sys.exit(1)
 
         # metadata: self.meta
         for k in cfg:
