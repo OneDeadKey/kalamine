@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import click
+import json
 import os
 
 from .layout import KeyboardLayout
@@ -30,7 +31,8 @@ def make_all(layout, subdir):
 
     # JSON data
     json_path = out_path('.json')
-    open(json_path, 'w', newline='\n').write(layout.json)
+    with open(json_path, 'w', encoding='utf8') as json_file:
+        json.dump(layout.json, json_file, indent=2, ensure_ascii=False)
     print('... ' + json_path)
 
 
@@ -66,7 +68,8 @@ def make(input, out):
         elif output_file.endswith('.xkb'):
             open(output_file, 'w', newline='\n').write(layout.xkb)
         elif output_file.endswith('.json'):
-            open(output_file, 'w', newline='\n').write(layout.json)
+            with open(output_file, 'w', encoding='utf8') as json_file:
+                json.dump(layout.json, json_file, indent=2, ensure_ascii=False)
         else:
             print('Unsupported output format.')
             return
