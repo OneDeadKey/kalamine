@@ -45,8 +45,8 @@ LAYER_KEYS = [
     'ab06', 'ab07', 'ab08', 'ab09', 'ab10',
 
     '- Pinky keys',
-    'ae11', 'ae12', 'ad11', 'ad12', 'ac11',
-    'tlde', 'bksl', 'lsgt',
+    'ae11', 'ae12', 'ae13', 'ad11', 'ad12',
+    'ac11', 'ab11', 'tlde', 'bksl', 'lsgt',
 
     '- Space bar',
     'spce'

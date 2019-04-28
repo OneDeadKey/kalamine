@@ -2,7 +2,7 @@
 from .utils import load_data, LAYER_KEYS, ODK_ID
 
 
-##
+###
 # Helpers
 #
 
@@ -21,7 +21,7 @@ def xml_proof(char):
         return '&#x{0};'.format(hex_ord(char))
 
 
-##
+###
 # GNU/Linux: XKB
 # - standalone xkb file to be used by `setxkbcomp` (Xorg only)
 # - system-wide installer script for Xorg & Wayland

@@ -13,7 +13,7 @@ from .utils import open_local_file, load_data, text_to_lines, lines_to_text, \
     DEAD_KEYS, LAYER_KEYS, ODK_ID
 
 
-##
+###
 # Helpers & Constants
 #
 
@@ -72,7 +72,7 @@ def load_tpl(layout, ext):
     return out
 
 
-##
+###
 # Constants
 #
 
@@ -93,7 +93,7 @@ SPACEBAR = {
 GEOMETRY = load_data('geometry.yaml')
 
 
-##
+###
 # Main
 #
 
@@ -364,7 +364,9 @@ class KeyboardLayout:
             if len(chars):
                 keymap[key_name.upper()] = chars
         return {
-            'meta': self.meta,
+            'name': self.meta['name'],
+            'description': self.meta['description'],
+            'geometry': self.meta['geometry'],
             'layout': keymap,
             'dead_keys': list(self.dead_keys.values()),
             'has_altgr': self.has_altgr
