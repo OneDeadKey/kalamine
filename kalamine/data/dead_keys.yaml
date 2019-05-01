@@ -1,6 +1,7 @@
 # The dead keys below are used by the MacOSX and Windows drivers.  In order to
 # work with the Linux driver, their name must match the XKB definition:
 # 'acute' <=> dead_acute, 'grave' <=> dead_grave, etc.
+# https://help.ubuntu.com/community/GtkDeadKeyTable
 
 # The only exception is the '1dk' key, which is:
 #   - a standard dead key for the MacOSX and Windows drivers;
@@ -24,8 +25,8 @@
 
 - char: '*´'
   name: acute
-  base: acegiklmnoprsuwyzACEGIKLMNOPRSUWYZ
-  alt:  áćéǵíḱĺḿńóṕŕśúẃýźÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹ
+  base: acegiklmnoprsuwyzACEGIKLMNOPRSUWYZευιοαηωΕΥΙΟΑΗΩ
+  alt:  áćéǵíḱĺḿńóṕŕśúẃýźÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹέύίόάήώΈΎΊΌΆΉΏ
   alt_space: "'"  # U+0027 APOSTROPHE
   alt_self:  '´'  # U+00B4 ACUTE ACCENT
 
@@ -63,8 +64,8 @@
 
 - char: '*¨'
   name: diaeresis
-  base: aehiotuwxyAEHIOUWXY
-  alt:  äëḧïöẗüẅẍÿÄËḦÏÖÜẄẌŸ
+  base: aehiotuwxyAEHIOUWXYυιΥΙ
+  alt:  äëḧïöẗüẅẍÿÄËḦÏÖÜẄẌŸϋϊΫΪ
   alt_space: '"'  # U+0022 QUOTATION MARK
   alt_self:  '¨'  # U+00A8 DIAERESIS
 

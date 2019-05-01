@@ -171,6 +171,24 @@ class KeyboardLayout:
             if dk['char'] in self.dead_keys:
                 self.dk_index.append(dk['char'])
 
+        # remove unused characters in self.dead_keys[].{base,alt}
+        def layer_has_char(char, layer_index):
+            for id in self.layers[layer_index]:
+                if self.layers[layer_index][id] == char:
+                    return True
+            return False
+        for dk_id in self.dead_keys:
+            base = self.dead_keys[dk_id]['base']
+            alt = self.dead_keys[dk_id]['alt']
+            used_base = ''
+            used_alt = ''
+            for i in range(len(base)):
+                if layer_has_char(base[i], 0) or layer_has_char(base[i], 1):
+                    used_base += base[i]
+                    used_alt += alt[i]
+            self.dead_keys[dk_id]['base'] = used_base
+            self.dead_keys[dk_id]['alt'] = used_alt
+
         # 1dk behavior
         if ODK_ID in self.dead_keys:
             self.has_1dk = True
