@@ -29,6 +29,7 @@ def upper_key(letter):
         '\u2191': '\u21d1',  # ↑ ⇑
         '\u2192': '\u21d2',  # → ⇒
         '\u2193': '\u21d3',  # ↓ ⇓
+        '\u00b5': ' ',       # µ (to avoid getting `Μ` as uppercase)
     }
     if letter in customAlpha:
         return customAlpha[letter]
