@@ -7,6 +7,10 @@
 #   - a standard dead key for the MacOSX and Windows drivers;
 #   - a dead AltGr key (ISO_Level3_Latch) for the Linux driver.
 
+# All other dead keys have been grep’ed from my Ubuntu 18.04LTS box,
+# excluding multiple diacritic combinations and combining characters.
+# /usr/share/X11/locale/en_US.UTF-8/Compose
+
 ---
 
 - char: '**'
@@ -18,75 +22,140 @@
 
 - char: '*`'
   name: grave
-  base: aeinouwyAEINOUWY
-  alt:  àèìǹòùẁỳÀÈÌǸÒÙẀỲ
+  base: AaEeIiNnOoUuWwYyЕеИи
+  alt:  ÀàÈèÌìǸǹÒòÙùẀẁỲỳЀѐЍѝ
   alt_space: '`'  # U+0060 GRAVE ACCENT
   alt_self:  '`'  # U+0060 GRAVE ACCENT
 
+- char: '*‟' # there’s no “double grave accent” Unicode character :(
+  name: doublegrave
+  base: AaEeIiOoRrUuѴѴ
+  alt:  ȀȁȄȅȈȉȌȍȐȑȔȕѶѷ
+  alt_space: '‟'  # U+201F HIGH REVERSED-9 QUOTATION MARK
+  alt_self:  '‟'  # U+201F HIGH REVERSED-9 QUOTATION MARK
+
 - char: '*´'
   name: acute
-  base: acegiklmnoprsuwyzACEGIKLMNOPRSUWYZευιοαηωΕΥΙΟΑΗΩ
-  alt:  áćéǵíḱĺḿńóṕŕśúẃýźÁĆÉǴÍḰĹḾŃÓṔŔŚÚẂÝŹέύίόάήώΈΎΊΌΆΉΏ
+  base: AaCcEeGgIiKkLlMmNnOoPpRrSsUuWwYyZzΑαΕεΗηΙιΟοΥυΩωГгКк
+  alt:  ÁáĆćÉéǴǵÍíḰḱĹĺḾḿŃńÓóṔṕŔŕŚśÚúẂẃÝýŹźΆάΈέΉήΊίΌόΎύΏώЃѓЌќ
   alt_space: "'"  # U+0027 APOSTROPHE
   alt_self:  '´'  # U+00B4 ACUTE ACCENT
 
+- char: '*”' # for the symmetry with the doublegrave ID
+  name: doubleacute
+  base: OoUuУу
+  alt:  ŐőŰűӲӳ
+  alt_space: "”"  # U+201D RIGHT DOUBLE QUOTATION MARK
+  alt_self:  "˝"  # U+02DD DOUBLE ACUTE ACCENT
+
 - char: '*^'
   name: circumflex
-  base: aceghijosuwyzACEGHIJOSUWYZ
-  alt:  âĉêĝĥîĵôŝûŵŷẑÂĈÊĜĤÎĴÔŜÛŴŶẐ
+  base: AaCcEeGgHhIiJjOoSsUuWwYyZz0123456789()+-=
+  alt:  ÂâĈĉÊêĜĝĤĥÎîĴĵÔôŜŝÛûŴŵŶŷẐẑ⁰¹²³⁴⁵⁶⁷⁸⁹⁽⁾⁺⁻⁼
   alt_space: '^'  # U+005E CIRCUMFLEX ACCENT
   alt_self:  '^'  # U+005E CIRCUMFLEX ACCENT
 
+- char: '*ˇ'
+  name: caron
+  base: AaCcDdEeGgHhIiKkLlNnOoRrSsTtUuZzƷʒ0123456789()+-=
+  alt:  ǍǎČčĎďĚěǦǧȞȟǏǐǨǩĽľŇňǑǒŘřŠšŤťǓǔŽžǮǯ₀₁₂₃₄₅₆₇₈₉₍₎₊₋₌
+  alt_space: 'ˇ'  # U+02C7 CARON
+  alt_self:  'ˇ'  # U+02C7 CARON
+
+- char: '*˘'
+  name: breve
+  base: AaEeGgIiOoUuΑαΙιΥυАаЕеЖжИиУу
+  alt:  ĂăĔĕĞğĬĭŎŏŬŭᾸᾰῘῐῨῠӐӑӖӗӁӂЙйЎў
+  alt_space: '˘'  # U+02D8 BREVE
+  alt_self:  '˘'  # U+02D8 BREVE
+
+- char: '*⁻'
+  name: invertedbreve
+  base: AaEeGgIiOoUuΑαΙιΥυАаЕеЖжИиУу
+  alt:  ĂăĔĕĞğĬĭŎŏŬŭᾸᾰῘῐῨῠӐӑӖӗӁӂЙйЎў
+  alt_space: '˘'  # U+02D8 BREVE
+  alt_self:  '˘'  # U+02D8 BREVE
+
 - char: '*~'
   name: tilde
-  base: aeinouvyAEINOUVY
-  alt:  ãẽĩñõũṽỹÃẼĨÑÕŨṼỸ
+  base: AaEeIiNnOoUuVvYy<>=
+  alt:  ÃãẼẽĨĩÑñÕõŨũṼṽỸỹ≲≳≃
   alt_space: '~'  # U+007E TILDE
   alt_self:  '~'  # U+007E TILDE
 
 - char: '*¯'
   name: macron
-  base: aeiouAEIOU
-  alt:  āēīōūĀĒĪŌŪ
-  # base: aæegiouyAÆEGIOUY
-  # alt:  āǣēḡīōūȳĀǢĒḠĪŌŪȲ
-  # base: aæceɛəǝfghijkmnoɔprsuvyzAÆCEƐƏƎFGHIJKMNOƆPRSUVYZ
-  # alt:  āǣc̄ēɛ̄ə̄ǝ̄f̄ḡh̄īj̄k̄m̄n̄ōɔ̄p̄r̄s̄ūv̄ȳz̄ĀǢC̄ĒƐ̄Ə̄Ǝ̄F̄ḠH̄ĪJ̄K̄M̄N̄ŌƆ̄P̄R̄S̄ŪV̄ȲZ̄
+  base: AaÆæEeGgIiOoUuYy
+  alt:  ĀāǢǣĒēḠḡĪīŌōŪūȲȳ
   alt_space: '¯'  # U+00AF MACRON
   alt_self:  'ˉ'  # U+02C9 MODIFIER LETTER MACRON
 
-- char: '*˙'
-  name: abovedot
-  base: abcdefghijlmnoprstwxyzABCDEFGHILMNOPRSTWXYZ
-  alt:  ȧḃċḋėḟġḣıȷŀṁṅȯṗṙṡṫẇẋẏżȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ
-  alt_space: '˙'  # U+02D9 DOT ABOVE
-  alt_self:  '˙'  # U+02D9 DOT ABOVE
-
 - char: '*¨'
   name: diaeresis
-  base: aehiotuwxyAEHIOUWXYυιΥΙ
-  alt:  äëḧïöẗüẅẍÿÄËḦÏÖÜẄẌŸϋϊΫΪ
+  base: AaEeHhIiOotUuWwXxYyΙιΥυАаЕеӘәЖжЗзИиІіОоӨөУуЧчЫыЭэ
+  alt:  ÄäËëḦḧÏïÖöẗÜüẄẅẌẍŸÿΪϊΫϋӒӓЁёӚӛӜӝӞӟӤӥЇїӦӧӪӫӰӱӴӵӸӹӬӭ
   alt_space: '"'  # U+0022 QUOTATION MARK
   alt_self:  '¨'  # U+00A8 DIAERESIS
 
 - char: '*˚'
   name: abovering
-  base: auwyAU
-  alt:  åůẘẙÅŮ
+  base: AaUuwy
+  alt:  ÅåŮůẘẙ
   alt_space: '˚'  # U+02DA RING ABOVE
   alt_self:  '˚'  # U+02DA RING ABOVE
 
 - char: '*¸'
   name: cedilla
-  base: cdeghklnrstCDEGHKLNRST
-  alt:  çḑȩģḩķļņŗşţÇḐȨĢḨĶĻŅŖŞŢ
+  base: CcDdEeGgHhKkLlNnRrSsTt
+  alt:  ÇçḐḑȨȩĢģḨḩĶķĻļŅņŖŗŞşŢţ
   alt_space: '¸'  # U+00B8 CEDILLA
   alt_self:  '¸'  # U+00B8 CEDILLA
 
+- char: '*,'
+  name: belowcomma
+  base: SsTt
+  alt:  ȘșȚț
+  alt_space: ',' # U+002C COMMA
+  alt_self:  ',' # U+002C COMMA
+
 - char: '*˛'
   name: ogonek
-  base: aeiouAEIOU
-  alt:  ąęįǫųĄĘĮǪŲ
+  base: AaEeIiOoUu
+  alt:  ĄąĘęĮįǪǫŲų
   alt_space: '˛'  # U+02DB OGONEK
   alt_self:  '˛'  # U+02DB OGONEK
 
+- char: '*/'
+  name: stroke
+  base: AaBbCcDdEeGgHhIiJjLlOoPpRrTtUuYyZz<≤≥>=
+  alt:  ȺⱥɃƀȻȼĐđɆɇǤǥĦħƗɨɈɉŁłØøⱣᵽɌɍŦŧɄʉɎɏƵƶ≮≰≱≯≠
+  alt_space: '/'  # U+002F SOLIDUS
+  alt_self:  '/'  # U+002F SOLIDUS
+
+- char: '*˙'
+  name: abovedot
+  base: AaBbCcDdEeFfGgHhIijLlMmNnOoPpRrSsTtWwXxYyZz
+  alt:  ȦȧḂḃĊċḊḋĖėḞḟĠġḢḣİıȷĿŀṀṁṄṅȮȯṖṗṘṙṠṡṪṫẆẇẊẋẎẏŻż
+  alt_space: '˙'  # U+02D9 DOT ABOVE
+  alt_self:  '˙'  # U+02D9 DOT ABOVE
+
+- char: '*.'
+  name: belowdot
+  base: AaBbDdEeHhIiKkLlMmNnOoRrSsTtUuVvWwYyZz
+  alt:  ẠạḄḅḌḍẸẹḤḥỊịḲḳḶḷṂṃṆṇỌọṚṛṢṣṬṭỤụṾṿẈẉỴỵẒẓ
+  alt_space: '.'  # U+002E FULL STOP
+  alt_self:  '.'  # U+002E FULL STOP
+
+- char: '*µ'
+  name: greek
+  base: AaBbDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuWwXxYyZz
+  alt:  ΑαΒβΔδΕεΦφΓγΗηΙιΘθΚκΛλΜμΝνΟοΠπΧχΡρΣσΤτΥυΩωΞξΨψΖζ
+  alt_space: 'µ'  # U+00B5 MICRO SIGN
+  alt_self:  'µ'  # U+00B5 MICRO SIGN
+
+- char: '*¤'
+  name: currency
+  base: AaBbÇCçcDdEeFfGgHhIiKkLlMmNnOoPpRrSsTtþÞUuWwYy
+  alt:  ₳؋₱฿₵₡₵¢₯₫₠€₣ƒ₲₲₴₴៛﷼₭₭₤£ℳ₥₦₦૱௹₧₰₨₢$₪₮৳৲৲圓元₩₩円¥
+  alt_space: '¤'  # U+00A4 CURRENCY SIGN
+  alt_self:  '¤'  # U+00A4 CURRENCY SIGN
