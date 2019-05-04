@@ -14,11 +14,13 @@ from .utils import open_local_file, load_data, text_to_lines, lines_to_text, \
 
 
 ###
-# Helpers & Constants
+# Helpers
 #
 
 
 def upper_key(letter):
+    if len(letter) != 1:  # dead key?
+        return ' '
     customAlpha = {
         '\u00df': '\u1e9e',  # ß ẞ
         '\u007c': '\u00a6',  # | ¦
@@ -76,6 +78,7 @@ def load_tpl(layout, ext):
 ###
 # Constants
 #
+
 
 CONFIG = {
     'author': 'Fabien Cazenave',
