@@ -15,10 +15,14 @@ def hex_ord(char):
 
 
 def xml_proof(char):
-    if char not in '<&"\u00a0>':
+    if char not in '<&"\u0020\u00a0\u202f>':
         return char
     else:
         return '&#x{0};'.format(hex_ord(char))
+
+
+def xml_proof_id(symbol):
+    return symbol[2:-1] if symbol.startswith('&#x') else symbol
 
 
 ###
@@ -26,7 +30,6 @@ def xml_proof(char):
 # - standalone xkb file to be used by `setxkbcomp` (Xorg only)
 # - system-wide installer script for Xorg & Wayland
 #
-
 
 def xkb_keymap(layout, eight_levels):
     """ Linux layout. """
@@ -101,7 +104,6 @@ def xkb_keymap(layout, eight_levels):
 # https://levicki.net/articles/2006/09/29/HOWTO_Build_keyboard_layouts_for_Windows_x64.php
 # Also supported by KbdEdit: http://www.kbdedit.com/ (non-free).
 #
-
 
 def klc_keymap(layout):
     """ Windows layout, main part. """
@@ -243,7 +245,6 @@ def klc_1dk(layout):
 # https://developer.apple.com/library/content/technotes/tn2056/_index.html
 #
 
-
 def osx_keymap(layout):
     """ Mac OSX layout, main part. """
 
@@ -253,35 +254,42 @@ def osx_keymap(layout):
         caps = index == 2
 
         def has_dead_keys(letter):
+            if letter in '\u0020\u00a0\u202f':  # space
+                return True
             for k in layout.dead_keys:
                 if letter in layout.dead_keys[k]['base']:
                     return True
             return False
 
         output = []
-        for keyName in LAYER_KEYS:
-            if keyName.startswith('-'):
+        for key_name in LAYER_KEYS:
+            if key_name in ['ae13', 'ab11']:  # ABNT / JIS keys
+                continue  # these two keys are not supported yet
+
+            if key_name.startswith('-'):
                 if len(output):
                     output.append('')
-                output.append('<!--' + keyName[1:] + ' -->')
+                output.append('<!--' + key_name[1:] + ' -->')
                 continue
 
             symbol = '&#x0010;'
-            finalKey = True
+            final_key = True
 
-            if keyName in layer:
-                key = layer[keyName]
+            if key_name in layer:
+                key = layer[key_name]
                 if key in layout.dead_keys:
                     symbol = 'dead_' + layout.dead_keys[key]['name']
-                    finalKey = False
+                    final_key = False
                 else:
                     symbol = xml_proof(key.upper() if caps else key)
-                    finalKey = not has_dead_keys(key)
+                    final_key = not has_dead_keys(key.upper())
 
-            c = 'code="{0}"'.format(KEY_CODES['osx'][keyName]).ljust(10)
-            a = '{0}="{1}"'.format('output' if finalKey
-                                   else 'action', symbol)
-            output.append('<key {0} {1} />'.format(c, a))
+            char = 'code="{0}"'.format(KEY_CODES['osx'][key_name]).ljust(10)
+            if final_key:
+                action = 'output="{0}"'.format(symbol)
+            else:
+                action = 'action="{0}"'.format(xml_proof_id(symbol))
+            output.append('<key {0} {1} />'.format(char, action))
 
         str.append(output)
     return str
@@ -291,8 +299,6 @@ def osx_actions(layout):
     """ Mac OSX layout, dead key actions. """
 
     output = []
-    deadKeys = []
-    dkIndex = []
 
     def when(state, action):
         s = 'state="{0}"'.format(state).ljust(18)
@@ -304,75 +310,57 @@ def osx_actions(layout):
             a = 'output="{0}"'.format(xml_proof(action))
         return '  <when {0} {1} />'.format(s, a)
 
-    # spacebar actions
-    output.append('<!-- Spacebar -->')
-    output.append('<action id="space">')
-    output.append(when('none', ' '))
-    for k in layout.dk_index:
-        dk = layout.dead_keys[k]
-        output.append(when(dk['name'], dk['alt_space']))
-    output.append('</action>')
-    output.append('<action id="nbsp">')
-    output.append(when('none', '&#x00a0;'))
-    for k in layout.dk_index:
-        dk = layout.dead_keys[k]
-        output.append(when(dk['name'], dk['alt_space']))
-    output.append('</action>')
+    def append_actions(symbol, actions):
+        output.append('<action id="{0}">'.format(xml_proof_id(symbol)))
+        output.append(when('none', symbol))
+        for (state, out) in actions:
+            output.append(when(state, out))
+        output.append('</action>')
 
-    # all other actions
-    for keyName in LAYER_KEYS:
-        if keyName.startswith('-'):
+    # dead key definitions
+    for key in layout.dead_keys:
+        symbol = layout.dead_keys[key]['name']
+        output.append('<action id="dead_{0}">'.format(symbol))
+        output.append('  <when state="none" next="{0}" />'.format(symbol))
+        output.append('</action>')
+        continue
+
+    # normal key actions
+    for key_name in LAYER_KEYS:
+        if key_name.startswith('-'):
             output.append('')
-            output.append('<!--' + keyName[1:] + ' -->')
+            output.append('<!--' + key_name[1:] + ' -->')
             continue
 
         for i in [0, 1]:
-            if keyName not in layout.layers[i]:
+            if key_name not in layout.layers[i]:
                 continue
 
-            key = layout.layers[i][keyName]
-            if i and key == layout.layers[0][keyName]:
+            key = layout.layers[i][key_name]
+            if i and key == layout.layers[0][key_name]:
                 continue
             if key in layout.dead_keys:
-                symbol = 'dead_' + layout.dead_keys[key]['name']
-            else:
-                symbol = xml_proof(key)
+                continue
 
-            action = []
+            actions = []
             for k in layout.dk_index:
                 dk = layout.dead_keys[k]
                 if key in dk['base']:
                     idx = dk['base'].index(key)
-                    action.append(when(dk['name'], dk['alt'][idx]))
+                    actions.append((dk['name'], dk['alt'][idx]))
+            if len(actions):
+                append_actions(xml_proof(key), actions)
 
-            if key in layout.dead_keys:
-                deadKeys.append('<action id="{0}">'.format(symbol))
-                deadKeys.append(when('none', symbol))
-                deadKeys.extend(action)
-                deadKeys.append('</action>')
-                dkIndex.append(symbol)
-            elif len(action):
-                output.append('<action id="{0}">'.format(symbol))
-                output.append(when('none', symbol))
-                output.extend(action)
-                output.append('</action>')
+    # spacebar actions
+    actions = []
+    for k in layout.dk_index:
+        dk = layout.dead_keys[k]
+        actions.append((dk['name'], dk['alt_space']))
+    append_actions('&#x0020;', actions)
+    append_actions('&#x00a0;', actions)
+    append_actions('&#x202f;', actions)
 
-        for i in [2, 3, 4, 5]:
-            if keyName not in layout.layers[i]:
-                continue
-            key = layout.layers[i][keyName]
-            if key not in layout.dead_keys:
-                continue
-            symbol = 'dead_' + layout.dead_keys[key]['name']
-            if symbol in dkIndex:
-                continue
-            deadKeys.append('<action id="{0}">'.format(symbol))
-            deadKeys.append(when('none', symbol))
-            deadKeys.extend(action)
-            deadKeys.append('</action>')
-            dkIndex.append(symbol)
-
-    return deadKeys + [''] + output
+    return output
 
 
 def osx_terminators(layout):
@@ -383,5 +371,5 @@ def osx_terminators(layout):
         dk = layout.dead_keys[k]
         s = 'state="{0}"'.format(dk['name']).ljust(18)
         o = 'output="{0}"'.format(xml_proof(dk['alt_self']))
-        output.append(' <when {0} {1} />'.format(s, o))
+        output.append('<when {0} {1} />'.format(s, o))
     return output

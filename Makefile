@@ -1,5 +1,6 @@
 all:
 	kalamine layouts/*.yaml
+	pytest
 
 clean:
 	rm -rf build
