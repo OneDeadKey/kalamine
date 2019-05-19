@@ -1,4 +1,6 @@
 klc:
+  spce: '39	SPACE'
+
   # digits
   ae01: '02	1'
   ae02: '03	2'
@@ -51,16 +53,17 @@ klc:
   tlde: '29	OEM_3'
   ae11: '0c	OEM_MINUS'
   ae12: '0d	OEM_PLUS'
+  ae13: '0d	OEM_102' # XXX FIXME
   ad11: '1a	OEM_4'
   ad12: '1b	OEM_6'
   ac11: '28	OEM_7'
+  ab11: '28	OEM_7'  # XXX FIXME
   bksl: '2b	OEM_5'
   lsgt: '56	OEM_102'
 
-  # space bar
-  spce: '39	SPACE'
-
 osx:
+  spce: 49
+
   # digits
   ae01: 18  # 1
   ae02: 19  # 2
@@ -113,11 +116,11 @@ osx:
   tlde: 50  # ~
   ae11: 27  # -
   ae12: 24  # =
+  ae13: 42  # XXX FIXME
   ad11: 33  # [
   ad12: 30  # ]
   ac11: 39  # '
+  ab11: 39  # XXX FIXME
   bksl: 42  # \
   lsgt: 10  # <
 
-  # space bar
-  spce: 49
