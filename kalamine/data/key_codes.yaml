@@ -124,3 +124,65 @@ osx:
   bksl: 42  # \
   lsgt: 10  # <
 
+web:
+  spce: 'Space'
+
+  # digits
+  ae01: 'Digit1'
+  ae02: 'Digit2'
+  ae03: 'Digit3'
+  ae04: 'Digit4'
+  ae05: 'Digit5'
+  ae06: 'Digit6'
+  ae07: 'Digit7'
+  ae08: 'Digit8'
+  ae09: 'Digit9'
+  ae10: 'Digit0'
+
+  # letters, 1st row
+  ad01: 'KeyQ'
+  ad02: 'KeyW'
+  ad03: 'KeyE'
+  ad04: 'KeyR'
+  ad05: 'KeyT'
+  ad06: 'KeyY'
+  ad07: 'KeyU'
+  ad08: 'KeyI'
+  ad09: 'KeyO'
+  ad10: 'KeyP'
+
+  # letters, 2nd row
+  ac01: 'KeyA'
+  ac02: 'KeyS'
+  ac03: 'KeyD'
+  ac04: 'KeyF'
+  ac05: 'KeyG'
+  ac06: 'KeyH'
+  ac07: 'KeyJ'
+  ac08: 'KeyK'
+  ac09: 'KeyL'
+  ac10: 'Semicolon'
+
+  # letters, 3rd row
+  ab01: 'KeyZ'
+  ab02: 'KeyX'
+  ab03: 'KeyC'
+  ab04: 'KeyV'
+  ab05: 'KeyB'
+  ab06: 'KeyN'
+  ab07: 'KeyM'
+  ab08: 'Comma'
+  ab09: 'Period'
+  ab10: 'Slash'
+
+  # pinky keys
+  tlde: 'Backquote'
+  ae11: 'Minus'
+  ae12: 'Equal'
+  ae13: 'IntlYen'
+  ad11: 'BracketLeft'
+  ad12: 'BracketRight'
+  bksl: 'Backslash'
+  ac11: 'Quote'
+  ab11: 'IntlRo'
+  lsgt: 'IntlBackslash'
