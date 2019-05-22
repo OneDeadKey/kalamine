@@ -17,6 +17,7 @@ def test_layouts():
     assert not layout.has_1dk
     assert '**' not in layout.dead_keys
 
+    # AltGr + dead keys
     layout = load_layout('prog')
     assert layout.layers[0]['ad01'] == 'q'
     assert layout.layers[1]['ad01'] == 'Q'
@@ -28,6 +29,7 @@ def test_layouts():
     assert not layout.has_1dk
     assert '**' not in layout.dead_keys
 
+    # 1dk + dead keys
     layout = load_layout('intl')
     assert layout.layers[0]['ad01'] == 'q'
     assert layout.layers[1]['ad01'] == 'Q'
@@ -39,3 +41,8 @@ def test_layouts():
     assert layout.dead_keys['**']['base'] == 'euioac.EUIOAC'
     assert layout.dead_keys['**']['alt'] == 'éúíóáç…ÉÚÍÓÁÇ'
     assert layout.dead_keys['**']['alt_self'] == '´'
+
+    # ensure the 1dk parser does not accumulate values from a previous run
+    layout = load_layout('intl')
+    assert layout.dead_keys['**']['base'] == 'euioac.EUIOAC'
+    assert layout.dead_keys['**']['alt'] == 'éúíóáç…ÉÚÍÓÁÇ'

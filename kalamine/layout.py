@@ -243,9 +243,9 @@ class KeyboardLayout:
 
                 for dk in DEAD_KEYS:
                     if baseKey == dk['char']:
-                        self.dead_keys[baseKey] = dk
+                        self.dead_keys[baseKey] = dk.copy()
                     if shiftKey == dk['char']:
-                        self.dead_keys[shiftKey] = dk
+                        self.dead_keys[shiftKey] = dk.copy()
 
                 i += 6
 
