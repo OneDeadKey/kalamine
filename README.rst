@@ -5,6 +5,37 @@ A cross-platform Keyboard Layout Maker, blatantly stolen from the
 `qwerty-lafayette <https://qwerty-lafayette.org>`_ project.
 
 
+Dependencies
+--------------------------------------------------------------------------------
+
+* Python_ (>= 3.7)
+* pip_
+* Setuptools_
+* libxml2_
+* libxslt_
+
+.. _Python: https://python.org
+.. _pip: https://pip.pypa.io
+.. _Setuptools: https://pypi.org/project/setuptools/
+.. _libxml2: http://xmlsoft.org
+.. _libxslt: http://xmlsoft.org
+
+
+Installation
+--------------------------------------------------------------------------------
+
+.. code-block:: sh
+
+    pip install --user kalamine
+
+NixOS
+`````
+
+.. code-block:: sh
+
+    nix-shell --packages python37 python37Packages.pip python37Packages.setuptools libxml2 libxslt --run 'pip install --user kalamine'
+
+
 Basic Usage
 --------------------------------------------------------------------------------
 
