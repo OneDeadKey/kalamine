@@ -11,7 +11,7 @@
 //
 
 KBD	${name8}	"${name}"
-COPYRIGHT	"(c) 2010-2018 ${author}"
+COPYRIGHT	"(c) 2010-2020 ${author}"
 COMPANY	"${author}"
 LOCALENAME	"fr-FR"
 LOCALEID	"0000040c"
@@ -32,16 +32,8 @@ SHIFTSTATE
 
 LAYOUT //{{{
 // an extra '@' at the end is a dead key
-
 //SC	VK_	Cap	0	1	2	6	7
-//--	----	----	----	----	----	----	----
-
 KALAMINE::LAYOUT
-
-// Wishing <AltGr><SPACE> could be mapped to something useful...
-// Apparently, mapping a printable character would be doable (with kbdutool.exe)
-// but mapping <Esc> would not.
-
 53	DECIMAL	0	002e	002e	-1	-1	-1	// FULL STOP, FULL STOP, <none>, <none>, <none>
 //}}}
 

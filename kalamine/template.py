@@ -103,6 +103,8 @@ def xkb_keymap(layout, eight_levels):
 # https://www.microsoft.com/en-us/download/details.aspx?id=22339
 # https://levicki.net/articles/2006/09/29/HOWTO_Build_keyboard_layouts_for_Windows_x64.php
 # Also supported by KbdEdit: http://www.kbdedit.com/ (non-free).
+# Note: blank lines and comments in KLC sections are removed from the output
+# file because they are not recognized by KBDEdit (as of v19.8.0).
 #
 
 def klc_keymap(layout):
@@ -114,9 +116,9 @@ def klc_keymap(layout):
     output = []
     for keyName in LAYER_KEYS:
         if keyName.startswith('-'):
-            if len(output):
-                output.append('')
-            output.append('//' + keyName[1:])
+            # if len(output):
+            #     output.append('')
+            # output.append('//' + keyName[1:])
             continue
 
         symbols = []
@@ -176,7 +178,7 @@ def klc_deadkeys(layout):
 
         output.append('// DEADKEY: ' + dk['name'].upper() + ' //{{{')
         output.append('DEADKEY\t' + hex_ord(dk['alt_space']))
-        output.append('')
+        # output.append('')
 
         if k == ODK_ID:
             output.extend(klc_1dk(layout))
@@ -184,8 +186,8 @@ def klc_deadkeys(layout):
             for i in range(len(dk['base'])):
                 appendLine(dk['base'][i], dk['alt'][i])
 
-        output.append('')
-        output.append('// Space bar')
+        # output.append('')
+        # output.append('// Space bar')
         appendLine('\u00a0', dk['alt_space'])
         appendLine('\u0020', dk['alt_space'])
 
