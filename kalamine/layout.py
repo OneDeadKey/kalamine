@@ -379,7 +379,7 @@ class KeyboardLayout:
         return {
             'name': self.meta['name'],
             'description': self.meta['description'],
-            'geometry': self.meta['geometry'],
+            'geometry': self.meta['geometry'].lower(),
             'keymap': web_keymap(self),
             'deadkeys': web_deadkeys(self),
             'altgr': self.has_altgr
