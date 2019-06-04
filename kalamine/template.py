@@ -373,3 +373,55 @@ def osx_terminators(layout):
         o = 'output="{0}"'.format(xml_proof(dk['alt_self']))
         output.append('<when {0} {1} />'.format(s, o))
     return output
+
+
+###
+# Web: JSON
+# To be used with the <x-keyboard> web component.
+# https://github.com/fabi1cazenave/x-keyboard
+#
+
+def web_keymap(layout):
+    """ Web layout, main part. """
+
+    keymap = {}
+    for key_name in LAYER_KEYS:
+        if key_name.startswith('-'):
+            continue
+        chars = list('')
+        for i in [0, 1, 4, 5]:
+            if key_name in layout.layers[i]:
+                chars.append(layout.layers[i][key_name])
+        if len(chars):
+            keymap[KEY_CODES['web'][key_name]] = chars
+
+    return keymap
+
+
+def web_deadkeys(layout):
+    """ Web layout, dead keys. """
+
+    deadkeys = {}
+    if layout.has_1dk:  # ensure 1dk is first in the dead key dictionary
+        deadkeys['**'] = {}
+    for (id, dk) in layout.dead_keys.items():
+        deadkeys[id] = {}
+        deadkeys[id][id] = dk['alt_self']
+        deadkeys[id]['\u0020'] = dk['alt_space']
+        deadkeys[id]['\u00a0'] = dk['alt_space']
+        deadkeys[id]['\u202f'] = dk['alt_space']
+        if id == '**':
+            for key_name in LAYER_KEYS:
+                if key_name.startswith('-'):
+                    continue
+                for i in [3, 2]:
+                    if key_name in layout.layers[i]:
+                        deadkeys[id][layout.layers[i - 2][key_name]] = \
+                            layout.layers[i][key_name]
+        else:
+            base = dk['base']
+            alt = dk['alt']
+            for i in range(len(base)):
+                deadkeys[id][base[i]] = alt[i]
+
+    return deadkeys

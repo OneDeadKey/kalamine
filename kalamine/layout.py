@@ -7,7 +7,8 @@ import yaml
 
 from .template import xkb_keymap, \
     osx_keymap, osx_actions, osx_terminators, \
-    klc_keymap, klc_deadkeys, klc_dk_index
+    klc_keymap, klc_deadkeys, klc_dk_index, \
+    web_keymap, web_deadkeys
 
 from .utils import open_local_file, load_data, text_to_lines, lines_to_text, \
     DEAD_KEYS, LAYER_KEYS, ODK_ID
@@ -375,21 +376,11 @@ class KeyboardLayout:
 
     @property
     def json(self):
-        keymap = {}
-        for key_name in LAYER_KEYS:
-            if key_name.startswith('-'):
-                continue
-            chars = list('')
-            for i in [0, 1, 4, 5]:
-                if key_name in self.layers[i]:
-                    chars.append(self.layers[i][key_name])
-            if len(chars):
-                keymap[key_name.upper()] = chars
         return {
             'name': self.meta['name'],
             'description': self.meta['description'],
             'geometry': self.meta['geometry'],
-            'layout': keymap,
-            'dead_keys': list(self.dead_keys.values()),
-            'has_altgr': self.has_altgr
+            'keymap': web_keymap(self),
+            'deadkeys': web_deadkeys(self),
+            'altgr': self.has_altgr
         }
