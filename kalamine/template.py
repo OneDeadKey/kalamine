@@ -376,7 +376,7 @@ def osx_terminators(layout):
 
 
 ###
-# Web: json
+# Web: JSON
 # To be used with the <x-keyboard> web component.
 # https://github.com/fabi1cazenave/x-keyboard
 #

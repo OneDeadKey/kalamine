@@ -376,32 +376,11 @@ class KeyboardLayout:
 
     @property
     def json(self):
-        keymap = {}
-        for key_name in LAYER_KEYS:
-            if key_name.startswith('-'):
-                continue
-            chars = list('')
-            for i in [0, 1, 4, 5]:
-                if key_name in self.layers[i]:
-                    chars.append(self.layers[i][key_name])
-            if len(chars):
-                keymap[key_name.upper()] = chars
         return {
             'name': self.meta['name'],
             'description': self.meta['description'],
             'geometry': self.meta['geometry'],
-            'layout': keymap,
-            'dead_keys': list(self.dead_keys.values()),
-            'has_altgr': self.has_altgr
-        }
-
-    @property
-    def web(self):
-        return {
-            'name': self.meta['name'],
-            'description': self.meta['description'],
-            'geometry': self.meta['geometry'],
-            'layout': web_keymap(self),
-            'dead_keys': web_deadkeys(self),
-            'has_altgr': self.has_altgr
+            'keymap': web_keymap(self),
+            'deadkeys': web_deadkeys(self),
+            'altgr': self.has_altgr
         }

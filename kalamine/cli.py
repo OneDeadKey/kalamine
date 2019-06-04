@@ -4,12 +4,11 @@ import json
 import os
 
 from .layout import KeyboardLayout
-# from .utils import open_local_file
 
 
 def pretty_json(layout, path):
     """ Pretty-prints the JSON layout. """
-    text = json.dumps(layout.web, indent=2, ensure_ascii=False) \
+    text = json.dumps(layout.json, indent=2, ensure_ascii=False) \
                .replace('\n      ', ' ') \
                .replace('\n    ]', ' ]') \
                .replace('\n    }', ' }')
