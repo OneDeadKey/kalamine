@@ -403,14 +403,14 @@ def web_deadkeys(layout):
 
     deadkeys = {}
     if layout.has_1dk:  # ensure 1dk is first in the dead key dictionary
-        deadkeys['**'] = {}
+        deadkeys[ODK_ID] = {}
     for (id, dk) in layout.dead_keys.items():
         deadkeys[id] = {}
         deadkeys[id][id] = dk['alt_self']
         deadkeys[id]['\u0020'] = dk['alt_space']
         deadkeys[id]['\u00a0'] = dk['alt_space']
         deadkeys[id]['\u202f'] = dk['alt_space']
-        if id == '**':
+        if id == ODK_ID:
             for key_name in LAYER_KEYS:
                 if key_name.startswith('-'):
                     continue

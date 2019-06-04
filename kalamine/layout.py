@@ -11,7 +11,7 @@ from .template import xkb_keymap, \
     web_keymap, web_deadkeys
 
 from .utils import open_local_file, load_data, text_to_lines, lines_to_text, \
-    DEAD_KEYS, LAYER_KEYS, ODK_ID
+    DEAD_KEYS, ODK_ID
 
 
 ###
