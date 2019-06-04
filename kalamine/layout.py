@@ -7,7 +7,8 @@ import yaml
 
 from .template import xkb_keymap, \
     osx_keymap, osx_actions, osx_terminators, \
-    klc_keymap, klc_deadkeys, klc_dk_index
+    klc_keymap, klc_deadkeys, klc_dk_index, \
+    web_keymap, web_deadkeys
 
 from .utils import open_local_file, load_data, text_to_lines, lines_to_text, \
     DEAD_KEYS, LAYER_KEYS, ODK_ID
@@ -391,5 +392,16 @@ class KeyboardLayout:
             'geometry': self.meta['geometry'],
             'layout': keymap,
             'dead_keys': list(self.dead_keys.values()),
+            'has_altgr': self.has_altgr
+        }
+
+    @property
+    def web(self):
+        return {
+            'name': self.meta['name'],
+            'description': self.meta['description'],
+            'geometry': self.meta['geometry'],
+            'layout': web_keymap(self),
+            'dead_keys': web_deadkeys(self),
             'has_altgr': self.has_altgr
         }

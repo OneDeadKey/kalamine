@@ -4,6 +4,16 @@ import json
 import os
 
 from .layout import KeyboardLayout
+# from .utils import open_local_file
+
+
+def pretty_json(layout, path):
+    """ Pretty-prints the JSON layout. """
+    text = json.dumps(layout.web, indent=2, ensure_ascii=False) \
+               .replace('\n      ', ' ') \
+               .replace('\n    ]', ' ]') \
+               .replace('\n    }', ' }')
+    open(path, 'w', encoding='utf8').write(text)
 
 
 def make_all(layout, subdir):
@@ -31,8 +41,7 @@ def make_all(layout, subdir):
 
     # JSON data
     json_path = out_path('.json')
-    with open(json_path, 'w', encoding='utf8') as json_file:
-        json.dump(layout.json, json_file, indent=2, ensure_ascii=False)
+    pretty_json(layout, json_path)
     print('... ' + json_path)
 
 
@@ -68,8 +77,7 @@ def make(input, out):
         elif output_file.endswith('.xkb'):
             open(output_file, 'w', newline='\n').write(layout.xkb)
         elif output_file.endswith('.json'):
-            with open(output_file, 'w', encoding='utf8') as json_file:
-                json.dump(layout.json, json_file, indent=2, ensure_ascii=False)
+            pretty_json(layout, output_file)
         else:
             print('Unsupported output format.')
             return
