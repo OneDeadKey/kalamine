@@ -71,8 +71,8 @@
 
 - char: '*⁻'
   name: invertedbreve
-  base: AaEeGgIiOoUuΑαΙιΥυАаЕеЖжИиУу
-  alt:  ĂăĔĕĞğĬĭŎŏŬŭᾸᾰῘῐῨῠӐӑӖӗӁӂЙйЎў
+  base: AaEeIiOoUuRr
+  alt:  ȂȃȆȇȊȋȎȏȖȗȒȓ
   alt_space: '˘'  # U+02D8 BREVE
   alt_self:  '˘'  # U+02D8 BREVE
 
