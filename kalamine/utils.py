@@ -25,7 +25,7 @@ def load_data(filename):
                      Loader=yaml.SafeLoader)
 
 
-DEAD_KEYS = load_data('dead_keys.yaml')
+DEFAULT_DEAD_KEYS = load_data('dead_keys.yaml')
 ODK_ID = '**'  # must match the value in dead_keys.yaml
 LAYER_KEYS = [
     '- Digits',

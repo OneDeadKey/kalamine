@@ -11,7 +11,7 @@ from .template import xkb_keymap, \
     web_keymap, web_deadkeys
 
 from .utils import open_local_file, load_data, text_to_lines, lines_to_text, \
-    DEAD_KEYS, ODK_ID
+    DEFAULT_DEAD_KEYS, ODK_ID
 
 
 ###
@@ -132,8 +132,7 @@ class KeyboardLayout:
 
         # metadata: self.meta
         for k in cfg:
-            if k != 'base' and k != 'full' and k != 'altgr' \
-                    and k != 'spacebar':
+            if k not in ['base', 'full', 'altgr', 'spacebar', 'deadkeys']:
                 self.meta[k] = cfg[k]
         filename = os.path.splitext(os.path.basename(filepath))[0]
         self.meta['name'] = cfg['name'] if 'name' in cfg else filename
@@ -142,20 +141,29 @@ class KeyboardLayout:
         self.meta['fileName'] = self.meta['name8'].lower()
         self.meta['lastChange'] = datetime.date.today().isoformat()
 
+        dead_keys = {}
+        if 'deadkeys' in cfg:
+            dead_keys = cfg['deadkeys']
+
+        for dk in DEFAULT_DEAD_KEYS:
+            found = any((d for d in dead_keys if d['char'] == dk['char']))
+            if not found:
+                dead_keys.append(dk)
+
         # keyboard layers: self.layers & self.dead_keys
         rows = GEOMETRY[self.meta['geometry']]['rows']
         if 'full' in cfg:
             full = text_to_lines(cfg['full'])
-            self._parse_template(full, rows, 0)
-            self._parse_template(full, rows, 4)
+            self._parse_template(full, dead_keys, rows, 0)
+            self._parse_template(full, dead_keys, rows, 4)
             self.has_altgr = True
         else:
             base = text_to_lines(cfg['base'])
-            self._parse_template(base, rows, 0)
-            self._parse_template(base, rows, 2)
+            self._parse_template(base, dead_keys, rows, 0)
+            self._parse_template(base, dead_keys, rows, 2)
             if 'altgr' in cfg:
                 self.has_altgr = True
-                self._parse_template(text_to_lines(cfg['altgr']), rows, 4)
+                self._parse_template(text_to_lines(cfg['altgr']), dead_keys, rows, 4)
 
         # space bar
         spc = SPACEBAR.copy()
@@ -172,7 +180,7 @@ class KeyboardLayout:
             self.layers[5]['spce'] = spc['altgr_shift']
 
         # active dead keys: self.dk_index
-        for dk in DEAD_KEYS:
+        for dk in dead_keys:
             if dk['char'] in self.dead_keys:
                 self.dk_index.append(dk['char'])
 
@@ -212,7 +220,7 @@ class KeyboardLayout:
                         odk['base'] += base_char
                         odk['alt'] += alt_char
 
-    def _parse_template(self, template, rows, layerNumber):
+    def _parse_template(self, template, dead_keys, rows, layerNumber):
         """ Extract a keyboard layer from a template. """
 
         if layerNumber == 0:  # base layer
@@ -242,7 +250,7 @@ class KeyboardLayout:
                 if shiftKey != ' ':
                     self.layers[layerNumber + 1][key] = shiftKey
 
-                for dk in DEAD_KEYS:
+                for dk in dead_keys:
                     if baseKey == dk['char']:
                         self.dead_keys[baseKey] = dk.copy()
                     if shiftKey == dk['char']:
