@@ -174,17 +174,17 @@ def update_symbols(xkb_root, kbindex):
         if not os.path.exists(path):
             exit_LocaleNotSupported(locale)
 
-        try:
-            if not os.path.isfile(path + '.orig'):
-                # backup, just in case :-)
-                shutil.copy(path, path + '.orig')
-                print('... ' + path + '.orig (backup)')
+        basename = os.path.basename(path)
+        if not os.path.isfile(basename):
+            shutil.copy(path, basename)
+            print ('... ' + path + ' (copy)')
 
-            print('... ' + path)
-            update_symbols_locale(path, named_layouts)
+        try:
+            print('... ' + basename)
+            update_symbols_locale(basename, named_layouts)
 
         except Exception as e:
-            exit_FileNotWritable(e, path)
+            exit_FileNotWritable(e, basename)
 
 
 ###############################################################################
@@ -224,26 +224,31 @@ def update_rules(xkb_root, kbindex):
     """ Update references in XKB/rules/{base,evdev}.xml. """
 
     for filename in ['base.xml', 'evdev.xml']:
+        path = os.path.join(xkb_root, 'rules', filename)
+        basename = os.path.basename(path)
+        if not os.path.isfile(basename):
+            shutil.copy(path, basename)
+            print('... ' + path + ' (copy)')
+
         try:
-            path = os.path.join(xkb_root, 'rules', filename)
-            tree = etree.parse(path, etree.XMLParser(remove_blank_text=True))
+            tree = etree.parse(basename, etree.XMLParser(remove_blank_text=True))
 
             for locale, named_layouts in kbindex.items():
                 vlist = get_rules_locale(tree, locale).xpath('variantList')
                 if len(vlist) != 1:
-                    exit('Error: unexpected xml format in %s.' % path)
+                    exit('Error: unexpected xml format in %s.' % basename)
                 for name, layout in named_layouts.items():
                     remove_rules_variant(vlist[0], name)
                     if layout is not None:
                         description = layout.meta['description']
                         add_rules_variant(vlist[0], name, description)
 
-            tree.write(path, pretty_print=True, xml_declaration=True,
+            tree.write(basename, pretty_print=True, xml_declaration=True,
                        encoding='utf-8')
-            print('... ' + path)
+            print('... ' + basename)
 
         except Exception as e:
-            exit_FileNotWritable(e, path)
+            exit_FileNotWritable(e, basename)
 
 
 def list_rules(xkb_root, mask='', include_non_kalamine_variants=False):
