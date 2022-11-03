@@ -112,11 +112,35 @@ To apply a keyboard layout in user-space:
 
 This has limitations: it doesn’t work on Wayland and the keyboard layout doesn’t show up in the Gnome keyboard manager. Besides, on some distros, media keys might stop working.
 
-The proper way to install a keyboard layout on Linux is to modify directly the files in ``/usr/share/X11/xkb``. This is where ``xkalamine`` comes in:
+The proper way to install a keyboard layout on Linux is to modify directly the files in ``/usr/share/X11/xkb``. This is where ``xkalamine`` comes in (for this example the locale is ``us``).
+
+Optionally backup your original system files as root:
 
 .. code-block:: bash
 
-    sudo xkalamine install layout.yaml
+    # cd /usr/share/X11/xkb
+    # cp rules/base.xml rules/base.xml.orig
+    # cp rules/evdev.xml rules/evdev.xml.orig
+    # cp symbols/us symbols/us.orig
+
+Generate the ``base.xml``, ``evdev.xml`` and ``us`` (or your locale) files as a regular user
+
+.. code-block:: bash
+
+    $ ls
+    layout.yaml
+    $ xkalamine install layout.yaml
+    $ ls
+    base.xml  evdev.xml  layout.yaml  us
+
+and install the layout by coping them into ``/usr/share/X11/xkb/`` as root:
+
+.. code-block:: bash
+
+    # cp -f base.xml /usr/share/X11/xkb/rules/base.xml
+    # cp -f evdev.xml /usr/share/X11/xkb/rules/evdev.xml
+    # cp -f us /usr/share/X11/xkb/symbols/us
+
 
 There’s also:
 
