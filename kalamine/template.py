@@ -17,8 +17,7 @@ def hex_ord(char):
 def xml_proof(char):
     if char not in '<&"\u0020\u00a0\u202f>':
         return char
-    else:
-        return '&#x{0};'.format(hex_ord(char))
+    return f"&#x{hex_ord(char)};"
 
 
 def xml_proof_id(symbol):
@@ -34,22 +33,22 @@ def xml_proof_id(symbol):
 def xkb_keymap(layout, eight_levels):
     """ Linux layout. """
 
-    showDescription = True
-    maxLength = 16  # `ISO_Level3_Latch` should be the longest symbol name
+    show_description = True
+    max_length = 16  # `ISO_Level3_Latch` should be the longest symbol name
 
     output = []
-    for keyName in LAYER_KEYS:
-        if keyName.startswith('-'):  # separator
-            if len(output):
+    for key_name in LAYER_KEYS:
+        if key_name.startswith('-'):  # separator
+            if output:
                 output.append('')
-            output.append('//' + keyName[1:])
+            output.append('//' + key_name[1:])
             continue
 
         symbols = []
         description = ' //'
         for layer in layout.layers:
-            if keyName in layer:
-                symbol = layer[keyName]
+            if key_name in layer:
+                symbol = layer[key_name]
                 desc = symbol
                 if symbol in layout.dead_keys:
                     dk = layout.dead_keys[symbol]
@@ -59,7 +58,7 @@ def xkb_keymap(layout, eight_levels):
                     else:
                         symbol = 'dead_' + dk['name']
                 elif symbol in XKB_KEY_SYM \
-                        and len(XKB_KEY_SYM[symbol]) <= maxLength:
+                        and len(XKB_KEY_SYM[symbol]) <= max_length:
                     symbol = XKB_KEY_SYM[symbol]
                 else:
                     symbol = 'U' + hex_ord(symbol).upper()
@@ -68,27 +67,26 @@ def xkb_keymap(layout, eight_levels):
                 symbol = 'VoidSymbol'
 
             description += ' ' + desc
-            symbols.append(symbol.ljust(maxLength))
+            symbols.append(symbol.ljust(max_length))
 
-        s = 'key <{}> {{[ {}, {}, {}, {}]}};'  # 4-level layout by default
+        key = 'key <{}> {{[ {}, {}, {}, {}]}};'  # 4-level layout by default
         if layout.has_altgr and layout.has_1dk:
-            """ 6 layers are needed: they won't fit on the 4-level format.
-            System XKB files require a Neo-like eight-level solution.
-            Standalone XKB files work best with a dual-group solution:
-            one 4-level group for base+1dk, one two-level group for AltGr.
-            """
+            # 6 layers are needed: they won't fit on the 4-level format.
+            # System XKB files require a Neo-like eight-level solution.
+            # Standalone XKB files work best with a dual-group solution:
+            # one 4-level group for base+1dk, one two-level group for AltGr.
             if eight_levels:  # system XKB file (patch)
-                s = 'key <{}> {{[ {}, {}, {}, {}, {}, {}, {}, {}]}};'
-                symbols.append('VoidSymbol'.ljust(maxLength))
-                symbols.append('VoidSymbol'.ljust(maxLength))
+                key = 'key <{}> {{[ {}, {}, {}, {}, {}, {}, {}, {}]}};'
+                symbols.append('VoidSymbol'.ljust(max_length))
+                symbols.append('VoidSymbol'.ljust(max_length))
             else:  # user-space XKB file (standalone)
-                s = 'key <{}> {{[ {}, {}, {}, {}],[ {}, {}]}};'
+                key = 'key <{}> {{[ {}, {}, {}, {}],[ {}, {}]}};'
         elif layout.has_altgr:
             del symbols[3]
             del symbols[2]
 
-        line = s.format(* [keyName.upper()] + symbols)
-        if showDescription:
+        line = key.format(* [key_name.upper()] + symbols)
+        if show_description:
             line += description.rstrip()
             if line.endswith('\\'):
                 line += ' '  # escape trailing backslash
@@ -100,7 +98,7 @@ def xkb_keymap(layout, eight_levels):
 ###
 # Windows: KLC
 # To be used by the MS Keyboard Layout Creator to generate an installer.
-# https://www.microsoft.com/en-us/download/details.aspx?id=22339
+# https://www.microsoft.com/en-us/download/details.aspx?id=102134
 # https://levicki.net/articles/2006/09/29/HOWTO_Build_keyboard_layouts_for_Windows_x64.php
 # Also supported by KbdEdit: http://www.kbdedit.com/ (non-free).
 # Note: blank lines and comments in KLC sections are removed from the output
@@ -110,15 +108,12 @@ def xkb_keymap(layout, eight_levels):
 def klc_keymap(layout):
     """ Windows layout, main part. """
 
-    supportedSymbols = \
+    supported_symbols = \
         '1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
     output = []
-    for keyName in LAYER_KEYS:
-        if keyName.startswith('-'):
-            # if len(output):
-            #     output.append('')
-            # output.append('//' + keyName[1:])
+    for key_name in LAYER_KEYS:
+        if key_name.startswith('-'):
             continue
 
         symbols = []
@@ -128,8 +123,8 @@ def klc_keymap(layout):
         for i in [0, 1, 4, 5]:
             layer = layout.layers[i]
 
-            if keyName in layer:
-                symbol = layer[keyName]
+            if key_name in layer:
+                symbol = layer[key_name]
                 desc = symbol
                 if symbol in layout.dead_keys:
                     desc = layout.dead_keys[symbol]['alt_space']
@@ -137,7 +132,7 @@ def klc_keymap(layout):
                 else:
                     if i == 0:
                         alpha = symbol.upper() != symbol
-                    if symbol not in supportedSymbols:
+                    if symbol not in supported_symbols:
                         symbol = hex_ord(symbol)
                 symbols.append(symbol)
             else:
@@ -145,9 +140,9 @@ def klc_keymap(layout):
                 symbols.append('-1')
             description += ' ' + desc
 
-        if (layout.has_altgr):
+        if layout.has_altgr:
             output.append('\t'.join([
-                KEY_CODES['klc'][keyName],     # scan code & virtual key
+                KEY_CODES['klc'][key_name],    # scan code & virtual key
                 '1' if alpha else '0',         # affected by CapsLock?
                 symbols[0], symbols[1], '-1',  # base layer
                 symbols[2], symbols[3],        # altgr layer
@@ -155,7 +150,7 @@ def klc_keymap(layout):
             ]))
         else:
             output.append('\t'.join([
-                KEY_CODES['klc'][keyName],     # scan code & virtual key
+                KEY_CODES['klc'][key_name],    # scan code & virtual key
                 '1' if alpha else '0',         # affected by CapsLock?
                 symbols[0], symbols[1], '-1',  # base layer
                 description.strip()
@@ -169,27 +164,23 @@ def klc_deadkeys(layout):
 
     output = []
 
-    def appendLine(base, alt):
-        s = '{0}\t{1}\t// {2} -> {3}'
-        output.append(s.format(hex_ord(base), hex_ord(alt), base, alt))
+    def append_line(base, alt):
+        output.append(f"{hex_ord(base)}\t{hex_ord(alt)}\t// {base} -> {alt}")
 
     for k in layout.dk_index:
         dk = layout.dead_keys[k]
 
         output.append('// DEADKEY: ' + dk['name'].upper() + ' //{{{')
         output.append('DEADKEY\t' + hex_ord(dk['alt_space']))
-        # output.append('')
 
         if k == ODK_ID:
             output.extend(klc_1dk(layout))
         else:
             for i in range(len(dk['base'])):
-                appendLine(dk['base'][i], dk['alt'][i])
+                append_line(dk['base'][i], dk['alt'][i])
 
-        # output.append('')
-        # output.append('// Space bar')
-        appendLine('\u00a0', dk['alt_space'])
-        appendLine('\u0020', dk['alt_space'])
+        append_line('\u00a0', dk['alt_space'])
+        append_line('\u0020', dk['alt_space'])
 
         output.append('//}}}')
         output.append('')
@@ -203,8 +194,7 @@ def klc_dk_index(layout):
     output = []
     for k in layout.dk_index:
         dk = layout.dead_keys[k]
-        output.append('{0}\t"{1}"'.format(hex_ord(dk['alt_space']),
-                                          dk['name'].upper()))
+        output.append(f"{hex_ord(dk['alt_space'])}\t\"{dk['name'].upper()}\"")
     return output
 
 
@@ -213,23 +203,25 @@ def klc_1dk(layout):
 
     output = []
     for i in [0, 1]:
-        baseLayer = layout.layers[i]
-        extLayer = layout.layers[i + 2]
+        base_layer = layout.layers[i]
+        ext_layer = layout.layers[i + 2]
 
-        for keyName in LAYER_KEYS:
-            if keyName.startswith('- Space') or keyName == 'spce':
+        for key_name in LAYER_KEYS:
+            if key_name.startswith('- Space') or key_name == 'spce':
                 continue
-            if keyName.startswith('-'):
-                if len(output):
+
+            if key_name.startswith('-'):
+                if output:
                     output.append('')
-                output.append('//' + keyName[1:])
+                output.append('//' + key_name[1:])
                 continue
-            elif keyName in extLayer:
-                base = baseLayer[keyName]
+
+            if key_name in ext_layer:
+                base = base_layer[key_name]
                 if base in layout.dead_keys:
                     base = layout.dead_keys[base]['alt_space']
-                ext = extLayer[keyName]
-                if (ext in layout.dead_keys):
+                ext = ext_layer[key_name]
+                if ext in layout.dead_keys:
                     ext = layout.dead_keys[ext]['alt_space']
                     odk = hex_ord(ext) + '@'
                 else:
@@ -243,14 +235,14 @@ def klc_1dk(layout):
 
 
 ###
-# MacOS X: keylayout
-# https://developer.apple.com/library/content/technotes/tn2056/_index.html
+# macOS: keylayout
+# https://developer.apple.com/library/content/technotes/tn2056/
 #
 
 def osx_keymap(layout):
-    """ Mac OSX layout, main part. """
+    """ macOS layout, main part. """
 
-    str = []
+    ret_str = []
     for index in range(5):
         layer = layout.layers[[0, 1, 0, 4, 5][index]]
         caps = index == 2
@@ -269,7 +261,7 @@ def osx_keymap(layout):
                 continue  # these two keys are not supported yet
 
             if key_name.startswith('-'):
-                if len(output):
+                if output:
                     output.append('')
                 output.append('<!--' + key_name[1:] + ' -->')
                 continue
@@ -286,52 +278,52 @@ def osx_keymap(layout):
                     symbol = xml_proof(key.upper() if caps else key)
                     final_key = not has_dead_keys(key.upper())
 
-            char = 'code="{0}"'.format(KEY_CODES['osx'][key_name]).ljust(10)
+            char = f"code=\"{KEY_CODES['osx'][key_name]}\"".ljust(10)
             if final_key:
-                action = 'output="{0}"'.format(symbol)
+                action = f"output=\"{symbol}\""
             else:
-                action = 'action="{0}"'.format(xml_proof_id(symbol))
-            output.append('<key {0} {1} />'.format(char, action))
+                action = f"action=\"{xml_proof_id(symbol)}\""
+            output.append(f"<key {char} {action} />")
 
-        str.append(output)
-    return str
+        ret_str.append(output)
+    return ret_str
 
 
 def osx_actions(layout):
-    """ Mac OSX layout, dead key actions. """
+    """ macOS layout, dead key actions. """
 
-    output = []
+    ret_actions = []
 
     def when(state, action):
-        s = 'state="{0}"'.format(state).ljust(18)
+        state_attr = f"state=\"{state}\"".ljust(18)
         if action in layout.dead_keys:
-            a = 'next="{0}"'.format(layout.dead_keys[action]['name'])
+            action_attr = f"next=\"{layout.dead_keys[action]['name']}\""
         elif action.startswith('dead_'):
-            a = 'next="{0}"'.format(action[5:])
+            action_attr = f"next=\"{action[5:]}\""
         else:
-            a = 'output="{0}"'.format(xml_proof(action))
-        return '  <when {0} {1} />'.format(s, a)
+            action_attr = f"output=\"{xml_proof(action)}\""
+        return f"  <when {state_attr} {action_attr} />"
 
     def append_actions(symbol, actions):
-        output.append('<action id="{0}">'.format(xml_proof_id(symbol)))
-        output.append(when('none', symbol))
+        ret_actions.append(f"<action id=\"{xml_proof_id(symbol)}\">")
+        ret_actions.append(when('none', symbol))
         for (state, out) in actions:
-            output.append(when(state, out))
-        output.append('</action>')
+            ret_actions.append(when(state, out))
+        ret_actions.append('</action>')
 
     # dead key definitions
     for key in layout.dead_keys:
         symbol = layout.dead_keys[key]['name']
-        output.append('<action id="dead_{0}">'.format(symbol))
-        output.append('  <when state="none" next="{0}" />'.format(symbol))
-        output.append('</action>')
+        ret_actions.append(f"<action id=\"dead_{symbol}\">")
+        ret_actions.append(f"  <when state=\"none\" next=\"{symbol}\" />")
+        ret_actions.append('</action>')
         continue
 
     # normal key actions
     for key_name in LAYER_KEYS:
         if key_name.startswith('-'):
-            output.append('')
-            output.append('<!--' + key_name[1:] + ' -->')
+            ret_actions.append('')
+            ret_actions.append('<!--' + key_name[1:] + ' -->')
             continue
 
         for i in [0, 1]:
@@ -350,7 +342,7 @@ def osx_actions(layout):
                 if key in dk['base']:
                     idx = dk['base'].index(key)
                     actions.append((dk['name'], dk['alt'][idx]))
-            if len(actions):
+            if actions:
                 append_actions(xml_proof(key), actions)
 
     # spacebar actions
@@ -362,19 +354,19 @@ def osx_actions(layout):
     append_actions('&#x00a0;', actions)
     append_actions('&#x202f;', actions)
 
-    return output
+    return ret_actions
 
 
 def osx_terminators(layout):
-    """ Mac OSX layout, dead key terminators. """
+    """ macOS layout, dead key terminators. """
 
-    output = []
+    ret_terminators = []
     for k in layout.dk_index:
         dk = layout.dead_keys[k]
-        s = 'state="{0}"'.format(dk['name']).ljust(18)
-        o = 'output="{0}"'.format(xml_proof(dk['alt_self']))
-        output.append('<when {0} {1} />'.format(s, o))
-    return output
+        state = f"state=\"{dk['name']}\"".ljust(18)
+        output = f"output=\"{xml_proof(dk['alt_self'])}\""
+        ret_terminators.append(f"<when {state} {output} />")
+    return ret_terminators
 
 
 ###
@@ -394,7 +386,7 @@ def web_keymap(layout):
         for i in [0, 1, 4, 5]:
             if key_name in layout.layers[i]:
                 chars.append(layout.layers[i][key_name])
-        if len(chars):
+        if chars:
             keymap[KEY_CODES['web'][key_name]] = chars
 
     return keymap

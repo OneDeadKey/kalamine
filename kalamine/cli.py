@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-import click
 import json
 import os
+
+import click
 
 from .layout import KeyboardLayout
 
@@ -12,7 +13,8 @@ def pretty_json(layout, path):
                .replace('\n      ', ' ') \
                .replace('\n    ]', ' ]') \
                .replace('\n    }', ' }')
-    open(path, 'w', encoding='utf8').write(text)
+    with open(path, 'w', encoding='utf8') as file:
+        file.write(text)
 
 
 def make_all(layout, subdir):
@@ -24,18 +26,20 @@ def make_all(layout, subdir):
 
     # Windows driver
     klc_path = out_path('.klc')
-    open(klc_path, 'w',
-         encoding='utf-16le', newline='\r\n').write(layout.klc)
+    with open(klc_path, 'w', encoding='utf-16le', newline='\r\n') as file:
+        file.write(layout.klc)
     print('... ' + klc_path)
 
-    # Mac OSX driver
+    # macOS driver
     osx_path = out_path('.keylayout')
-    open(osx_path, 'w', newline='\n').write(layout.keylayout)
+    with open(osx_path, 'w', encoding='utf-8', newline='\n') as file:
+        file.write(layout.keylayout)
     print('... ' + osx_path)
 
     # Linux driver, user-space
     xkb_path = out_path('.xkb')
-    open(xkb_path, 'w', newline='\n').write(layout.xkb)
+    with open(xkb_path, 'w', encoding='utf-8', newline='\n') as file:
+        file.write(layout.xkb)
     print('... ' + xkb_path)
 
     # JSON data
@@ -51,7 +55,7 @@ def make_all(layout, subdir):
               type=click.Path(),
               help='Keyboard driver(s) to generate.')
 def make(input, out):
-    """ Convert toml/yaml layout descriptions into OS-specific keyboard layouts. """
+    """ Convert toml/yaml descriptions into OS-specific keyboard layouts. """
 
     for input_file in input:
         layout = KeyboardLayout(input_file)
@@ -69,12 +73,14 @@ def make(input, out):
 
         # detailed output
         if output_file.endswith('.klc'):
-            open(output_file, 'w',
-                 encoding='utf-16le', newline='\r\n').write(layout.klc)
+            with open(output_file, 'w', encoding='utf-16le', newline='\r\n') as file:
+                file.write(layout.klc)
         elif output_file.endswith('.keylayout'):
-            open(output_file, 'w', newline='\n').write(layout.keylayout)
+            with open(output_file, 'w', encoding='utf-8', newline='\n') as file:
+                file.write(layout.keylayout)
         elif output_file.endswith('.xkb'):
-            open(output_file, 'w', newline='\n').write(layout.xkb)
+            with open(output_file, 'w', encoding='utf-8', newline='\n') as file:
+                file.write(layout.xkb)
         elif output_file.endswith('.json'):
             pretty_json(layout, output_file)
         else:

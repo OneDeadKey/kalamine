@@ -122,7 +122,7 @@ def update_symbols_locale(path, named_layouts):
             return False
         return name in NAMES
 
-    with open(path, 'r+') as symbols:
+    with open(path, 'r+', encoding='utf-8') as symbols:
 
         # look for Kalamine layouts to be updated or removed
         between_marks = False
@@ -183,8 +183,8 @@ def update_symbols(xkb_root, kbindex):
             print('... ' + path)
             update_symbols_locale(path, named_layouts)
 
-        except Exception as e:
-            exit_FileNotWritable(e, path)
+        except Exception as exc:
+            exit_FileNotWritable(exc, path)
 
 
 ###############################################################################
@@ -192,7 +192,7 @@ def update_symbols(xkb_root, kbindex):
 #
 
 def get_rules_locale(tree, locale):
-    query = '//layout/configItem/name[text()="%s"]/../..' % locale
+    query = f"//layout/configItem/name[text()=\"{locale}\"]/../.."
     result = tree.xpath(query)
     if len(result) != 1:
         exit_LocaleNotSupported(locale)
@@ -205,8 +205,7 @@ def remove_rules_variant(variant_list, name):
         signatures.append('lafayette')
 
     for signature in signatures:
-        query = 'variant[@type="{}"]/configItem/name[text()="{}"]/../..'.\
-                format(signature, name)
+        query = "variant[@type=\"{format}\"]/configItem/name[text()=\"{name}\"]/../.."
         for variant in variant_list.xpath(query):
             variant.getparent().remove(variant)
 
@@ -231,7 +230,7 @@ def update_rules(xkb_root, kbindex):
             for locale, named_layouts in kbindex.items():
                 vlist = get_rules_locale(tree, locale).xpath('variantList')
                 if len(vlist) != 1:
-                    exit('Error: unexpected xml format in %s.' % path)
+                    exit(f"Error: unexpected xml format in {path}.")
                 for name, layout in named_layouts.items():
                     remove_rules_variant(vlist[0], name)
                     if layout is not None:
@@ -242,8 +241,8 @@ def update_rules(xkb_root, kbindex):
                        encoding='utf-8')
             print('... ' + path)
 
-        except Exception as e:
-            exit_FileNotWritable(e, path)
+        except Exception as exc:
+            exit_FileNotWritable(exc, path)
 
 
 def list_rules(xkb_root, mask='', include_non_kalamine_variants=False):
@@ -292,13 +291,13 @@ def exit(message):
 
 
 def exit_LocaleNotSupported(locale):
-    exit('Error: the `%s` locale is not supported.' % locale)
+    exit(f"Error: the `{locale}` locale is not supported.")
 
 
 def exit_FileNotWritable(exception, path):
     if isinstance(exception, PermissionError):  # noqa: F821
         exit('Permission denied. Are you root?')
     elif isinstance(exception, IOError):
-        exit('Error: could not write to file %s.' % path)
+        exit(f"Error: could not write to file {path}.")
     else:  # exit('Unexpected error: ' + sys.exc_info()[0])
-        exit('Error: {}.\n{}'.format(exception, traceback.format_exc()))
+        exit(f"Error: {exception}.\n{traceback.format_exc()}")

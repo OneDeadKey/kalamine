@@ -1,10 +1,10 @@
-# The dead keys below are used by the MacOSX and Windows drivers.  In order to
+# The dead keys below are used by the macOS and Windows drivers.  In order to
 # work with the Linux driver, their name must match the XKB definition:
 # 'acute' <=> dead_acute, 'grave' <=> dead_grave, etc.
 # https://help.ubuntu.com/community/GtkDeadKeyTable
 
 # The only exception is the '1dk' key, which is:
-#   - a standard dead key for the MacOSX and Windows drivers;
+#   - a standard dead key for the macOS and Windows drivers;
 #   - a dead AltGr key (ISO_Level3_Latch) for the Linux driver.
 
 # All other dead keys have been grep’ed from my Ubuntu 18.04LTS box,

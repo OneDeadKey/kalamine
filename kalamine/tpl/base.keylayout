@@ -7,7 +7,7 @@
   Version       : ${version}
   Last change   : ${lastChange}
   License       : ${license}
-  Reference     : http://developer.apple.com/library/mac/#technotes/tn2002/tn2056.html
+  Reference     : https://developer.apple.com/library/archive/technotes/tn2056/_index.html
 
   Logical layer (Apple keycodes)
   ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┲━━━━━━━━━━┓
