@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import platform
+import sys
 import tempfile
 
 import click
@@ -12,7 +13,7 @@ from .xkb_manager import XKBManager
 @click.group()
 def cli():
     if platform.system() != 'Linux':
-        exit('This command is only compatible with GNU/Linux, sorry.')
+        sys.exit('This command is only compatible with GNU/Linux, sorry.')
 
 
 @cli.command()
@@ -21,12 +22,12 @@ def apply(input):
     """ Apply a Kalamine layout. """
 
     layout = KeyboardLayout(input)
-    f = tempfile.NamedTemporaryFile(mode='w+', suffix='.xkb', encoding='utf-8')
-    try:
-        f.write(layout.xkb)
-        os.system(f"xkbcomp -w0 {f.name} $DISPLAY")
-    finally:
-        f.close()
+    with tempfile.NamedTemporaryFile(mode='w+', suffix='.xkb', encoding='utf-8') as temp_file:
+        try:
+            temp_file.write(layout.xkb)
+            os.system(f"xkbcomp -w0 {temp_file.name} $DISPLAY")
+        finally:
+            temp_file.close()
 
 
 @cli.command()
@@ -58,8 +59,8 @@ def list_layouts(mask, all):
 
     xkb = XKBManager()
     layouts = xkb.list_all(mask) if all else xkb.list(mask)
-    for id, desc in sorted(layouts.items()):
-        print('{:<24}   {}'.format(id, desc))
+    for locale, desc in sorted(layouts.items()):
+        print(f"{locale:<24}   {desc}")
 
 
 @cli.command()

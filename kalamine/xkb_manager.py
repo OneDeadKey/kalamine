@@ -111,7 +111,7 @@ def update_symbols_locale(path, named_layouts):
 
     text = ''
     modified_text = False
-    NAMES = list(map(lambda n: n.upper(), named_layouts.keys()))
+    names = list(map(lambda n: n.upper(), named_layouts.keys()))
 
     def is_marked_for_deletion(line):
         if line.startswith('// KALAMINE::'):
@@ -120,7 +120,7 @@ def update_symbols_locale(path, named_layouts):
             name = 'LAFAYETTE'
         else:
             return False
-        return name in NAMES
+        return name in names
 
     with open(path, 'r+', encoding='utf-8') as symbols:
 
@@ -157,11 +157,11 @@ def update_symbols_locale(path, named_layouts):
                 print('      - ' + name)
             else:
                 print('      + ' + name)
-                MARK = get_symbol_mark(name)
+                mark = get_symbol_mark(name)
                 symbols.write('\n')
-                symbols.write(MARK['begin'])
+                symbols.write(mark['begin'])
                 symbols.write(layout.xkb_patch.rstrip() + '\n')
-                symbols.write(MARK['end'])
+                symbols.write(mark['end'])
 
         symbols.close()
 
@@ -248,10 +248,7 @@ def update_rules(xkb_root, kbindex):
 def list_rules(xkb_root, mask='', include_non_kalamine_variants=False):
     """ List all installed Kalamine layouts. """
 
-    def matches(string, mask):
-        return mask == '*' or mask == string
-
-    if mask == '' or mask == '*':
+    if mask in ('', '*'):
         locale_mask = '*'
         variant_mask = '*'
     else:
@@ -271,11 +268,11 @@ def list_rules(xkb_root, mask='', include_non_kalamine_variants=False):
             locale = variant.xpath('../../configItem/name')[0].text
             name = variant.xpath('configItem/name')[0].text
             desc = variant.xpath('configItem/description')[0].text
-            id = locale + '/' + name
-            if id not in layouts \
-               and matches(locale, locale_mask) \
-               and matches(name, variant_mask):
-                layouts[id] = desc
+            layout_id = locale + '/' + name
+            if layout_id not in layouts \
+               and locale_mask in ('*', locale) \
+               and variant_mask in ('*', name):
+                layouts[layout_id] = desc
 
     return layouts
 
