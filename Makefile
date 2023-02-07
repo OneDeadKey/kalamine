@@ -1,5 +1,5 @@
 all:
-	kalamine layouts/*.yaml
+	kalamine layouts/*.toml
 	pytest
 
 clean:

@@ -51,7 +51,7 @@ def make_all(layout, subdir):
               type=click.Path(),
               help='Keyboard driver(s) to generate.')
 def make(input, out):
-    """ Convert yaml layout descriptions into OS-specific keyboard layouts. """
+    """ Convert toml/yaml layout descriptions into OS-specific keyboard layouts. """
 
     for input_file in input:
         layout = KeyboardLayout(input_file)
