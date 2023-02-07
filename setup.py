@@ -1,11 +1,11 @@
 from setuptools import setup
 
-with open('README.rst') as f:
+with open('README.rst', encoding='utf-8') as f:
     readme = f.read()
 
 setup(
     name='kalamine',
-    version='0.12',
+    version='0.13',
     description='a cross-platform Keyboard Layout Maker',
     long_description=readme,
     url='http://github.com/fabi1cazenave/kalamine',
@@ -29,6 +29,7 @@ setup(
     install_requires=[
         'click',
         'pyyaml',
+        'tomli',
         'lxml',
     ],
     include_package_data=True,

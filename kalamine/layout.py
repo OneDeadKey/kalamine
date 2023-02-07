@@ -5,6 +5,8 @@ import re
 import sys
 import yaml
 
+import tomli
+
 from .template import xkb_keymap, \
     osx_keymap, osx_actions, osx_terminators, \
     klc_keymap, klc_deadkeys, klc_dk_index, \
@@ -76,6 +78,14 @@ def load_tpl(layout, ext):
     return out
 
 
+def load_descriptor(file_path):
+    if file_path.endswith('.yaml') or file_path.endswith('.yml'):
+        with open(file_path, encoding='utf-8') as file:
+            return yaml.load(file, Loader=yaml.SafeLoader)
+    with open(file_path, mode='rb') as file:
+        return tomli.load(file)
+
+
 ###
 # Constants
 #
@@ -119,10 +129,10 @@ class KeyboardLayout:
 
         # load the YAML data (and its ancessor, if any)
         try:
-            cfg = yaml.load(open(filepath), Loader=yaml.SafeLoader)
+            cfg = load_descriptor(filepath)
             if 'extends' in cfg:
                 path = os.path.join(os.path.dirname(filepath), cfg['extends'])
-                ext = yaml.load(open(path), Loader=yaml.SafeLoader)
+                ext = load_descriptor(path)
                 ext.update(cfg)
                 cfg = ext
         except Exception as e:

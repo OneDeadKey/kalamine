@@ -8,39 +8,40 @@ A cross-platform Keyboard Layout Maker, blatantly stolen from the
 Basic Usage
 --------------------------------------------------------------------------------
 
-Draw your keyboard layout in ASCII-art and include it in a YAML document:
+Draw your keyboard layout in ASCII-art and include it in a TOML document:
 
-.. code-block:: yaml
+.. code-block:: toml
 
-    name: qwerty-ansi
-    name8: q-ansi
-    description: QWERTY-US layout.
-    version: 1.0.0
-    geometry: ANSI
+    name = "qwerty-ansi"
+    name8 = "q-ansi"
+    description = "QWERTY-US layout"
+    version = "1.0.0"
+    geometry = "ANSI"
 
-    base: |
-        ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┲━━━━━━━━━━┓
-        │ ~   │ !   │ @   │ #   │ $   │ %   │ ^   │ &   │ *   │ (   │ )   │ _   │ +   ┃          ┃
-        │ `   │ 1   │ 2   │ 3   │ 4   │ 5   │ 6   │ 7   │ 8   │ 9   │ 0   │ -   │ =   ┃ ⌫        ┃
-        ┢━━━━━┷━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┺━━┯━━━━━━━┩
-        ┃        ┃ Q   │ W   │ E   │ R   │ T   │ Y   │ U   │ I   │ O   │ P   │ {   │ }   │ |     │
-        ┃ ↹      ┃     │     │     │     │     │     │     │     │     │     │ [   │ ]   │ \     │
-        ┣━━━━━━━━┻┱────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┲━━━━┷━━━━━━━┪
-        ┃         ┃ A   │ S   │ D   │ F   │ G   │ H   │ J   │ K   │ L   │ :   │ "   ┃            ┃
-        ┃ ⇬       ┃     │     │     │     │     │     │     │     │     │ ;   │ '   ┃ ⏎          ┃
-        ┣━━━━━━━━━┻━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┲━━┻━━━━━━━━━━━━┫
-        ┃            ┃ Z   │ X   │ C   │ V   │ B   │ N   │ M   │ <   │ >   │ ?   ┃               ┃
-        ┃ ⇧          ┃     │     │     │     │     │     │     │ ,   │ .   │ /   ┃ ⇧             ┃
-        ┣━━━━━━━┳━━━━┻━━┳━━┷━━━━┱┴─────┴─────┴─────┴─────┴─────┴─┲━━━┷━━━┳━┷━━━━━╋━━━━━━━┳━━━━━━━┫
-        ┃       ┃       ┃       ┃                                ┃       ┃       ┃       ┃       ┃
-        ┃ Ctrl  ┃ super ┃ Alt   ┃ ␣                              ┃ Alt   ┃ super ┃ menu  ┃ Ctrl  ┃
-        ┗━━━━━━━┻━━━━━━━┻━━━━━━━┹────────────────────────────────┺━━━━━━━┻━━━━━━━┻━━━━━━━┻━━━━━━━┛
+    base = '''
+    ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┲━━━━━━━━━━┓
+    │ ~   │ !   │ @   │ #   │ $   │ %   │ ^   │ &   │ *   │ (   │ )   │ _   │ +   ┃          ┃
+    │ `   │ 1   │ 2   │ 3   │ 4   │ 5   │ 6   │ 7   │ 8   │ 9   │ 0   │ -   │ =   ┃ ⌫        ┃
+    ┢━━━━━┷━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┺━━┯━━━━━━━┩
+    ┃        ┃ Q   │ W   │ E   │ R   │ T   │ Y   │ U   │ I   │ O   │ P   │ {   │ }   │ |     │
+    ┃ ↹      ┃     │     │     │     │     │     │     │     │     │     │ [   │ ]   │ \     │
+    ┣━━━━━━━━┻┱────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┲━━━━┷━━━━━━━┪
+    ┃         ┃ A   │ S   │ D   │ F   │ G   │ H   │ J   │ K   │ L   │ :   │ "   ┃            ┃
+    ┃ ⇬       ┃     │     │     │     │     │     │     │     │     │ ;   │ '   ┃ ⏎          ┃
+    ┣━━━━━━━━━┻━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┲━━┻━━━━━━━━━━━━┫
+    ┃            ┃ Z   │ X   │ C   │ V   │ B   │ N   │ M   │ <   │ >   │ ?   ┃               ┃
+    ┃ ⇧          ┃     │     │     │     │     │     │     │ ,   │ .   │ /   ┃ ⇧             ┃
+    ┣━━━━━━━┳━━━━┻━━┳━━┷━━━━┱┴─────┴─────┴─────┴─────┴─────┴─┲━━━┷━━━┳━┷━━━━━╋━━━━━━━┳━━━━━━━┫
+    ┃       ┃       ┃       ┃                                ┃       ┃       ┃       ┃       ┃
+    ┃ Ctrl  ┃ super ┃ Alt   ┃ ␣                              ┃ Alt   ┃ super ┃ menu  ┃ Ctrl  ┃
+    ┗━━━━━━━┻━━━━━━━┻━━━━━━━┹────────────────────────────────┺━━━━━━━┻━━━━━━━┻━━━━━━━┻━━━━━━━┛
+    '''
 
 Build it:
 
 .. code-block:: bash
 
-    kalamine qwerty-ansi.yaml
+    kalamine qwerty-ansi.toml
 
 Get all keyboard drivers:
 
@@ -48,7 +49,7 @@ Get all keyboard drivers:
 
     dist/
     ├── q-ansi.klc        # Windows
-    ├── q-ansi.keylayout  # MacOSX
+    ├── q-ansi.keylayout  # macOS
     ├── q-ansi.xkb        # Linux
     └── q-ansi.json
 
@@ -61,18 +62,18 @@ Windows
 
 * download a keyboard layout installer:
 
-  * either MSKLC_ — proprietary freeware, compatible with Windows XP, Vista, Seven, 8, 8.1,
-  * or KbdEdit_ — proprietary shareware, compatible with Windows XP, Vista, Seven, 8, 8.1 *and* 10;
+  * either MSKLC_ — proprietary freeware, compatible with Windows XP to 10
+  * or KbdEdit_ — proprietary shareware, compatible with Windows XP to 10
 
 * run this installer to generate a setup program;
 * run the setup program;
 * the keyboard layout appears in the language bar.
 
-.. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=22339
+.. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=102134
 .. _KbdEdit: http://www.kbdedit.com/
 
-MacOSX
-``````
+macOS
+`````
 
 * copy your ``*.keylayout`` file into:
 
@@ -108,7 +109,7 @@ To apply a keyboard layout in user-space:
 .. code-block:: bash
 
     # equivalent to `xkbcomp -w10 layout.xkb $DISPLAY`
-    xkalamine apply layout.yaml
+    xkalamine apply layout.toml
 
 This has limitations: it doesn’t work on Wayland and the keyboard layout doesn’t show up in the Gnome keyboard manager. Besides, on some distros, media keys might stop working.
 
@@ -116,7 +117,7 @@ The proper way to install a keyboard layout on Linux is to modify directly the f
 
 .. code-block:: bash
 
-    sudo xkalamine install layout.yaml
+    sudo xkalamine install layout.toml
 
 There’s also:
 
