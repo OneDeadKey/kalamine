@@ -3,7 +3,7 @@ from kalamine import KeyboardLayout
 
 
 def load_layout(filename):
-    path = os.path.join('.', 'layouts', filename + '.yaml')
+    path = os.path.join('.', 'layouts', filename + '.toml')
     return KeyboardLayout(path)
 
 
