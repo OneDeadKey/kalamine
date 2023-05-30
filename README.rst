@@ -253,3 +253,20 @@ Alternative
 --------------------------------------------------------------------------------
 
 https://github.com/39aldo39/klfc
+
+Build and install from sources
+--------------------------------------------------------------------------------
+
+To install it:
+
+.. code-block:: bash
+
+    python3 -m pip install -e .
+
+And to uninstall it:
+
+.. code-block:: bash
+
+    python3 -m pip uninstall kalamine
+
+
