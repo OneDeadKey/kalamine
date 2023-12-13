@@ -43,6 +43,12 @@ Build it:
 
     kalamine qwerty-ansi.toml
 
+If you get some UnicodeEncodeError on Windows, try specify this environment variable before executing Kalamine
+
+.. code-block:: powershell
+
+    $Env:PYTHONUTF8 = 1
+
 Get all keyboard drivers:
 
 .. code-block:: bash
