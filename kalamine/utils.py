@@ -17,7 +17,7 @@ def text_to_lines(text):
 
 
 def open_local_file(file_name):
-    return open(os.path.join(os.path.dirname(__file__), file_name))
+    return open(os.path.join(os.path.dirname(__file__), file_name), encoding='utf-8')
 
 
 def load_data(filename):

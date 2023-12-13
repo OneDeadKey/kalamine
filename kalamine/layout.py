@@ -24,7 +24,7 @@ from .utils import open_local_file, load_data, text_to_lines, lines_to_text, \
 def upper_key(letter):
     if len(letter) != 1:  # dead key?
         return ' '
-    customAlpha = {
+    custom_alpha = {
         '\u00df': '\u1e9e',  # ß ẞ
         '\u007c': '\u00a6',  # | ¦
         '\u003c': '\u2264',  # < ≤
@@ -36,12 +36,11 @@ def upper_key(letter):
         '\u2193': '\u21d3',  # ↓ ⇓
         '\u00b5': ' ',       # µ (to avoid getting `Μ` as uppercase)
     }
-    if letter in customAlpha:
-        return customAlpha[letter]
-    elif letter.upper() != letter.lower():
+    if letter in custom_alpha:
+        return custom_alpha[letter]
+    if letter.upper() != letter.lower():
         return letter.upper()
-    else:
-        return ' '
+    return ' '
 
 
 def substitute_lines(text, variable, lines):
@@ -135,15 +134,15 @@ class KeyboardLayout:
                 ext = load_descriptor(path)
                 ext.update(cfg)
                 cfg = ext
-        except Exception as e:
+        except Exception as exc:
             print('File could not be parsed.')
-            print('Error: {}.'.format(e))
+            print(f"Error: {exc}.")
             sys.exit(1)
 
         # metadata: self.meta
         for k in cfg:
             if k != 'base' and k != 'full' and k != 'altgr' \
-                    and k != 'spacebar':
+                    and not isinstance(cfg[k], dict):
                 self.meta[k] = cfg[k]
         filename = os.path.splitext(os.path.basename(filepath))[0]
         self.meta['name'] = cfg['name'] if 'name' in cfg else filename
@@ -192,6 +191,7 @@ class KeyboardLayout:
                 if self.layers[layer_index][id] == char:
                     return True
             return False
+
         for dk_id in self.dead_keys:
             base = self.dead_keys[dk_id]['base']
             alt = self.dead_keys[dk_id]['alt']
@@ -222,41 +222,41 @@ class KeyboardLayout:
                         odk['base'] += base_char
                         odk['alt'] += alt_char
 
-    def _parse_template(self, template, rows, layerNumber):
+    def _parse_template(self, template, rows, layer_number):
         """ Extract a keyboard layer from a template. """
 
-        if layerNumber == 0:  # base layer
-            colOffset = 0
+        if layer_number == 0:  # base layer
+            col_offset = 0
         else:  # AltGr or 1dk
-            colOffset = 2
+            col_offset = 2
 
         j = 0
         for row in rows:
-            i = row['offset'] + colOffset
+            i = row['offset'] + col_offset
             keys = row['keys']
 
             base = list(template[2 + j * 3])
             shift = list(template[1 + j * 3])
 
             for key in keys:
-                baseKey = ('*' if base[i - 1] == '*' else '') + base[i]
-                shiftKey = ('*' if shift[i - 1] == '*' else '') + shift[i]
+                base_key = ('*' if base[i - 1] == '*' else '') + base[i]
+                shift_key = ('*' if shift[i - 1] == '*' else '') + shift[i]
 
-                if layerNumber == 0 and baseKey == ' ':  # 'shift' prevails
-                    baseKey = shiftKey.lower()
-                if layerNumber != 0 and shiftKey == ' ':
-                    shiftKey = upper_key(baseKey)
+                if layer_number == 0 and base_key == ' ':  # 'shift' prevails
+                    base_key = shift_key.lower()
+                if layer_number != 0 and shift_key == ' ':
+                    shift_key = upper_key(base_key)
 
-                if baseKey != ' ':
-                    self.layers[layerNumber + 0][key] = baseKey
-                if shiftKey != ' ':
-                    self.layers[layerNumber + 1][key] = shiftKey
+                if base_key != ' ':
+                    self.layers[layer_number + 0][key] = base_key
+                if shift_key != ' ':
+                    self.layers[layer_number + 1][key] = shift_key
 
                 for dk in DEAD_KEYS:
-                    if baseKey == dk['char']:
-                        self.dead_keys[baseKey] = dk.copy()
-                    if shiftKey == dk['char']:
-                        self.dead_keys[shiftKey] = dk.copy()
+                    if base_key == dk['char']:
+                        self.dead_keys[base_key] = dk.copy()
+                    if shift_key == dk['char']:
+                        self.dead_keys[shift_key] = dk.copy()
 
                 i += 6
 
@@ -266,50 +266,50 @@ class KeyboardLayout:
     # Geometry: base, full, altgr
     #
 
-    def _fill_template(self, template, rows, layerNumber):
+    def _fill_template(self, template, rows, layer_number):
         """ Fill a template with a keyboard layer. """
 
-        if layerNumber == 0:  # base layer
-            colOffset = 0
-            shiftPrevails = True
+        if layer_number == 0:  # base layer
+            col_offset = 0
+            shift_prevails = True
         else:  # AltGr or 1dk
-            colOffset = 2
-            shiftPrevails = False
+            col_offset = 2
+            shift_prevails = False
 
         j = 0
         for row in rows:
-            i = row['offset'] + colOffset
+            i = row['offset'] + col_offset
             keys = row['keys']
 
             base = list(template[2 + j * 3])
             shift = list(template[1 + j * 3])
 
             for key in keys:
-                baseKey = ' '
-                if key in self.layers[layerNumber]:
-                    baseKey = self.layers[layerNumber][key]
+                base_key = ' '
+                if key in self.layers[layer_number]:
+                    base_key = self.layers[layer_number][key]
 
-                shiftKey = ' '
-                if key in self.layers[layerNumber + 1]:
-                    shiftKey = self.layers[layerNumber + 1][key]
+                shift_key = ' '
+                if key in self.layers[layer_number + 1]:
+                    shift_key = self.layers[layer_number + 1][key]
 
-                dead_base = len(baseKey) == 2 and baseKey[0] == '*'
-                dead_shift = len(shiftKey) == 2 and shiftKey[0] == '*'
+                dead_base = len(base_key) == 2 and base_key[0] == '*'
+                dead_shift = len(shift_key) == 2 and shift_key[0] == '*'
 
-                if shiftPrevails:
-                    shift[i] = shiftKey[-1]
+                if shift_prevails:
+                    shift[i] = shift_key[-1]
                     if dead_shift:
                         shift[i-1] = '*'
-                    if upper_key(baseKey) != shiftKey:
-                        base[i] = baseKey[-1]
+                    if upper_key(base_key) != shift_key:
+                        base[i] = base_key[-1]
                         if dead_base:
                             base[i-1] = '*'
                 else:
-                    base[i] = baseKey[-1]
+                    base[i] = base_key[-1]
                     if dead_base:
                         base[i-1] = '*'
-                    if upper_key(baseKey) != shiftKey:
-                        shift[i] = shiftKey[-1]
+                    if upper_key(base_key) != shift_key:
+                        shift[i] = shift_key[-1]
                         if dead_shift:
                             shift[i-1] = '*'
 
@@ -332,15 +332,18 @@ class KeyboardLayout:
 
     @property
     def base(self):
-        return self._get_geometry([0, 2])  # base + 1dk
+        """ Base + 1dk layers. """
+        return self._get_geometry([0, 2])
 
     @property
     def full(self):
-        return self._get_geometry([0, 4])  # base + altgr
+        """ Base + AltGr layers. """
+        return self._get_geometry([0, 4])
 
     @property
     def altgr(self):
-        return self._get_geometry([4])     # altgr only
+        """ AltGr layer only. """
+        return self._get_geometry([4])
 
     ###
     # OS-specific drivers: keylayout, klc, xkb, xkb_patch
@@ -348,7 +351,7 @@ class KeyboardLayout:
 
     @property
     def keylayout(self):
-        """ Mac OSX driver """
+        """ macOS driver """
         out = load_tpl(self, '.keylayout')
         for i, layer in enumerate(osx_keymap(self)):
             out = substitute_lines(out, 'LAYER_' + str(i), layer)
@@ -386,6 +389,7 @@ class KeyboardLayout:
 
     @property
     def json(self):
+        """ JSON layout descriptor """
         return {
             'name': self.meta['name'],
             'description': self.meta['description'],
