@@ -142,7 +142,7 @@ class KeyboardLayout:
         # metadata: self.meta
         for k in cfg:
             if k != 'base' and k != 'full' and k != 'altgr' \
-                    and k != 'spacebar':
+                    and not isinstance(cfg[k], dict):
                 self.meta[k] = cfg[k]
         filename = os.path.splitext(os.path.basename(filepath))[0]
         self.meta['name'] = cfg['name'] if 'name' in cfg else filename

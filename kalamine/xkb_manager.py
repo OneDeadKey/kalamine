@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import shutil
 import sys
 import traceback
 
@@ -37,11 +36,11 @@ class XKBManager:
         update_rules(self._rootdir, self._index)  # XKB/rules/{base,evdev}.xml
         self._index = {}
 
-    def list(self, mask=''):
-        return list_rules(self._rootdir, mask)
+    def clean(self):
+        clean_rules(self._rootdir)  # XKB/rules/{base,evdev}.xml
 
-    def list_all(self, mask=''):
-        return list_rules(self._rootdir, mask, True)
+    def list(self, locale=''):
+        return list_rules(self._rootdir, locale)
 
 
 ###############################################################################
@@ -56,6 +55,10 @@ class XKBManager:
         xkb_symbols "[name]" { ... }
         // KALAMINE::[NAME]::END
 
+    Earlier versions of XKalamine used to mark index files as well but recent
+    versions of Gnome do not support the custom `type` attribute any more, which
+    must be removed:
+
     - XKB/rules/{base,evdev}.xml: layout references
         <variant type="kalamine">
             <configItem>
@@ -64,7 +67,7 @@ class XKBManager:
             </configItem>
         </variant>
 
-    Unfortunately, the Lafayette project has released a first installer before
+    Even worse, the Lafayette project has released a first installer before
     the XKalamine installer was developed, so we have to handle this situation
     too:
 
@@ -175,11 +178,6 @@ def update_symbols(xkb_root, kbindex):
             exit_LocaleNotSupported(locale)
 
         try:
-            if not os.path.isfile(path + '.orig'):
-                # backup, just in case :-)
-                shutil.copy(path, path + '.orig')
-                print('... ' + path + '.orig (backup)')
-
             print('... ' + path)
             update_symbols_locale(path, named_layouts)
 
@@ -200,14 +198,9 @@ def get_rules_locale(tree, locale):
 
 
 def remove_rules_variant(variant_list, name):
-    signatures = ['kalamine']
-    if name.lower().startswith('lafayette'):
-        signatures.append('lafayette')
-
-    for signature in signatures:
-        query = "variant[@type=\"{format}\"]/configItem/name[text()=\"{name}\"]/../.."
-        for variant in variant_list.xpath(query):
-            variant.getparent().remove(variant)
+    query = f"variant/configItem/name[text()=\"{name}\"]/../.."
+    for variant in variant_list.xpath(query):
+        variant.getparent().remove(variant)
 
 
 def add_rules_variant(variant_list, name, description):
@@ -215,8 +208,7 @@ def add_rules_variant(variant_list, name, description):
         E.variant(
             E.configItem(
                 E.name(name),
-                E.description(description)
-            ), type='kalamine'))
+                E.description(description))))
 
 
 def update_rules(xkb_root, kbindex):
@@ -245,33 +237,39 @@ def update_rules(xkb_root, kbindex):
             exit_FileNotWritable(exc, path)
 
 
-def list_rules(xkb_root, mask='', include_non_kalamine_variants=False):
-    """ List all installed Kalamine layouts. """
+def clean_rules(xkb_root):
+    """ Drop the obsolete 'type' attributes kalamine used to add. """
 
-    if mask in ('', '*'):
-        locale_mask = '*'
-        variant_mask = '*'
-    else:
-        m = mask.split('/')
-        if len(m) != 2:
-            exit('Error: expecting a [locale]/[variant] mask.')
-        locale_mask, variant_mask = m
+    for filename in ['base.xml', 'evdev.xml']:
+        path = os.path.join(xkb_root, 'rules', filename)
+        tree = etree.parse(path, etree.XMLParser(remove_blank_text=True))
+        has_obsolete_mark = False
 
-    query = '//variant'
-    if not include_non_kalamine_variants:
-        query += '[@type]'
+        for variant in tree.xpath('//variant[@type]'):
+            variant.attrib.pop('type')
+            has_obsolete_mark = True
+
+        if has_obsolete_mark:
+            try:
+                tree.write(path, pretty_print=True, xml_declaration=True,
+                           encoding='utf-8')
+                print('... ' + path)
+            except Exception as exc:
+                exit_FileNotWritable(exc, path)
+
+
+def list_rules(xkb_root, locale_mask='*'):
+    """ List all matching XKB layouts. """
 
     layouts = {}
     for filename in ['base.xml', 'evdev.xml']:
         tree = etree.parse(os.path.join(xkb_root, 'rules', filename))
-        for variant in tree.xpath(query):
+        for variant in tree.xpath('//variant'):
             locale = variant.xpath('../../configItem/name')[0].text
             name = variant.xpath('configItem/name')[0].text
             desc = variant.xpath('configItem/description')[0].text
             layout_id = locale + '/' + name
-            if layout_id not in layouts \
-               and locale_mask in ('*', locale) \
-               and variant_mask in ('*', name):
+            if layout_id not in layouts and locale_mask in ('*', locale):
                 layouts[layout_id] = desc
 
     return layouts
@@ -281,20 +279,20 @@ def list_rules(xkb_root, mask='', include_non_kalamine_variants=False):
 # Exception Handling (there must be a better way...)
 #
 
-def exit(message):
+def sys_exit(message):
     print('')
     print(message)
     sys.exit(1)
 
 
 def exit_LocaleNotSupported(locale):
-    exit(f"Error: the `{locale}` locale is not supported.")
+    sys_exit(f"Error: the `{locale}` locale is not supported.")
 
 
 def exit_FileNotWritable(exception, path):
     if isinstance(exception, PermissionError):  # noqa: F821
-        exit('Permission denied. Are you root?')
+        sys_exit('Permission denied. Are you root?')
     elif isinstance(exception, IOError):
-        exit(f"Error: could not write to file {path}.")
+        sys_exit(f"Error: could not write to file {path}.")
     else:  # exit('Unexpected error: ' + sys.exc_info()[0])
-        exit(f"Error: {exception}.\n{traceback.format_exc()}")
+        sys_exit(f"Error: {exception}.\n{traceback.format_exc()}")

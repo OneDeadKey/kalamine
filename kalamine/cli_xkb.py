@@ -51,14 +51,21 @@ def install(layouts):
     print()
 
 
+@cli.command(name='clean')
+def clean_layouts():
+    """ Clean all installed Kalamine layouts: drop the obsolete 'type' attr. """
+
+    xkb = XKBManager()
+    xkb.clean()
+
+
 @cli.command(name='list')
-@click.argument('mask', default='*')
-@click.option('--all', '-a', is_flag=True)
-def list_layouts(mask, all):
+@click.argument('locale', default='*')
+def list_layouts(locale):
     """ List all installed Kalamine layouts. """
 
     xkb = XKBManager()
-    layouts = xkb.list_all(mask) if all else xkb.list(mask)
+    layouts = xkb.list(locale)
     for locale, desc in sorted(layouts.items()):
         print(f"{locale:<24}   {desc}")
 
