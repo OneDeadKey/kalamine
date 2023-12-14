@@ -39,14 +39,16 @@ class XKBManager:
     def clean(self):
         clean_rules(self._rootdir)  # XKB/rules/{base,evdev}.xml
 
-    def list(self, locale=''):
-        layouts = list_rules(self._rootdir, locale)
+    def list(self, mask=''):
+        layouts = list_rules(self._rootdir, mask)
         return list_symbols(self._rootdir, layouts)
-        # return list_rules(self._rootdir, locale)
+
+    def list_all(self, mask=''):
+        return list_rules(self._rootdir, mask)
 
 
 """ On GNU/Linux, keyboard layouts must be installed in /usr/share/X11/xkb. To
-    be able to revert a layout installation, kalamine marks layouts like this:
+    be able to revert a layout installation, Kalamine marks layouts like this:
 
     - XKB/symbols/[locale]: layout definitions
         // KALAMINE::[NAME]::BEGIN
@@ -114,6 +116,15 @@ def get_symbol_mark(name):
         'begin': '// KALAMINE::' + name.upper() + '::BEGIN\n',
         'end': '// KALAMINE::' + name.upper() + '::END\n'
     }
+
+
+def is_new_symbol_mark(line):
+    if line.endswith('::BEGIN\n'):
+        if line.startswith('// KALAMINE::'):
+            return line[13:-8].lower()  # XXX Kalamine expects lowercase namew
+        elif line.startswith('// LAFAYETTE::'):
+            return 'lafayette'
+    return None
 
 
 def update_symbols_locale(path, named_layouts):
@@ -192,38 +203,24 @@ def update_symbols(xkb_root, kbindex):
             exit_FileNotWritable(exc, path)
 
 
-def list_symbols(xkb_root, layouts):
-    """ Filter input layouts: only keep the ones defined with kalamine. """
+def list_symbols(xkb_root, kb_index):
+    """ Filter input layouts: only keep the ones defined with Kalamine. """
 
-    filtered_layouts = {}
-
-    for id, desc in sorted(layouts.items()):
-        locale, variant = id.split('/')
-
+    filtered_index = {}
+    for locale, variants in sorted(kb_index.items()):
         path = os.path.join(xkb_root, 'symbols', locale)
         if not os.path.exists(path):
-            exit_LocaleNotSupported(locale)
-
-        # names = list(map(lambda n: n.upper(), named_layouts.keys()))
-
-        def matches_variant(line):
-            if line.startswith('// KALAMINE::'):
-                name = line[13:-8]
-            elif line.startswith('// LAFAYETTE::'):
-                name = 'LAFAYETTE'
-            else:
-                return False
-            return name == variant.upper()
-
-        variant_signature = f"::{variant.upper()}::BEGIN\n"
+            continue
 
         with open(path, 'r', encoding='utf-8') as symbols:
             for line in symbols:
-                if line.endswith(variant_signature):
-                    filtered_layouts[f"{locale}/{variant}"] = desc
-                    break
+                name = is_new_symbol_mark(line)
+                if name in variants.keys():
+                    if locale not in filtered_index:
+                        filtered_index[locale] = {}
+                    filtered_index[locale][name] = variants[name]
 
-    return filtered_layouts
+    return filtered_index
 
 
 ###############################################################################
@@ -279,7 +276,7 @@ def update_rules(xkb_root, kbindex):
 
 
 def clean_rules(xkb_root):
-    """ Drop the obsolete 'type' attributes kalamine used to add. """
+    """ Drop the obsolete 'type' attributes Kalamine used to add. """
 
     for filename in ['base.xml', 'evdev.xml']:
         path = os.path.join(xkb_root, 'rules', filename)
@@ -313,20 +310,20 @@ def list_rules(xkb_root, mask='*'):
             locale_mask = mask
             variant_mask = "*"
 
-    layouts = {}
+    kb_index = {}
     for filename in ['base.xml', 'evdev.xml']:
         tree = etree.parse(os.path.join(xkb_root, 'rules', filename))
         for variant in tree.xpath('//variant'):
             locale = variant.xpath('../../configItem/name')[0].text
             name = variant.xpath('configItem/name')[0].text
             desc = variant.xpath('configItem/description')[0].text
-            layout_id = locale + '/' + name
-            if layout_id not in layouts \
-                and locale_mask in ('*', locale) \
-                and variant_mask in ('*', name):
-                layouts[layout_id] = desc
 
-    return layouts
+            if locale_mask in ('*', locale) and variant_mask in ('*', name):
+                if locale not in kb_index:
+                    kb_index[locale] = {}
+                kb_index[locale][name] = desc
+
+    return kb_index
 
 
 ###############################################################################

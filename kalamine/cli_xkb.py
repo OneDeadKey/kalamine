@@ -45,29 +45,32 @@ def install(layouts):
 
     print()
     print(f"Successfully installed. You can try the layout{'s' if len(layouts) > 1 else ''} with:")
-    for locale, named_layouts in index:
-        for name in named_layouts.keys():
+    for locale, variants in index:
+        for name in variants.keys():
             print(f"    setxkbmap {locale} -variant {name}")
     print()
 
 
-@cli.command(name='clean')
-def clean_layouts():
+@cli.command()
+def clean():
     """ Clean all installed Kalamine layouts: drop the obsolete 'type' attr. """
 
     xkb = XKBManager()
     xkb.clean()
 
 
-@cli.command(name='list')
-@click.argument('locale', default='*')
-def list_layouts(locale):
+@cli.command()
+@click.argument('mask', default='*')
+@click.option('--all', '-a', is_flag=True)
+def list(mask, all):
     """ List all installed Kalamine layouts. """
 
     xkb = XKBManager()
-    layouts = xkb.list(locale)
-    for id, desc in sorted(layouts.items()):
-        print(f"{id:<24}   {desc}")
+    layouts = xkb.list_all(mask) if all else xkb.list(mask)
+    for locale, variants in sorted(layouts.items()):
+        for name, desc in sorted(variants.items()):
+            id = f"{locale}/{name}"
+            print(f"{id:<24}   {desc}")
 
 
 @cli.command()
