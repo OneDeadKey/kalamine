@@ -40,15 +40,13 @@ class XKBManager:
         clean_rules(self._rootdir)  # XKB/rules/{base,evdev}.xml
 
     def list(self, locale=''):
-        return list_rules(self._rootdir, locale)
+        layouts = list_rules(self._rootdir, locale)
+        return list_symbols(self._rootdir, layouts)
+        # return list_rules(self._rootdir, locale)
 
-
-###############################################################################
-# Helpers: XKB/symbols
-#
 
 """ On GNU/Linux, keyboard layouts must be installed in /usr/share/X11/xkb. To
-    be able to revert a layout installation, Kalamine marks layouts like this:
+    be able to revert a layout installation, kalamine marks layouts like this:
 
     - XKB/symbols/[locale]: layout definitions
         // KALAMINE::[NAME]::BEGIN
@@ -95,6 +93,15 @@ class XKBManager:
     Because of the way they are grouped in symbols/fr, it is impossible to
     remove one without removing the other.
 """
+
+def clean_legacy_lafayette():
+    return
+
+
+###############################################################################
+# Helpers: XKB/symbols
+#
+
 
 LEGACY_MARK = {
     'begin': '// LAFAYETTE::BEGIN\n',
@@ -185,6 +192,40 @@ def update_symbols(xkb_root, kbindex):
             exit_FileNotWritable(exc, path)
 
 
+def list_symbols(xkb_root, layouts):
+    """ Filter input layouts: only keep the ones defined with kalamine. """
+
+    filtered_layouts = {}
+
+    for id, desc in sorted(layouts.items()):
+        locale, variant = id.split('/')
+
+        path = os.path.join(xkb_root, 'symbols', locale)
+        if not os.path.exists(path):
+            exit_LocaleNotSupported(locale)
+
+        # names = list(map(lambda n: n.upper(), named_layouts.keys()))
+
+        def matches_variant(line):
+            if line.startswith('// KALAMINE::'):
+                name = line[13:-8]
+            elif line.startswith('// LAFAYETTE::'):
+                name = 'LAFAYETTE'
+            else:
+                return False
+            return name == variant.upper()
+
+        variant_signature = f"::{variant.upper()}::BEGIN\n"
+
+        with open(path, 'r', encoding='utf-8') as symbols:
+            for line in symbols:
+                if line.endswith(variant_signature):
+                    filtered_layouts[f"{locale}/{variant}"] = desc
+                    break
+
+    return filtered_layouts
+
+
 ###############################################################################
 # Helpers: XKB/rules
 #
@@ -258,8 +299,19 @@ def clean_rules(xkb_root):
                 exit_FileNotWritable(exc, path)
 
 
-def list_rules(xkb_root, locale_mask='*'):
+def list_rules(xkb_root, mask='*'):
     """ List all matching XKB layouts. """
+
+    if mask in ('', '*'):
+        locale_mask = '*'
+        variant_mask = '*'
+    else:
+        m = mask.split('/')
+        if len(m) == 2:
+            locale_mask, variant_mask = m
+        else:
+            locale_mask = mask
+            variant_mask = "*"
 
     layouts = {}
     for filename in ['base.xml', 'evdev.xml']:
@@ -269,7 +321,9 @@ def list_rules(xkb_root, locale_mask='*'):
             name = variant.xpath('configItem/name')[0].text
             desc = variant.xpath('configItem/description')[0].text
             layout_id = locale + '/' + name
-            if layout_id not in layouts and locale_mask in ('*', locale):
+            if layout_id not in layouts \
+                and locale_mask in ('*', locale) \
+                and variant_mask in ('*', name):
                 layouts[layout_id] = desc
 
     return layouts
@@ -294,5 +348,5 @@ def exit_FileNotWritable(exception, path):
         sys_exit('Permission denied. Are you root?')
     elif isinstance(exception, IOError):
         sys_exit(f"Error: could not write to file {path}.")
-    else:  # exit('Unexpected error: ' + sys.exc_info()[0])
+    else:
         sys_exit(f"Error: {exception}.\n{traceback.format_exc()}")

@@ -66,8 +66,8 @@ def list_layouts(locale):
 
     xkb = XKBManager()
     layouts = xkb.list(locale)
-    for locale, desc in sorted(layouts.items()):
-        print(f"{locale:<24}   {desc}")
+    for id, desc in sorted(layouts.items()):
+        print(f"{id:<24}   {desc}")
 
 
 @cli.command()
