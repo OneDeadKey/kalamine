@@ -79,6 +79,7 @@ def remove(mask):
     """ Remove an existing Kalamine layout. """
 
     xkb = XKBManager()
-    for layout_id in xkb.list(mask):
-        xkb.remove(layout_id)
+    for locale, variants in xkb.list(mask).items():
+        for name in variants.keys():
+            xkb.remove(locale, name)
     xkb.update()

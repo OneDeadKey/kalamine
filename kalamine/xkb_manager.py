@@ -25,8 +25,7 @@ class XKBManager:
             self._index[locale] = {}
         self._index[locale][variant] = layout
 
-    def remove(self, layout_id):
-        locale, variant = layout_id.split('/')
+    def remove(self, locale, variant):
         if locale not in self._index:
             self._index[locale] = {}
         self._index[locale][variant] = None
@@ -121,8 +120,8 @@ def get_symbol_mark(name):
 def is_new_symbol_mark(line):
     if line.endswith('::BEGIN\n'):
         if line.startswith('// KALAMINE::'):
-            return line[13:-8].lower()  # XXX Kalamine expects lowercase namew
-        elif line.startswith('// LAFAYETTE::'):
+            return line[13:-8].lower()  # XXX Kalamine expects lowercase names
+        elif line.startswith('// LAFAYETTE::'):  # obsolete marker
             return 'lafayette'
     return None
 
@@ -132,25 +131,15 @@ def update_symbols_locale(path, named_layouts):
 
     text = ''
     modified_text = False
-    names = list(map(lambda n: n.upper(), named_layouts.keys()))
-
-    def is_marked_for_deletion(line):
-        if line.startswith('// KALAMINE::'):
-            name = line[13:-8]
-        elif line.startswith('// LAFAYETTE::'):
-            name = 'LAFAYETTE'
-        else:
-            return False
-        return name in names
-
     with open(path, 'r+', encoding='utf-8') as symbols:
 
         # look for Kalamine layouts to be updated or removed
         between_marks = False
         closing_mark = ''
         for line in symbols:
-            if line.endswith('::BEGIN\n'):
-                if is_marked_for_deletion(line):
+            name = is_new_symbol_mark(line)
+            if name:
+                if name in named_layouts.keys():
                     closing_mark = line[:-6] + 'END\n'
                     modified_text = True
                     between_marks = True
@@ -187,10 +176,10 @@ def update_symbols_locale(path, named_layouts):
         symbols.close()
 
 
-def update_symbols(xkb_root, kbindex):
+def update_symbols(xkb_root, kb_index):
     """ Update Kalamine layouts in all xkb/symbols files. """
 
-    for locale, named_layouts in kbindex.items():
+    for locale, named_layouts in kb_index.items():
         path = os.path.join(xkb_root, 'symbols', locale)
         if not os.path.exists(path):
             exit_LocaleNotSupported(locale)
@@ -249,7 +238,7 @@ def add_rules_variant(variant_list, name, description):
                 E.description(description))))
 
 
-def update_rules(xkb_root, kbindex):
+def update_rules(xkb_root, kb_index):
     """ Update references in XKB/rules/{base,evdev}.xml. """
 
     for filename in ['base.xml', 'evdev.xml']:
@@ -257,7 +246,7 @@ def update_rules(xkb_root, kbindex):
             path = os.path.join(xkb_root, 'rules', filename)
             tree = etree.parse(path, etree.XMLParser(remove_blank_text=True))
 
-            for locale, named_layouts in kbindex.items():
+            for locale, named_layouts in kb_index.items():
                 vlist = get_rules_locale(tree, locale).xpath('variantList')
                 if len(vlist) != 1:
                     exit(f"Error: unexpected xml format in {path}.")
