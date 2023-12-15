@@ -43,12 +43,6 @@ Build it:
 
     kalamine qwerty-ansi.toml
 
-If you get some UnicodeEncodeError on Windows, try specify this environment variable before executing Kalamine
-
-.. code-block:: powershell
-
-    $Env:PYTHONUTF8 = 1
-
 Get all keyboard drivers:
 
 .. code-block:: bash
@@ -56,7 +50,8 @@ Get all keyboard drivers:
     dist/
     ├── q-ansi.klc        # Windows
     ├── q-ansi.keylayout  # macOS
-    ├── q-ansi.xkb        # Linux
+    ├── q-ansi.xkb        # Linux (user)
+    ├── q-ansi.xkb_patch  # Linux (root)
     └── q-ansi.json
 
 
@@ -78,6 +73,12 @@ Windows
 .. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=102134
 .. _KbdEdit: http://www.kbdedit.com/
 
+If you get a UnicodeEncodeError, try specifying this environment variable before executing Kalamine:
+
+.. code-block:: powershell
+
+    $Env:PYTHONUTF8 = 1
+
 macOS
 `````
 
@@ -89,16 +90,40 @@ macOS
 * restart your session;
 * the keyboard layout appears in the “Language and Text” preferences, “Input Methods” tab.
 
-Linux
-`````
+Linux (root) — recommended on Xorg and Wayland
+````````````
 
-On Xorg, ``*.xkb`` keyboard descriptions can be applied with ``xkbcomp``:
+Recent versions of XKB may support *one* custom keyboard layout in root space:
+
+.. code-block:: bash
+
+    sudo cp layout.xkb_patch /usr/share/X11/xkb/symbols/custom
+    setxkbmap custom
+
+Your keyboard layout will be listed as “Custom” in the Gnome keyboard manager, and it should work fine, both on Xorg and Wayland.
+
+`setxkbmap` can be used to get back to the standard us-qwerty layout:
+
+.. code-block:: bash
+
+    setxkbmap us
+
+Linux (user)
+````````````
+
+On Linux, if the `xkb/symbols/custom` hack can’t be used, ``*.xkb`` keyboard descriptions can be applied in user-space with ``xkbcomp``:
 
 .. code-block:: bash
 
     xkbcomp -w10 layout.xkb $DISPLAY
 
-To get back to the standard us-qwerty layout:
+This has limitations:
+
+* the keyboard layout won’t show up in the Gnome keyboard manager
+* media keys might stop working
+* unlikely to work on Wayland
+
+Again, `setxkbmap` can be used to get back to the standard us-qwerty layout:
 
 .. code-block:: bash
 
@@ -129,3 +154,16 @@ There’s also:
 
 * ``xkalamine list`` to enumerate all installed Kalamine layouts
 * ``xkalamine remove`` to uninstall a Kalamine layout
+
+XKB is a tricky piece of software. The following resources might be helpful if you want to dig in:
+
+* https://www.charvolant.org/doug/xkb/html/
+* https://wiki.archlinux.org/title/X_keyboard_extension
+* https://wiki.archlinux.org/title/Xorg/Keyboard_configuration
+* https://github.com/xkbcommon/libxkbcommon/blob/master/doc/keymap-format-text-v1.md
+
+
+Alternative
+--------------------------------------------------------------------------------
+
+https://github.com/39aldo39/klfc

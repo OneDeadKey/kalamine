@@ -42,6 +42,12 @@ def make_all(layout, subdir):
         file.write(layout.xkb)
     print('... ' + xkb_path)
 
+    # Linux driver, user-space
+    xkb_custom_path = out_path('.xkb_custom')
+    with open(xkb_custom_path, 'w', encoding='utf-8', newline='\n') as file:
+        file.write(layout.xkb_patch)
+    print('... ' + xkb_custom_path)
+
     # JSON data
     json_path = out_path('.json')
     pretty_json(layout, json_path)
