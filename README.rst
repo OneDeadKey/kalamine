@@ -1,14 +1,29 @@
 Kalamine
 ================================================================================
 
-A cross-platform Keyboard Layout Maker, blatantly stolen from the
-`qwerty-lafayette <https://qwerty-lafayette.org>`_ project.
+A text-based, cross-platform Keyboard Layout Maker.
 
 
-Basic Usage
+Install
 --------------------------------------------------------------------------------
 
-Draw your keyboard layout in ASCII-art and include it in a TOML document:
+All you need is a Python environment:
+
+.. code-block:: bash
+
+   pip install kalamine
+
+If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment variable before executing Kalamine:
+
+.. code-block:: powershell
+
+    $Env:PYTHONUTF8 = 1
+
+
+Keyboard Layout Generation
+--------------------------------------------------------------------------------
+
+Draw your keyboard layout in one of the provided ASCII-art templates and include it in a TOML document:
 
 .. code-block:: toml
 
@@ -55,29 +70,20 @@ Get all keyboard drivers:
     └── q-ansi.json
 
 
-Install
+Keyboard Layout Installation
 --------------------------------------------------------------------------------
 
 Windows
 ```````
 
-* download a keyboard layout installer:
-
-  * either MSKLC_ — proprietary freeware, compatible with Windows XP to 10
-  * or KbdEdit_ — proprietary shareware, compatible with Windows XP to 10
-
+* get a keyboard layout installer: MSKLC_ (freeware) or KbdEdit_ (shareware);
+* load the ``*.klc`` file with it;
 * run this installer to generate a setup program;
 * run the setup program;
 * the keyboard layout appears in the language bar.
 
 .. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=102134
 .. _KbdEdit: http://www.kbdedit.com/
-
-If you get a UnicodeEncodeError, try specifying this environment variable before executing Kalamine:
-
-.. code-block:: powershell
-
-    $Env:PYTHONUTF8 = 1
 
 macOS
 `````
@@ -93,25 +99,25 @@ macOS
 Linux (root) — recommended on Xorg and Wayland
 ````````````
 
-Recent versions of XKB may support *one* custom keyboard layout in root space:
+Recent versions of XKB allow *one* custom keyboard layout in root space:
 
 .. code-block:: bash
 
     sudo cp layout.xkb_patch /usr/share/X11/xkb/symbols/custom
-    setxkbmap custom
 
-Your keyboard layout will be listed as “Custom” in the Gnome keyboard manager, and it should work fine, both on Xorg and Wayland.
+Your keyboard layout will be listed as “Custom” in the keyboard settings.
 
-`setxkbmap` can be used to get back to the standard us-qwerty layout:
+On Xorg you can also select your keyboard layout from the command line:
 
 .. code-block:: bash
 
-    setxkbmap us
+    setxkbmap custom  # select your keyboard layout
+    setxkbmap us      # get back to QWERTY
 
 Linux (user)
 ````````````
 
-On Linux, if the `xkb/symbols/custom` hack can’t be used, ``*.xkb`` keyboard descriptions can be applied in user-space with ``xkbcomp``:
+On Linux, if the ``xkb/symbols/custom`` hack can’t be used, ``*.xkb`` keyboard descriptions can be applied in user-space with ``xkbcomp``:
 
 .. code-block:: bash
 
@@ -119,11 +125,11 @@ On Linux, if the `xkb/symbols/custom` hack can’t be used, ``*.xkb`` keyboard d
 
 This has limitations:
 
-* the keyboard layout won’t show up in the Gnome keyboard manager
+* the keyboard layout won’t show up in the keyboard settings
 * media keys might stop working
 * unlikely to work on Wayland
 
-Again, `setxkbmap` can be used to get back to the standard us-qwerty layout:
+Again, ``setxkbmap`` can be used to get back to the standard us-qwerty layout:
 
 .. code-block:: bash
 
@@ -133,27 +139,38 @@ Again, `setxkbmap` can be used to get back to the standard us-qwerty layout:
 XKalamine
 --------------------------------------------------------------------------------
 
-``xkalamine`` is a Linux-specific tool for managing keyboard layouts with ``xkb``.
+``xkalamine`` is a Linux-specific tool for managing keyboard layouts with XKB.
 
-To apply a keyboard layout in user-space:
+Apply a keyboard layout in user-space (same limitations as ``xkbcomp``):
 
 .. code-block:: bash
 
     # equivalent to `xkbcomp -w10 layout.xkb $DISPLAY`
     xkalamine apply layout.toml
 
-This has limitations: it doesn’t work on Wayland and the keyboard layout doesn’t show up in the Gnome keyboard manager. Besides, on some distros, media keys might stop working.
-
-The proper way to install a keyboard layout on Linux is to modify directly the files in ``/usr/share/X11/xkb``. This is where ``xkalamine`` comes in:
+Install a keyboard layout in ``/usr/share/X11/xkb``:
 
 .. code-block:: bash
 
     sudo xkalamine install layout.toml
 
-There’s also:
+List available keyboard layouts:
 
-* ``xkalamine list`` to enumerate all installed Kalamine layouts
-* ``xkalamine remove`` to uninstall a Kalamine layout
+.. code-block:: bash
+
+    kalamine list             # all kalamine layouts
+    kalamine list fr          # all kalamine layouts for French
+    kalamine list fr --all    # all layouts for French
+    kalamine list --all       # all layouts, ordered by locale
+
+Uninstall a Kalamine layout:
+
+.. code-block:: bash
+
+    sudo xkalamine remove *   # remove all kalamine layouts
+    sudo xkalamine remove fr/lafayette
+
+Using xkalamine with sudo currently supposes kalamine has been installed as root. Which really sucks, and we’re working on a better solution.
 
 XKB is a tricky piece of software. The following resources might be helpful if you want to dig in:
 
