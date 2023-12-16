@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import os
+import pkg_resources
 
 import click
 
@@ -56,12 +57,16 @@ def make_all(layout, subdir):
 
 @click.command()
 @click.argument('input', nargs=-1, type=click.Path(exists=True))
+@click.option('--version', '-v', is_flag=True)
 @click.option('--out',
               default='all',
               type=click.Path(),
               help='Keyboard driver(s) to generate.')
-def make(input, out):
+def make(input, version, out):
     """ Convert toml/yaml descriptions into OS-specific keyboard layouts. """
+
+    if version:
+        print(pkg_resources.require("kalamine")[0].version)
 
     for input_file in input:
         layout = KeyboardLayout(input_file)

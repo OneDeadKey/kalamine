@@ -145,38 +145,29 @@ Again, ``setxkbmap`` can be used to get back to the standard us-qwerty layout:
 XKalamine
 --------------------------------------------------------------------------------
 
-``xkalamine`` is a Linux-specific tool for managing keyboard layouts with XKB.
-
-Apply a keyboard layout in user-space (same limitations as ``xkbcomp``):
+``xkalamine`` is a Linux-specific CLI tool for managing keyboard layouts with XKB.
 
 .. code-block:: bash
 
-    # equivalent to `xkbcomp -w10 layout.xkb $DISPLAY`
+    # Apply a keyboard layout in user-space
+    # (equivalent to `xkbcomp -w10 layout.xkb $DISPLAY`)
     xkalamine apply layout.toml
 
-Install a keyboard layout in ``/usr/share/X11/xkb``:
-
-.. code-block:: bash
-
+    # Install a keyboard layout into /usr/share/X11/xkb
     sudo xkalamine install layout.toml
 
-List available keyboard layouts:
+    # Uninstall Kalamine layouts from /usr/share/X11/xkb
+    sudo xkalamine remove us/prog   # remove the kalamine 'prog' layout
+    sudo xkalamine remove fr        # remove all kalamine layouts for French
+    sudo xkalamine remove "*"       # remove all kalamine layouts
 
-.. code-block:: bash
+    # List available keyboard layouts
+    kalamine list                   # list all kalamine layouts
+    kalamine list fr                # list all kalamine layouts for French
+    kalamine list us --all          # list all layouts for US English
+    kalamine list --all             # list all layouts, ordered by locale
 
-    kalamine list             # all kalamine layouts
-    kalamine list fr          # all kalamine layouts for French
-    kalamine list fr --all    # all layouts for French
-    kalamine list --all       # all layouts, ordered by locale
-
-Uninstall a Kalamine layout:
-
-.. code-block:: bash
-
-    sudo xkalamine remove *   # remove all kalamine layouts
-    sudo xkalamine remove fr/lafayette
-
-Using ``xkalamine`` with sudo currently supposes kalamine has been installed as root (hopefully in a pyenv). Which really sucks, and we’re working on a better solution.
+Using ``xkalamine`` with ``sudo`` currently supposes kalamine has been installed as root (hopefully in a pyenv). Which really sucks, and we’re working on a better solution.
 
 XKB is a tricky piece of software. The following resources might be helpful if you want to dig in:
 
