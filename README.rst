@@ -63,17 +63,17 @@ Get all keyboard drivers:
 .. code-block:: bash
 
     dist/
-    ├── q-ansi.klc        # Windows
-    ├── q-ansi.keylayout  # macOS
-    ├── q-ansi.xkb        # Linux (user)
-    ├── q-ansi.xkb_patch  # Linux (root)
-    └── q-ansi.json
+     ├─ q-ansi.klc         # Windows
+     ├─ q-ansi.keylayout   # macOS
+     ├─ q-ansi.xkb         # Linux (user)
+     ├─ q-ansi.xkb_custom  # Linux (root)
+     └─ q-ansi.json        # web
 
 You can also ask for a single target by specifying the file extension:
 
 .. code-block:: bash
 
-    kalamine ansi.toml --out q-ansi.xkb_patch
+    kalamine ansi.toml --out q-ansi.xkb_custom
 
 
 Keyboard Layout Installation
@@ -109,7 +109,7 @@ Recent versions of XKB allow *one* custom keyboard layout in root space:
 
 .. code-block:: bash
 
-    sudo cp layout.xkb_patch /usr/share/X11/xkb/symbols/custom
+    sudo cp layout.xkb_custom /usr/share/X11/xkb/symbols/custom
 
 Your keyboard layout will be listed as “Custom” in the keyboard settings.
 

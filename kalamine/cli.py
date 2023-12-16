@@ -72,7 +72,7 @@ def make(input, out):
             continue
 
         # quick output: reuse the input name and change the file extension
-        if out in ['keylayout', 'klc', 'xkb', 'xkb_patch']:
+        if out in ['keylayout', 'klc', 'xkb', 'xkb_custom']:
             output_file = os.path.splitext(input_file)[0] + '.' + out
         else:
             output_file = out
@@ -87,7 +87,7 @@ def make(input, out):
         elif output_file.endswith('.xkb'):
             with open(output_file, 'w', encoding='utf-8', newline='\n') as file:
                 file.write(layout.xkb)
-        elif output_file.endswith('.xkb_patch'):
+        elif output_file.endswith('.xkb_custom'):
             with open(output_file, 'w', encoding='utf-8', newline='\n') as file:
                 file.write(layout.xkb_patch)
         elif output_file.endswith('.json'):
