@@ -56,7 +56,7 @@ Build it:
 
 .. code-block:: bash
 
-    kalamine qwerty-ansi.toml
+    kalamine ansi.toml
 
 Get all keyboard drivers:
 
@@ -68,6 +68,12 @@ Get all keyboard drivers:
     ├── q-ansi.xkb        # Linux (user)
     ├── q-ansi.xkb_patch  # Linux (root)
     └── q-ansi.json
+
+You can also ask for a single target by specifying the file extension:
+
+.. code-block:: bash
+
+    kalamine ansi.toml --out q-ansi.xkb_patch
 
 
 Keyboard Layout Installation
@@ -170,7 +176,7 @@ Uninstall a Kalamine layout:
     sudo xkalamine remove *   # remove all kalamine layouts
     sudo xkalamine remove fr/lafayette
 
-Using xkalamine with sudo currently supposes kalamine has been installed as root. Which really sucks, and we’re working on a better solution.
+Using ``xkalamine`` with sudo currently supposes kalamine has been installed as root (hopefully in a pyenv). Which really sucks, and we’re working on a better solution.
 
 XKB is a tricky piece of software. The following resources might be helpful if you want to dig in:
 
