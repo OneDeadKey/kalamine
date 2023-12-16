@@ -20,7 +20,7 @@ If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment 
     $Env:PYTHONUTF8 = 1
 
 
-Keyboard Layout Generation
+Layout Generation
 --------------------------------------------------------------------------------
 
 Draw your keyboard layout in one of the provided ASCII-art templates and include it in a TOML document:
@@ -76,7 +76,7 @@ You can also ask for a single target by specifying the file extension:
     kalamine ansi.toml --out q-ansi.xkb_custom
 
 
-Keyboard Layout Installation
+Layout Installation
 --------------------------------------------------------------------------------
 
 Windows
@@ -157,15 +157,15 @@ XKalamine
     sudo xkalamine install layout.toml
 
     # Uninstall Kalamine layouts from /usr/share/X11/xkb
-    sudo xkalamine remove us/prog   # remove the kalamine 'prog' layout
-    sudo xkalamine remove fr        # remove all kalamine layouts for French
-    sudo xkalamine remove "*"       # remove all kalamine layouts
+    sudo xkalamine remove us/prog     # remove the kalamine 'prog' layout
+    sudo xkalamine remove fr          # remove all kalamine layouts for French
+    sudo xkalamine remove "*"         # remove all kalamine layouts
 
     # List available keyboard layouts
-    kalamine list                   # list all kalamine layouts
-    kalamine list fr                # list all kalamine layouts for French
-    kalamine list us --all          # list all layouts for US English
-    kalamine list --all             # list all layouts, ordered by locale
+    kalamine list                     # list all kalamine layouts
+    kalamine list fr                  # list all kalamine layouts for French
+    kalamine list us --all            # list all layouts for US English
+    kalamine list --all               # list all layouts, ordered by locale
 
 Using ``xkalamine`` with ``sudo`` currently supposes kalamine has been installed as root (hopefully in a pyenv). Which really sucks, and we’re working on a better solution.
 
