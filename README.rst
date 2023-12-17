@@ -56,7 +56,7 @@ Build it:
 
 .. code-block:: bash
 
-    kalamine ansi.toml
+    kalamine layouts/ansi.toml
 
 Get all keyboard drivers:
 
@@ -74,6 +74,24 @@ You can also ask for a single target by specifying the file extension:
 .. code-block:: bash
 
     kalamine ansi.toml --out q-ansi.xkb_custom
+
+
+Layout Emulation
+--------------------------------------------------------------------------------
+
+Your layout can be emulated in a browser — including dead keys and an AltGr layer, if any.
+
+
+.. code-block:: bash
+
+    $ kalamine layouts/prog.toml --watch
+    Server started: http://localhost:8080
+
+Open your browser, type in the input area, test your layout. Changes on your TOML file are not auto-detected yet, you’ll have to refresh the page manually.
+
+.. image:: watch.png
+
+Press Ctrl-C when you’re done, and kalamine will write all platform-specific files.
 
 
 Layout Installation
@@ -175,6 +193,12 @@ XKB is a tricky piece of software. The following resources might be helpful if y
 * https://wiki.archlinux.org/title/X_keyboard_extension
 * https://wiki.archlinux.org/title/Xorg/Keyboard_configuration
 * https://github.com/xkbcommon/libxkbcommon/blob/master/doc/keymap-format-text-v1.md
+
+    If you want custom keymaps on your machine, switch to Wayland (and/or fix any remaining issues preventing you from doing so) instead of hoping this will ever work on X.
+
+    -- `Peter Hutterer`_
+
+.. _`Peter Hutterer`: https://who-t.blogspot.com/2020/09/no-user-specific-xkb-configuration-in-x.html
 
 
 Alternative

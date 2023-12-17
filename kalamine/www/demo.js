@@ -77,4 +77,6 @@ window.addEventListener('DOMContentLoaded', () => {
       event.target.value = event.target.value.slice(0, -event.data.length);
     }
   });
+
+  input.focus();
 });

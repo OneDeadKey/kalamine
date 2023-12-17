@@ -1,19 +1,26 @@
 #!/usr/bin/env python3
 from http.server import SimpleHTTPRequestHandler, HTTPServer
+# from inotify_simple import INotify, flags
 import json
 import os
+# import webbrowser
 
 from .layout import KeyboardLayout
-# layout = KeyboardLayout('../layouts/prog.toml')
 
 def keyboard_server(file_path):
 
     host_name = 'localhost'
     server_port = 8080
 
-    layout = KeyboardLayout(file_path)
+    kb_layout = KeyboardLayout(file_path)
 
-    def main_page():
+    # def refresh():
+    #     global kb_layout
+    #     kb_layout = KeyboardLayout(file_path)
+    # inotify = INotify()
+    # wd = inotify.add_watch(file_path, flags.MODIFY)
+
+    def main_page(layout):
         return f"""
             <!DOCTYPE html>
             <html xmlns="http://www.w3.org/1999/xhtml">
@@ -27,8 +34,8 @@ def keyboard_server(file_path):
             <body>
                 <p>
                     <a href="{layout.meta['url']}">{layout.meta['name']}</a>
-                    <br />
-                    {layout.meta['description']}
+                    <br /> {layout.meta['locale']}/{layout.meta['variant']}
+                    <br /> {layout.meta['description']}
                 </p>
                 <input spellcheck="false" placeholder="" />
                 <x-keyboard src="/json"></x-keyboard>
@@ -67,29 +74,34 @@ def keyboard_server(file_path):
                 self.wfile.write(bytes(page, charset))
                 # self.wfile.write(page.encode(charset))
 
+            # XXX this only refreshes on the root page, not in sub pages
+            global kb_layout
             if self.path == '/json':
-                send(json.dumps(layout.json), content='application/json')
+                send(json.dumps(kb_layout.json), content='application/json')
             elif self.path == '/keylayout':
-                # send(layout.keylayout, content='application/xml')
-                send(layout.keylayout)
+                # send(kb_layout.keylayout, content='application/xml')
+                send(kb_layout.keylayout)
             elif self.path == '/klc':
-                send(layout.klc, charset='utf-16-le')
+                send(kb_layout.klc, charset='utf-16-le')
             elif self.path == '/xkb':
-                send(layout.xkb)
+                send(kb_layout.xkb)
             elif self.path == '/xkb_custom':
-                send(layout.xkb_patch)
+                send(kb_layout.xkb_patch)
             elif self.path == '/':
-                # send(main_page(), content='application/xhtml+xml')
-                send(main_page(), content='text/html')
+                kb_layout = KeyboardLayout(file_path)  # refresh
+                send(main_page(kb_layout), content='text/html')
             else:
                 return SimpleHTTPRequestHandler.do_GET(self)
 
-    webServer = HTTPServer((host_name, server_port), LayoutHandler)
-    print(f"Server started: http://{host_name}:{server_port}")
+    url = f"http://{host_name}:{server_port}"
+    webserver = HTTPServer((host_name, server_port), LayoutHandler)
+    # webbrowser.open(url, new=0, autoraise=True)
+    print(f"Server started: {url}")
+
     try:
-        webServer.serve_forever()
+        webserver.serve_forever()
     except KeyboardInterrupt:
         pass
 
-    webServer.server_close()
+    webserver.server_close()
     print('Server stopped.')
