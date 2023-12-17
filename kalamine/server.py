@@ -1,24 +1,15 @@
 #!/usr/bin/env python3
 from http.server import SimpleHTTPRequestHandler, HTTPServer
-# from inotify_simple import INotify, flags
 import json
 import os
-# import webbrowser
 
 from .layout import KeyboardLayout
 
 def keyboard_server(file_path):
+    kb_layout = KeyboardLayout(file_path)
 
     host_name = 'localhost'
     server_port = 8080
-
-    kb_layout = KeyboardLayout(file_path)
-
-    # def refresh():
-    #     global kb_layout
-    #     kb_layout = KeyboardLayout(file_path)
-    # inotify = INotify()
-    # wd = inotify.add_watch(file_path, flags.MODIFY)
 
     def main_page(layout):
         return f"""
@@ -74,7 +65,7 @@ def keyboard_server(file_path):
                 self.wfile.write(bytes(page, charset))
                 # self.wfile.write(page.encode(charset))
 
-            # XXX this only refreshes on the root page, not in sub pages
+            # XXX always reloads the layout on the root page, never in sub pages
             global kb_layout
             if self.path == '/json':
                 send(json.dumps(kb_layout.json), content='application/json')
@@ -93,10 +84,9 @@ def keyboard_server(file_path):
             else:
                 return SimpleHTTPRequestHandler.do_GET(self)
 
-    url = f"http://{host_name}:{server_port}"
     webserver = HTTPServer((host_name, server_port), LayoutHandler)
-    # webbrowser.open(url, new=0, autoraise=True)
-    print(f"Server started: {url}")
+    print(f"Server started: http://{host_name}:{server_port}")
+    print('Hit Ctrl-C to stop.')
 
     try:
         webserver.serve_forever()

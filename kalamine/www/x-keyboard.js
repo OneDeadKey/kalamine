@@ -173,7 +173,7 @@ const KEY_BG         = '#fff';
 const SPECIAL_KEY_BG = '#e4e4e4';
 const KEY_COLOR      = '#333';
 const KEY_COLOR_L3   = 'blue';
-const KEY_COLOR_L5   = 'green';
+const KEY_COLOR_L5   = '#e83';
 const DEAD_KEY_COLOR = '#e83';
 
 const KEY_WIDTH = 60;  // 1U = 0.75" = 19.05mm = 60px
@@ -868,8 +868,6 @@ const themes = `
     g:target rect, .press rect, g:target path, .press path { fill: #558; }
     text { fill: #baa; }
     .level3, .level4 { fill: #99f; opacity: .7; }
-    .level5, .level6 { fill: #6a6; }
-    .deadKey { fill: #f44; }
   }
 `;
 
