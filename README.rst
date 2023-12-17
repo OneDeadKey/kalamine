@@ -20,42 +20,8 @@ If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment 
     $Env:PYTHONUTF8 = 1
 
 Note: Users of Arch-based linux distributions must install kalamine in a
-``python virtual environment``, see "Root Install" section (you can skip the
+``python virtual environment``, see the "XKalamine" section (you can skip the
 ``sudo su`` command to install as user)
-
-Root Install (linux, optional)
-``````````````````````````````
-
-Warning: You most likely **don’t** need it if you just want to install a custom
-layout, but it’s necessary on linux if you want to install multiple layouts
-and/or install a layout as a ``variant`` for a certain locale.
-
-Also, updating xkb will delete every layouts installed as ``variants``...
-
-You’ll need a ``python virtual environment``, to prevent the root install from
-messing with system packages:
-
-.. code-block:: bash
-
-   python -m venv path/to/pyvenv
-
-then, install kalamine as root (not superuser, root) inside of that ``pyenv``:
-
-.. code-block:: bash
-
-   cd path/to/pyvenv/bin
-   sudo su
-   ./python -m pip install kalamine
-   exit  # return to standard user status
-
-finally, create a symbolic link from a folder a folder in your ``$PATH`` env
-variable to kalamine (we’ll use ``~/.local/bin``):
-
-.. code-block:: bash
-
-   cd ~/.local/bin
-   ln -s path/to/pyvenv/bin/kalamine
-   ln -s path/to/pyvenv/bin/xkalamine
 
 Layout Generation
 --------------------------------------------------------------------------------
@@ -157,19 +123,6 @@ On Xorg you can also select your keyboard layout from the command line:
     setxkbmap custom  # select your keyboard layout
     setxkbmap us      # get back to QWERTY
 
-If you installed Kalamine as root, you can install your layout with:
-
-.. code-block:: bash
-
-   sudo xkalamine install path/to/my_custom_layout.toml
-
-Then read the ``locale`` and ``variant`` fields from the layout you just installed and run:
-
-.. code-block:: bash
-
-   setxkbmap `locale` -variant `variant`
-   # (Where `locale` and `variant` are the values of those fields)
-
 Linux (user)
 ````````````
 
@@ -217,7 +170,20 @@ XKalamine
     xkalamine list us --all           # list all layouts for US English
     xkalamine list --all              # list all layouts, ordered by locale
 
+Note that updating xkb will delete every layouts installed using ``xkalamine install``.
+
 Using ``xkalamine`` with ``sudo`` currently supposes kalamine has been installed as root (hopefully in a pyenv). Which really sucks, and we’re working on a better solution.
+
+.. code-block:: bash
+
+   python -m venv path/to/pyenv       # Create a pyenv, (if you don’t already have one)
+   cd path/to/pyvenv/bin
+   sudo su                            # Get root privileges
+   ./python -m pip install kalamine   # Install Kalamine in the pyenv (don't forget `./`)
+   exit                               # Return to standard user status
+   cd ~/.local/bin                    # Go in your $PATH dir
+   ln -s path/to/pyvenv/bin/kalamine  # Create the symlinks
+   ln -s path/to/pyvenv/bin/xkalamine
 
 XKB is a tricky piece of software. The following resources might be helpful if you want to dig in:
 
