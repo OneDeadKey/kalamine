@@ -1,0 +1,20 @@
+body {
+  max-width: 64em;
+  margin: 0 auto;
+  font-family: sans-serif;
+}
+
+input {
+  width: 100%;
+  text-align: center;
+  font-size: 1.5em;
+  margin-bottom: 1em;
+}
+
+a { color: blue; }
+
+input, select { color-scheme: light dark; }
+@media (prefers-color-scheme: dark) {
+  html { background-color: #222; color: #ddd; }
+  a { color: #99f; }
+}
