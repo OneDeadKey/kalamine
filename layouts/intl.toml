@@ -1,6 +1,7 @@
 name = "qwerty-intl"
 name8 = "q-intl"
 locale = "us"
+variant = "intl"
 description = "QWERTY layout, international variant"
 url = "http://fabi1cazenave.github.com/kalamine/"
 version = "1.0.0"

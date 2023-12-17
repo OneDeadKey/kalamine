@@ -13,6 +13,10 @@ All you need is a Python environment:
 
    pip install kalamine
 
+If your system requires a ``python virtual environment``, check the XKalamine_ section (you can skip the ``sudo su`` command to install as user).
+
+.. _XKalamine #xkalamine
+
 If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment variable before executing Kalamine:
 
 .. code-block:: powershell
@@ -56,7 +60,7 @@ Build it:
 
 .. code-block:: bash
 
-    kalamine ansi.toml
+    kalamine layouts/ansi.toml
 
 Get all keyboard drivers:
 
@@ -73,7 +77,7 @@ You can also ask for a single target by specifying the file extension:
 
 .. code-block:: bash
 
-    kalamine ansi.toml --out q-ansi.xkb_custom
+    kalamine layouts/ansi.toml --out q-ansi.xkb_custom
 
 
 Layout Installation
@@ -167,7 +171,20 @@ XKalamine
     xkalamine list us --all           # list all layouts for US English
     xkalamine list --all              # list all layouts, ordered by locale
 
+Note that updating xkb will delete every layouts installed using ``xkalamine install``.
+
 Using ``xkalamine`` with ``sudo`` currently supposes kalamine has been installed as root (hopefully in a pyenv). Which really sucks, and we’re working on a better solution.
+
+.. code-block:: bash
+
+   python -m venv /path/to/pyenv      # create a pyenv (if you don’t already have one)
+   cd /path/to/pyenv/bin
+   sudo su                            # get root privileges
+   ./python -m pip install kalamine   # install Kalamine in the pyenv (don't forget `./`)
+   exit                               # return to standard user status
+   cd ~/.local/bin                    # symlink the executables in your $PATH dir
+   ln -s /path/to/pyenv/bin/kalamine
+   ln -s /path/to/pyenv/bin/xkalamine
 
 XKB is a tricky piece of software. The following resources might be helpful if you want to dig in:
 
