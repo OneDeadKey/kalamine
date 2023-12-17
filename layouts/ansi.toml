@@ -1,6 +1,7 @@
 name = "qwerty-ansi"
 name8 = "q-ansi"
 locale = "us"
+variant = "ansi"
 description = "standard QWERTY-US layout"
 url = "http://fabi1cazenave.github.com/kalamine/"
 version = "1.0.0"
