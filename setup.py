@@ -5,7 +5,7 @@ with open('README.rst', encoding='utf-8') as f:
 
 setup(
     name='kalamine',
-    version='0.16',
+    version='0.17',
     description='a cross-platform Keyboard Layout Maker',
     long_description=readme,
     url='http://github.com/fabi1cazenave/kalamine',

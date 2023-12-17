@@ -6,6 +6,7 @@ import pkg_resources
 import click
 
 from .layout import KeyboardLayout
+from .server import keyboard_server
 
 
 def pretty_json(layout, path):
@@ -43,7 +44,7 @@ def make_all(layout, subdir):
         file.write(layout.xkb)
     print('... ' + xkb_path)
 
-    # Linux driver, user-space
+    # Linux driver, root
     xkb_custom_path = out_path('.xkb_custom')
     with open(xkb_custom_path, 'w', encoding='utf-8', newline='\n') as file:
         file.write(layout.xkb_patch)
@@ -58,15 +59,19 @@ def make_all(layout, subdir):
 @click.command()
 @click.argument('input', nargs=-1, type=click.Path(exists=True))
 @click.option('--version', '-v', is_flag=True)
+@click.option('--watch', '-w', is_flag=True)
 @click.option('--out',
               default='all',
               type=click.Path(),
               help='Keyboard driver(s) to generate.')
-def make(input, version, out):
+def make(input, version, watch, out):
     """ Convert toml/yaml descriptions into OS-specific keyboard layouts. """
 
     if version:
         print(f"kalamine { pkg_resources.require('kalamine')[0].version }")
+
+    if watch:
+        keyboard_server(input[0])
 
     for input_file in input:
         layout = KeyboardLayout(input_file)

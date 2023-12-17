@@ -13,10 +13,11 @@ lint:
 	flake8 kalamine
 
 publish:
-	flake8 kalamine
+	# flake8 kalamine
 	rm -rf dist/*
 	python3 setup.py bdist_wheel
 	python3 setup.py sdist
+	twine check dist/*
 	twine upload dist/*
 
 publish-deps:

@@ -80,6 +80,24 @@ You can also ask for a single target by specifying the file extension:
     kalamine layouts/ansi.toml --out q-ansi.xkb_custom
 
 
+Layout Emulation
+--------------------------------------------------------------------------------
+
+Your layout can be emulated in a browser — including dead keys and an AltGr layer, if any.
+
+
+.. code-block:: bash
+
+    $ kalamine layouts/prog.toml --watch
+    Server started: http://localhost:8080
+
+Open your browser, type in the input area, test your layout. Changes on your TOML file are not auto-detected yet, you’ll have to refresh the page manually.
+
+.. image:: watch.png
+
+Press Ctrl-C when you’re done, and kalamine will write all platform-specific files.
+
+
 Layout Installation
 --------------------------------------------------------------------------------
 
@@ -171,9 +189,7 @@ XKalamine
     xkalamine list us --all           # list all layouts for US English
     xkalamine list --all              # list all layouts, ordered by locale
 
-Note that updating xkb will delete every layouts installed using ``xkalamine install``.
-
-Using ``xkalamine`` with ``sudo`` currently supposes kalamine has been installed as root (hopefully in a pyenv). Which really sucks, and we’re working on a better solution.
+Note that updating XKB will delete all layouts installed using ``sudo xkalamine install``. Besides, using ``xkalamine`` with ``sudo`` supposes kalamine has been installed as root — hopefully in a pyenv:
 
 .. code-block:: bash
 
@@ -185,6 +201,15 @@ Using ``xkalamine`` with ``sudo`` currently supposes kalamine has been installed
    cd ~/.local/bin                    # symlink the executables in your $PATH dir
    ln -s /path/to/pyenv/bin/kalamine
    ln -s /path/to/pyenv/bin/xkalamine
+
+We’re working on a solution to install keyboard layouts into ``~/.config/xkb``
+instead of ``/usr/share/X11/xkb``, but it will only work with Wayland.
+
+    If you want custom keymaps on your machine, switch to Wayland (and/or fix any remaining issues preventing you from doing so) instead of hoping this will ever work on X.
+
+    -- `Peter Hutterer`_
+
+.. _`Peter Hutterer`: https://who-t.blogspot.com/2020/09/no-user-specific-xkb-configuration-in-x.html
 
 XKB is a tricky piece of software. The following resources might be helpful if you want to dig in:
 
