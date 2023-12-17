@@ -8,8 +8,6 @@ import click
 from .layout import KeyboardLayout
 from .server import keyboard_server
 
-# from .web import KeyboardViewer
-
 
 def pretty_json(layout, path):
     """ Pretty-prints the JSON layout. """
