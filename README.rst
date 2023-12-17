@@ -19,6 +19,43 @@ If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment 
 
     $Env:PYTHONUTF8 = 1
 
+Note: Users of Arch-based linux distributions must install kalamine in a
+``python virtual environment``, see "Root Install" section (you can skip the
+``sudo su`` command to install as user)
+
+Root Install (linux, optional)
+``````````````````````````````
+
+Warning: You most likely **don’t** need it if you just want to install a custom
+layout, but it’s necessary on linux if you want to install multiple layouts
+and/or install a layout as a ``variant`` for a certain locale.
+
+Also, updating xkb will delete every layouts installed as ``variants``...
+
+You’ll need a ``python virtual environment``, to prevent the root install from
+messing with system packages:
+
+.. code-block:: bash
+
+   python -m venv path/to/pyvenv
+
+then, install kalamine as root (not superuser, root) inside of that ``pyenv``:
+
+.. code-block:: bash
+
+   cd path/to/pyvenv/bin
+   sudo su
+   ./python -m pip install kalamine
+   exit  # return to standard user status
+
+finally, create a symbolic link from a folder a folder in your ``$PATH`` env
+variable to kalamine (we’ll use ``~/.local/bin``):
+
+.. code-block:: bash
+
+   cd ~/.local/bin
+   ln -s path/to/pyvenv/bin/kalamine
+   ln -s path/to/pyvenv/bin/xkalamine
 
 Layout Generation
 --------------------------------------------------------------------------------
@@ -119,6 +156,19 @@ On Xorg you can also select your keyboard layout from the command line:
 
     setxkbmap custom  # select your keyboard layout
     setxkbmap us      # get back to QWERTY
+
+If you installed Kalamine as root, you can install your layout with:
+
+.. code-block:: bash
+
+   sudo xkalamine install path/to/my_custom_layout.toml
+
+Then read the ``locale`` and ``variant`` fields from the layout you just installed and run:
+
+.. code-block:: bash
+
+   setxkbmap `locale` -variant `variant`
+   # (Where `locale` and `variant` are the values of those fields)
 
 Linux (user)
 ````````````
