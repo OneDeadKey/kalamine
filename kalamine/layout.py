@@ -106,17 +106,17 @@ def load_descriptor(file_path):
 
 
 CONFIG = {
-    "author": "Fabien Cazenave",
+    "author": "nobody",
     "license": "WTFPL - Do What The Fuck You Want Public License",
     "geometry": "ISO",
 }
 
 SPACEBAR = {
-    "shift": " ",  # U+0020 SPACE
-    "altgr": " ",  # U+0020 SPACE
-    "altgr_shift": " ",  # U+0020 SPACE
-    "1dk": "'",  # U+0027 APOSTROPHE
-    "1dk_shift": "'",  # U+0027 APOSTROPHE
+    "shift": " ",
+    "altgr": " ",
+    "altgr_shift": " ",
+    "1dk": "'",
+    "1dk_shift": "'",
 }
 
 GEOMETRY = load_data("geometry.yaml")
@@ -338,14 +338,27 @@ class KeyboardLayout:
 
         return template
 
-    def _get_geometry(self, layers=[0], name="ISO"):
+    def _get_geometry(self, layers=[0]):
         """`geometry` view of the requested layers."""
 
-        rows = GEOMETRY[name]["rows"]
-        template = GEOMETRY[name]["template"].split("\n")[:-1]
+        rows = GEOMETRY[self.geometry]["rows"]
+        template = GEOMETRY[self.geometry]["template"].split("\n")[:-1]
         for i in layers:
             template = self._fill_template(template, rows, i)
         return template
+
+    @property
+    def geometry(self):
+        """ANSI, ISO, ERGO."""
+        return self.meta["geometry"].upper()
+
+    @geometry.setter
+    def geometry(self, value):
+        """ANSI, ISO, ERGO."""
+        shape = value.upper()
+        if shape not in ["ANSI", "ISO", "ERGO"]:
+            shape = "ISO"
+        self.meta["geometry"] = shape
 
     @property
     def base(self):
@@ -456,9 +469,7 @@ class KeyboardLayout:
                         if char not in deadkeys:
                             location.text = char
                         else:
-                            location.text = (
-                                "★" if char == "**" else char[1:]
-                            )
+                            location.text = "★" if char == "**" else char[1:]
                             # Apply special class for deadkeys
                             location.set(
                                 "class", location.get("class") + " deadKey diacritic"

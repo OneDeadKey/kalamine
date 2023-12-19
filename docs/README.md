@@ -88,28 +88,48 @@ Dead keys are preceded by a `*` sign. They can be used in the `base` layer:
 
 The following dead keys are supported, and their behavior cannot be customized:
 
-    id  XKB name      base chars                                              accented chars
+    id  XKB name          base/accented chars
 
-    *`  grave         AaEeIiNnOoUuWwYyЕеИи                                 -> ÀàÈèÌìǸǹÒòÙùẀẁỲỳЀѐЍѝ
-    *‟  doublegrave   AaEeIiOoRrUuѴѴ                                       -> ȀȁȄȅȈȉȌȍȐȑȔȕѶѷ
-    *´  acute         AaCcEeGgIiKkLlMmNnOoPpRrSsUuWwYyZzΑαΕεΗηΙιΟοΥυΩωГгКк -> ÁáĆćÉéǴǵÍíḰḱĹĺḾḿŃńÓóṔṕŔŕŚśÚúẂẃÝýŹźΆάΈέΉήΊίΌόΎύΏώЃѓЌќ
-    *”  doubleacute   OoUuУу                                               -> ŐőŰűӲӳ
-    *^  circumflex    AaCcEeGgHhIiJjOoSsUuWwYyZz0123456789()+-=            -> ÂâĈĉÊêĜĝĤĥÎîĴĵÔôŜŝÛûŴŵŶŷẐẑ⁰¹²³⁴⁵⁶⁷⁸⁹⁽⁾⁺⁻⁼
-    *ˇ  caron         AaCcDdEeGgHhIiKkLlNnOoRrSsTtUuZzƷʒ0123456789()+-=    -> ǍǎČčĎďĚěǦǧȞȟǏǐǨǩĽľŇňǑǒŘřŠšŤťǓǔŽžǮǯ₀₁₂₃₄₅₆₇₈₉₍₎₊₋₌
-    *˘  breve         AaEeGgIiOoUuΑαΙιΥυАаЕеЖжИиУу                         -> ĂăĔĕĞğĬĭŎŏŬŭᾸᾰῘῐῨῠӐӑӖӗӁӂЙйЎў
-    *⁻  invertedbreve AaEeIiOoUuRr                                         -> ȂȃȆȇȊȋȎȏȖȗȒȓ
-    *~  tilde         AaEeIiNnOoUuVvYy<>=                                  -> ÃãẼẽĨĩÑñÕõŨũṼṽỸỹ≲≳≃
-    *¯  macron        AaÆæEeGgIiOoUuYy                                     -> ĀāǢǣĒēḠḡĪīŌōŪūȲȳ
-    *¨  diaeresis     AaEeHhIiOotUuWwXxYyΙιΥυАаЕеӘәЖжЗзИиІіОоӨөУуЧчЫыЭэ    -> ÄäËëḦḧÏïÖöẗÜüẄẅẌẍŸÿΪϊΫϋӒӓЁёӚӛӜӝӞӟӤӥЇїӦӧӪӫӰӱӴӵӸӹӬӭ
-    *˚  abovering     AaUuwy                                               -> ÅåŮůẘẙ
-    *¸  cedilla       CcDdEeGgHhKkLlNnRrSsTt                               -> ÇçḐḑȨȩĢģḨḩĶķĻļŅņŖŗŞşŢţ
-    *,  belowcomma    SsTt                                                 -> ȘșȚț
-    *˛  ogonek        AaEeIiOoUu                                           -> ĄąĘęĮįǪǫŲų
-    */  stroke        AaBbCcDdEeGgHhIiJjLlOoPpRrTtUuYyZz<≤≥>=              -> ȺⱥɃƀȻȼĐđɆɇǤǥĦħƗɨɈɉŁłØøⱣᵽɌɍŦŧɄʉɎɏƵƶ≮≰≱≯≠
-    *˙  abovedot      AaBbCcDdEeFfGgHhIijLlMmNnOoPpRrSsTtWwXxYyZz          -> ȦȧḂḃĊċḊḋĖėḞḟĠġḢḣİıȷĿŀṀṁṄṅȮȯṖṗṘṙṠṡṪṫẆẇẊẋẎẏŻż
-    *.  belowdot      AaBbDdEeHhIiKkLlMmNnOoRrSsTtUuVvWwYyZz               -> ẠạḄḅḌḍẸẹḤḥỊịḲḳḶḷṂṃṆṇỌọṚṛṢṣṬṭỤụṾṿẈẉỴỵẒẓ
-    *µ  greek         AaBbDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuWwXxYyZz     -> ΑαΒβΔδΕεΦφΓγΗηΙιΘθΚκΛλΜμΝνΟοΠπΧχΡρΣσΤτΥυΩωΞξΨψΖζ
-    *¤  currency      AaBbÇCçcDdEeFfGgHhIiKkLlMmNnOoPpRrSsTtþÞUuWwYy       -> ₳؋₱฿₵₡₵¢₯₫₠€₣ƒ₲₲₴₴៛﷼₭₭₤£ℳ₥₦₦૱௹₧₰₨₢$₪₮৳৲৲圓元₩₩円¥
+    *`  grave             AAAaEeIiNnOoUuWwYyЕеИи
+                       -> ÀÀÀàÈèÌìǸǹÒòÙùẀẁỲỳЀѐЍѝ
+    *‟  doublegrave       AAAaEeIiOoRrUuѴѴ
+                       -> ȀȀȀȁȄȅȈȉȌȍȐȑȔȕѶѷ
+    *´  acute             AAAaCcEeGgIiKkLlMmNnOoPpRrSsUuWwYyZzΑαΕεΗηΙιΟοΥυΩωГгКк
+                       -> ÁÁÁáĆćÉéǴǵÍíḰḱĹĺḾḿŃńÓóṔṕŔŕŚśÚúẂẃÝýŹźΆάΈέΉήΊίΌόΎύΏώЃѓЌќ
+    *”  doubleacute       OOOoUuУу
+                       -> ŐŐŐőŰűӲӳ
+    *^  circumflex        AAAaCcEeGgHhIiJjOoSsUuWwYyZz0123456789()+-=
+                       -> ÂÂÂâĈĉÊêĜĝĤĥÎîĴĵÔôŜŝÛûŴŵŶŷẐẑ⁰¹²³⁴⁵⁶⁷⁸⁹⁽⁾⁺⁻⁼
+    *ˇ  caron             AAAaCcDdEeGgHhIiKkLlNnOoRrSsTtUuZzƷʒ0123456789()+-=
+                       -> ǍǍǍǎČčĎďĚěǦǧȞȟǏǐǨǩĽľŇňǑǒŘřŠšŤťǓǔŽžǮǯ₀₁₂₃₄₅₆₇₈₉₍₎₊₋₌
+    *˘  breve             AAAaEeGgIiOoUuΑαΙιΥυАаЕеЖжИиУу
+                       -> ĂĂĂăĔĕĞğĬĭŎŏŬŭᾸᾰῘῐῨῠӐӑӖӗӁӂЙйЎў
+    *⁻  invertedbreve     AAAaEeIiOoUuRr
+                       -> ȂȂȂȃȆȇȊȋȎȏȖȗȒȓ
+    *~  tilde             AAAaEeIiNnOoUuVvYy<>=
+                       -> ÃÃÃãẼẽĨĩÑñÕõŨũṼṽỸỹ≲≳≃
+    *¯  macron            AAAaÆæEeGgIiOoUuYy
+                       -> ĀĀĀāǢǣĒēḠḡĪīŌōŪūȲȳ
+    *¨  diaeresis         AAAaEeHhIiOotUuWwXxYyΙιΥυАаЕеӘәЖжЗзИиІіОоӨөУуЧчЫыЭэ
+                       -> ÄÄÄäËëḦḧÏïÖöẗÜüẄẅẌẍŸÿΪϊΫϋӒӓЁёӚӛӜӝӞӟӤӥЇїӦӧӪӫӰӱӴӵӸӹӬӭ
+    *˚  abovering         AAAaUuwy
+                       -> ÅÅÅåŮůẘẙ
+    *¸  cedilla           CCCcDdEeGgHhKkLlNnRrSsTt
+                       -> ÇÇÇçḐḑȨȩĢģḨḩĶķĻļŅņŖŗŞşŢţ
+    *,  belowcomma        SSSsTt
+                       -> ȘȘȘșȚț
+    *˛  ogonek            AAAaEeIiOoUu
+                       -> ĄĄĄąĘęĮįǪǫŲų
+    */  stroke            AAAaBbCcDdEeGgHhIiJjLlOoPpRrTtUuYyZz<≤≥>=
+                       -> ȺȺȺⱥɃƀȻȼĐđɆɇǤǥĦħƗɨɈɉŁłØøⱣᵽɌɍŦŧɄʉɎɏƵƶ≮≰≱≯≠
+    *˙  abovedot          AAAaBbCcDdEeFfGgHhIijLlMmNnOoPpRrSsTtWwXxYyZz
+                       -> ȦȦȦȧḂḃĊċḊḋĖėḞḟĠġḢḣİıȷĿŀṀṁṄṅȮȯṖṗṘṙṠṡṪṫẆẇẊẋẎẏŻż
+    *.  belowdot          AAAaBbDdEeHhIiKkLlMmNnOoRrSsTtUuVvWwYyZz
+                       -> ẠẠẠạḄḅḌḍẸẹḤḥỊịḲḳḶḷṂṃṆṇỌọṚṛṢṣṬṭỤụṾṿẈẉỴỵẒẓ
+    *µ  greek             AAAaBbDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuWwXxYyZz
+                       -> ΑΑΑαΒβΔδΕεΦφΓγΗηΙιΘθΚκΛλΜμΝνΟοΠπΧχΡρΣσΤτΥυΩωΞξΨψΖζ
+    *¤  currency          AAAaBbÇCçcDdEeFfGgHhIiKkLlMmNnOoPpRrSsTtþÞUuWwYy
+                       -> ₳₳₳؋₱฿₵₡₵¢₯₫₠€₣ƒ₲₲₴₴៛﷼₭₭₤£ℳ₥₦₦૱௹₧₰₨₢$₪₮৳৲৲圓元₩₩円¥
 
 ### Custom Dead Key
 
@@ -154,4 +174,4 @@ of the space bar in non-base layers:
     1dk_shift   = "\u2019"  # RIGHT SINGLE QUOTATION MARK
 
 Kalamine doesn’t support non-space chars on the `base` layer for the space bar.
-Space characters outside of the space par are not supported either.
+Space characters outside of the space bar are not supported either.
