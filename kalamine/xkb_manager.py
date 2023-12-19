@@ -45,6 +45,23 @@ class XKBManager:
     def list_all(self, mask=''):
         return list_rules(self._rootdir, mask)
 
+    def has_custom_symbols(self, xkb_root):
+        """ Check if there is a usable xkb/symbols/custom file. """
+
+        custom_path = os.path.join(xkb_root, 'symbols', 'custom')
+        if not os.path.exists(custom_path):
+            return False
+
+        for filename in ['base.xml', 'evdev.xml']:
+            filepath = os.path.join(xkb_root, 'rules', filename)
+            if not os.path.exists(filepath):
+                continue
+            tree = etree.parse(filepath)
+            if bool(tree.xpath(f"//layout/configItem/name[text()=\"custom\"]")):
+                return True
+
+        return False
+
 
 """ On GNU/Linux, keyboard layouts must be installed in /usr/share/X11/xkb. To
     be able to revert a layout installation, Kalamine marks layouts like this:
@@ -301,7 +318,11 @@ def list_rules(xkb_root, mask='*'):
 
     kb_index = {}
     for filename in ['base.xml', 'evdev.xml']:
-        tree = etree.parse(os.path.join(xkb_root, 'rules', filename))
+        filepath = os.path.join(xkb_root, 'rules', filename)
+        if not os.path.exists(filepath):
+            continue
+
+        tree = etree.parse(filepath)
         for variant in tree.xpath('//variant'):
             locale = variant.xpath('../../configItem/name')[0].text
             name = variant.xpath('configItem/name')[0].text

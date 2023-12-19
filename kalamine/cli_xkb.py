@@ -9,6 +9,11 @@ import click
 from .layout import KeyboardLayout
 from .xkb_manager import XKBManager
 
+CFG_HOME = os.environ.get('XDG_CONFIG_HOME') or \
+    os.path.join(os.environ.get('HOME'), '.config')
+XKB_HOME = os.path.join(CFG_HOME, 'xkb')
+XKB_ROOT = '/usr/share/X11/xkb/'
+
 
 @click.group()
 def cli():
@@ -34,7 +39,7 @@ def apply(input):
 @click.argument('layouts', nargs=-1, type=click.Path(exists=True))
 def install(layouts):
     """ Install a list of Kalamine layouts. """
-    if len(layouts) == 0:
+    if not layouts:
         return
 
     xkb = XKBManager()
@@ -53,7 +58,7 @@ def install(layouts):
 
 @cli.command()
 def clean():
-    """ Clean all installed Kalamine layouts: drop the obsolete 'type' attr. """
+    """ Clean installed Kalamine layouts: drop the obsolete 'type' attr. """
 
     xkb = XKBManager()
     xkb.clean()
@@ -63,14 +68,27 @@ def clean():
 @click.argument('mask', default='*')
 @click.option('--all', '-a', is_flag=True)
 def list(mask, all):
-    """ List all installed Kalamine layouts. """
+    """ List installed Kalamine layouts. """
 
-    xkb = XKBManager()
-    layouts = xkb.list_all(mask) if all else xkb.list(mask)
-    for locale, variants in sorted(layouts.items()):
-        for name, desc in sorted(variants.items()):
-            id = f"{locale}/{name}"
-            print(f"{id:<24}   {desc}")
+    for root in [XKB_ROOT, XKB_HOME]:
+        filtered = {}
+
+        xkb = XKBManager(root)
+        layouts = xkb.list_all(mask) if all else xkb.list(mask)
+        for locale, variants in sorted(layouts.items()):
+            for name, desc in sorted(variants.items()):
+                filtered[f"{locale}/{name}"] = desc
+
+        if mask == "*" and root == XKB_ROOT and xkb.has_custom_symbols(root):
+            filtered['custom'] = ''
+
+        if bool(filtered):
+            home_path = os.environ.get('HOME')
+            if root.startswith(home_path):
+                root = '~' + root[len(home_path):]
+            print(root)
+            for id, desc in filtered.items():
+                print(f"  {id:<24} {desc}")
 
 
 @cli.command()
