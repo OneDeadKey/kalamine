@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import errno
 import os
 import sys
 import traceback
@@ -259,34 +260,40 @@ def update_rules(xkb_root, kb_index):
     """ Update references in XKB/rules/{base,evdev}.xml. """
 
     for filename in ['base.xml', 'evdev.xml']:
+        filepath = os.path.join(xkb_root, 'rules', filename)
+        if not os.path.exists(filepath):
+            continue
+
         try:
-            path = os.path.join(xkb_root, 'rules', filename)
-            tree = etree.parse(path, etree.XMLParser(remove_blank_text=True))
+            tree = etree.parse(filepath, etree.XMLParser(remove_blank_text=True))
 
             for locale, named_layouts in kb_index.items():
                 vlist = get_rules_locale(tree, locale).xpath('variantList')
                 if len(vlist) != 1:
-                    exit(f"Error: unexpected xml format in {path}.")
+                    exit(f"Error: unexpected xml format in {filepath}.")
                 for name, layout in named_layouts.items():
                     remove_rules_variant(vlist[0], name)
                     if layout is not None:
                         description = layout.meta['description']
                         add_rules_variant(vlist[0], name, description)
 
-            tree.write(path, pretty_print=True, xml_declaration=True,
+            tree.write(filepath, pretty_print=True, xml_declaration=True,
                        encoding='utf-8')
-            print('... ' + path)
+            print('... ' + filepath)
 
         except Exception as exc:
-            exit_FileNotWritable(exc, path)
+            exit_FileNotWritable(exc, filepath)
 
 
 def clean_rules(xkb_root):
     """ Drop the obsolete 'type' attributes Kalamine used to add. """
 
     for filename in ['base.xml', 'evdev.xml']:
-        path = os.path.join(xkb_root, 'rules', filename)
-        tree = etree.parse(path, etree.XMLParser(remove_blank_text=True))
+        filepath = os.path.join(xkb_root, 'rules', filename)
+        if not os.path.exists(filepath):
+            continue
+
+        tree = etree.parse(filepath, etree.XMLParser(remove_blank_text=True))
         has_obsolete_mark = False
 
         for variant in tree.xpath('//variant[@type]'):
@@ -295,11 +302,11 @@ def clean_rules(xkb_root):
 
         if has_obsolete_mark:
             try:
-                tree.write(path, pretty_print=True, xml_declaration=True,
+                tree.write(filepath, pretty_print=True, xml_declaration=True,
                            encoding='utf-8')
-                print('... ' + path)
+                print('... ' + filepath)
             except Exception as exc:
-                exit_FileNotWritable(exc, path)
+                exit_FileNotWritable(exc, filepath)
 
 
 def list_rules(xkb_root, mask='*'):
@@ -352,7 +359,8 @@ def exit_LocaleNotSupported(locale):
 
 def exit_FileNotWritable(exception, path):
     if isinstance(exception, PermissionError):  # noqa: F821
-        sys_exit('Permission denied. Are you root?')
+        raise exception
+        # sys_exit('Permission denied. Are you root?')
     elif isinstance(exception, IOError):
         sys_exit(f"Error: could not write to file {path}.")
     else:

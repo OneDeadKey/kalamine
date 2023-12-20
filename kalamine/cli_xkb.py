@@ -39,29 +39,73 @@ def apply(input):
 @click.argument('layouts', nargs=-1, type=click.Path(exists=True))
 def install(layouts):
     """ Install a list of Kalamine layouts. """
+
     if not layouts:
         return
 
-    xkb = XKBManager()
-    for file in layouts:
-        xkb.add(KeyboardLayout(file))
-    index = xkb.index
-    xkb.update()
+    def xkb_install(root):
+        xkb = XKBManager(root)
+        for file in layouts:
+            xkb.add(KeyboardLayout(file))
+        index = xkb.index
+        xkb.update()
+        print()
+        print('Successfully installed.')
 
-    print()
-    print(f"Successfully installed. You can try the layout{'s' if len(layouts) > 1 else ''} with:")
-    for locale, variants in index:
-        for name in variants.keys():
-            print(f"    setxkbmap {locale} -variant {name}")
-    print()
+    # EAFP (Easier to Ask Forgiveness than Permission)
+    try:
+        xkb_install(XKB_ROOT)
+        print(f"You can try the layout{'s' if len(layouts) > 1 else ''} with:")
+        for locale, variants in index:
+            for name in variants.keys():
+                print(f"    setxkbmap {locale} -variant {name}")
+        print()
+
+    except PermissionError:
+        print('    Not writable: switching to user-space.')
+        print()
+        xkb_install(XKB_HOME)
+        print('Warning: user-space layouts only work with Wayland.')
+        print()
+
+
+@cli.command()
+@click.argument('mask')  # [locale]/[name]
+def remove(mask):
+    """ Remove a list of Kalamine layouts. """
+
+    def xkb_remove(root):
+        xkb = XKBManager(root)
+        for locale, variants in xkb.list(mask).items():
+            for name in variants.keys():
+                xkb.remove(locale, name)
+        xkb.update()
+
+    # EAFP (Easier to Ask Forgiveness than Permission)
+    try:
+        xkb_remove(XKB_ROOT)
+    except PermissionError:
+        xkb_remove(XKB_HOME)
 
 
 @cli.command()
 def clean():
     """ Clean installed Kalamine layouts: drop the obsolete 'type' attr. """
 
-    xkb = XKBManager()
-    xkb.clean()
+    # EAFP (Easier to Ask Forgiveness than Permission)
+    # XXX irrelevant, as this issue has only happened for XKB_ROOT
+    try:
+        XKBManager(XKB_ROOT).clean()
+    except PermissionError:
+        XKBManager(XKB_HOME).clean()
+
+    # # EAFP (Easier to Ask Forgiveness than Permission)
+    # try:
+    #     XKBManager(XKB_ROOT)
+    #     xkb.clean()
+    # except PermissionError:
+    #     xkb = XKBManager(XKB_HOME)
+    #     xkb.clean()
 
 
 @cli.command()
@@ -88,16 +132,4 @@ def list(mask, all):
                 root = '~' + root[len(home_path):]
             print(root)
             for id, desc in filtered.items():
-                print(f"  {id:<24} {desc}")
-
-
-@cli.command()
-@click.argument('mask')  # [locale]/[name]
-def remove(mask):
-    """ Remove an existing Kalamine layout. """
-
-    xkb = XKBManager()
-    for locale, variants in xkb.list(mask).items():
-        for name in variants.keys():
-            xkb.remove(locale, name)
-    xkb.update()
+                print(f"    {id:<24} {desc}")
