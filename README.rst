@@ -13,9 +13,7 @@ All you need is a Python environment:
 
    pip install kalamine
 
-If your system requires a ``python virtual environment``, check the XKalamine_ section (you can skip the ``sudo su`` command to install as user).
-
-.. _XKalamine #xkalamine
+If your system requires a ``python virtual environment``, check the XKalamine/pyenv section at the end of this document (you can skip the ``sudo su`` command to install as user).
 
 If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment variable before executing Kalamine:
 
@@ -24,7 +22,7 @@ If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment 
     $Env:PYTHONUTF8 = 1
 
 
-Layout Generation
+Building Distributable Layouts
 --------------------------------------------------------------------------------
 
 Draw your keyboard layout in one of the provided ASCII-art templates and include it in a TOML document:
@@ -62,7 +60,7 @@ Build it:
 
     kalamine layouts/ansi.toml
 
-Get all keyboard drivers:
+Get all distributable keyboard drivers:
 
 .. code-block:: bash
 
@@ -80,7 +78,7 @@ You can also ask for a single target by specifying the file extension:
     kalamine layouts/ansi.toml --out q-ansi.xkb_custom
 
 
-Layout Emulation
+Emulating Layouts
 --------------------------------------------------------------------------------
 
 Your layout can be emulated in a browser — including dead keys and an AltGr layer, if any.
@@ -98,8 +96,9 @@ Open your browser, type in the input area, test your layout. Changes on your TOM
 Press Ctrl-C when you’re done, and kalamine will write all platform-specific files.
 
 
-Layout Installation
+Installing Distributable Layouts
 --------------------------------------------------------------------------------
+
 
 Windows
 ```````
@@ -113,6 +112,7 @@ Windows
 .. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=102134
 .. _KbdEdit: http://www.kbdedit.com/
 
+
 macOS
 `````
 
@@ -123,6 +123,7 @@ macOS
 
 * restart your session;
 * the keyboard layout appears in the “Language and Text” preferences, “Input Methods” tab.
+
 
 Linux (root)
 ````````````
@@ -135,12 +136,13 @@ Recent versions of XKB allow *one* custom keyboard layout in root space:
 
 Your keyboard layout will be listed as “Custom” in the keyboard settings.
 
-On Xorg you can also select your keyboard layout from the command line:
+On X.Org you can also select your keyboard layout from the command line:
 
 .. code-block:: bash
 
     setxkbmap custom  # select your keyboard layout
     setxkbmap us      # get back to QWERTY
+
 
 Linux (user)
 ````````````
@@ -151,11 +153,7 @@ On Linux, if the ``xkb/symbols/custom`` hack can’t be used, ``*.xkb`` keyboard
 
     xkbcomp -w10 layout.xkb $DISPLAY
 
-This has limitations:
-
-* the keyboard layout won’t show up in the keyboard settings
-* media keys might stop working
-* unlikely to work on Wayland
+This has limitations: the keyboard layout won’t show up in the keyboard settings, media keys might stop working, and it’s unlikely to work on Wayland.
 
 Again, ``setxkbmap`` can be used to get back to the standard us-qwerty layout:
 
@@ -167,29 +165,58 @@ Again, ``setxkbmap`` can be used to get back to the standard us-qwerty layout:
 XKalamine
 --------------------------------------------------------------------------------
 
-``xkalamine`` is a Linux-specific CLI tool for managing keyboard layouts with XKB.
+``xkalamine`` is a Linux-specific CLI tool for installing and managing keyboard layouts with XKB, so that they can be listed in the system’s keyboard preferences.
+
+
+Wayland (user)
+``````````````
+
+On Wayland, a layout can be installed in user-space:
 
 .. code-block:: bash
 
-    # Apply a keyboard layout in user-space
-    # (equivalent to `xkbcomp -w10 layout.xkb $DISPLAY`)
+    # Install a keyboard layout into ~/.config/xkb
+    xkalamine install layout.toml
+
+    # Uninstall Kalamine layouts from ~/.config/xkb
+    xkalamine remove us/prog     # remove the kalamine 'prog' layout
+    xkalamine remove fr          # remove all kalamine layouts for French
+    xkalamine remove "*"         # remove all kalamine layouts
+
+    # List available keyboard layouts
+    xkalamine list               # list all kalamine layouts
+    xkalamine list fr            # list all kalamine layouts for French
+    xkalamine list us --all      # list all layouts for US English
+    xkalamine list --all         # list all layouts, ordered by locale
+
+Once installed, a layout should be visible in the keyboard preferences.
+
+
+X.Org (root)
+````````````
+
+On X.Org, a layout can be applied on the fly in user-space:
+
+.. code-block:: bash
+
+    # Equivalent to `xkbcomp -w10 layout.xkb $DISPLAY`
     xkalamine apply layout.toml
+
+However, installing a layout so it can be selected in the keyboard preferences requires ``sudo`` privileges:
+
+.. code-block:: bash
 
     # Install a keyboard layout into /usr/share/X11/xkb
     sudo xkalamine install layout.toml
 
     # Uninstall Kalamine layouts from /usr/share/X11/xkb
-    sudo xkalamine remove us/prog     # remove the kalamine 'prog' layout
-    sudo xkalamine remove fr          # remove all kalamine layouts for French
-    sudo xkalamine remove "*"         # remove all kalamine layouts
+    sudo xkalamine remove us/prog
+    sudo xkalamine remove fr
+    sudo xkalamine remove "*"
 
-    # List available keyboard layouts
-    xkalamine list                    # list all kalamine layouts
-    xkalamine list fr                 # list all kalamine layouts for French
-    xkalamine list us --all           # list all layouts for US English
-    xkalamine list --all              # list all layouts, ordered by locale
+Note that updating XKB will delete all layouts installed using ``sudo xkalamine install``.
 
-Note that updating XKB will delete all layouts installed using ``sudo xkalamine install``. Besides, using ``xkalamine`` with ``sudo`` supposes kalamine has been installed as root — hopefully in a pyenv:
+Besides, using ``xkalamine`` with ``sudo`` supposes kalamine has been installed as root — hopefully in a pyenv:
 
 .. code-block:: bash
 
@@ -202,14 +229,17 @@ Note that updating XKB will delete all layouts installed using ``sudo xkalamine 
    ln -s /path/to/pyenv/bin/kalamine
    ln -s /path/to/pyenv/bin/xkalamine
 
-We’re working on a solution to install keyboard layouts into ``~/.config/xkb``
-instead of ``/usr/share/X11/xkb``, but it will only work with Wayland.
+Sadly, it seems there’s no way to install keyboard layouts in ``~/.config/xkb`` for X.Org. The system keyboard preferences will probably list user-space kayouts, but they won’t be usable on X.Org.
 
     If you want custom keymaps on your machine, switch to Wayland (and/or fix any remaining issues preventing you from doing so) instead of hoping this will ever work on X.
 
     -- `Peter Hutterer`_
 
 .. _`Peter Hutterer`: https://who-t.blogspot.com/2020/09/no-user-specific-xkb-configuration-in-x.html
+
+
+Resources
+`````````
 
 XKB is a tricky piece of software. The following resources might be helpful if you want to dig in:
 
