@@ -6,9 +6,18 @@ import traceback
 from lxml import etree
 from lxml.builder import E
 
-CFG_HOME = os.environ.get('XDG_CONFIG_HOME') or \
-    os.path.join(os.environ.get('HOME'), '.config')
-XKB_HOME = os.path.join(CFG_HOME, 'xkb')
+
+def xkb_home():
+    xdg_config = os.environ.get('XDG_CONFIG_HOME')
+    if xdg_config:
+        return xdg_config
+    home = os.environ.get('HOME')
+    if home:
+        return os.path.join(home, '.config')
+    return None
+
+
+XKB_HOME = xkb_home()
 XKB_ROOT = '/usr/share/X11/xkb/'
 
 
