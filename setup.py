@@ -29,6 +29,7 @@ setup(
     install_requires=[
         'click',
         'pyyaml',
+        'setuptools',
         'tomli',
         'lxml',
     ],
