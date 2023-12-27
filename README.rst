@@ -148,6 +148,7 @@ Recent versions of XKB allow *one* custom keyboard layout in root space:
     sudo cp layout.xkb_custom /usr/share/X11/xkb/symbols/custom
 
 Your keyboard layout will be listed as “Custom” in the keyboard settings.
+This works on both Wayland and X.Org. Depending on your system, you might have to relog to your session or to reboot X completely.
 
 On X.Org you can also select your keyboard layout from the command line:
 
@@ -160,13 +161,13 @@ On X.Org you can also select your keyboard layout from the command line:
 Linux (user)
 ````````````
 
-On Linux, if the ``xkb/symbols/custom`` hack can’t be used, ``*.xkb`` keyboard descriptions can be applied in user-space with ``xkbcomp``:
+On X.Org, ``*.xkb`` keyboard descriptions can be applied in user-space with ``xkbcomp``:
 
 .. code-block:: bash
 
     xkbcomp -w10 layout.xkb $DISPLAY
 
-This has limitations: the keyboard layout won’t show up in the keyboard settings, media keys might stop working, and it’s unlikely to work on Wayland.
+This has limitations: the keyboard layout won’t show up in the keyboard settings, media keys might stop working, and Wayland is not supported.
 
 Again, ``setxkbmap`` can be used to get back to the standard us-qwerty layout:
 
@@ -184,7 +185,7 @@ XKalamine
 Wayland (user)
 ``````````````
 
-On Wayland, a layout can be installed in user-space:
+On Wayland, keyboard layouts can be installed in user-space:
 
 .. code-block:: bash
 

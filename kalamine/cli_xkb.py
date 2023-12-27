@@ -10,7 +10,7 @@ from textwrap import dedent
 import click
 
 from .layout import KeyboardLayout
-from .xkb_manager import XKBManager, XKB_ROOT, XKB_HOME
+from .xkb_manager import XKBManager, XKB_ROOT, XKB_HOME, WAYLAND
 
 
 def xkb_ensure_xkb_config_is_ready():
@@ -59,6 +59,9 @@ def cli():
 @click.argument('input', nargs=1, type=click.Path(exists=True))
 def apply(input):
     """ Apply a Kalamine layout. """
+
+    if WAYLAND:
+        sys.exit('You appear to be running Wayland, which does not support this operation.')
 
     layout = KeyboardLayout(input)
     with tempfile.NamedTemporaryFile(mode='w+', suffix='.xkb', encoding='utf-8') as temp_file:
