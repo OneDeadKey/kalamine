@@ -11,7 +11,20 @@ All you need is a Python environment:
 
 .. code-block:: bash
 
-   pip install kalamine
+   python3 -m pip install kalamine
+
+Developers can also install it from the current directory:
+
+.. code-block:: bash
+
+    python3 -m pip install -e .
+
+And to uninstall kalamine:
+
+.. code-block:: bash
+
+    python3 -m pip uninstall kalamine
+
 
 If your system requires a ``python virtual environment``, check the XKalamine/pyenv section at the end of this document (you can skip the ``sudo su`` command to install as user).
 
