@@ -16,7 +16,9 @@ def xdg_config_home():
 
 
 XKB_HOME = xdg_config_home() / 'xkb'
-XKB_ROOT = Path('/usr/share/X11/xkb/')
+XKB_ROOT = Path(environ.get('XKB_CONFIG_ROOT') or '/usr/share/X11/xkb/')
+
+WAYLAND = environ.get('XDG_SESSION_TYPE').startswith('wayland')
 
 
 class XKBManager:
@@ -346,16 +348,12 @@ def list_rules(xkb_root, mask='*'):
 # Exception Handling (there must be a better way...)
 #
 
-def sys_exit(message):
-    print('')
-    print(message)
-    sys.exit(1)
-
-
 def exit_FileNotWritable(exception, path):
     if isinstance(exception, PermissionError):  # noqa: F821
         raise exception
     elif isinstance(exception, IOError):
-        sys_exit(f"Error: could not write to file {path}.")
+        print('')
+        sys.exit(f'Error: could not write to file {path}.')
     else:
-        sys_exit(f"Error: {exception}.\n{traceback.format_exc()}")
+        print('')
+        sys.exit(f'Error: {exception}.\n{traceback.format_exc()}')
