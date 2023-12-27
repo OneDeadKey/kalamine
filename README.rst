@@ -203,7 +203,7 @@ On Wayland, keyboard layouts can be installed in user-space:
     xkalamine list us --all      # list all layouts for US English
     xkalamine list --all         # list all layouts, ordered by locale
 
-Once installed, a layout should be visible in the keyboard preferences.
+Once installed, layouts are selectable in the desktop environment’s keyboard preferences.
 
 
 X.Org (root)
