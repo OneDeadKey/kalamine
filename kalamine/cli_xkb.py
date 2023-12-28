@@ -54,17 +54,19 @@ def install(layouts):
     def xkb_install(xkb):
         for layout in kb_layouts:
             xkb.add(layout)
+        index = xkb.index  # gets erased with xkb.update()
         xkb.clean()
         xkb.update()
         print()
         print('Successfully installed.')
+        return index
 
     # EAFP (Easier to Ask Forgiveness than Permission)
     try:
         xkb_root = XKBManager(root=True)
-        xkb_install(xkb_root)
-        print(f"You can try the layout{'s' if len(layouts) > 1 else ''} with:")
-        for locale, variants in xkb_root.index:
+        xkb_index = xkb_install(xkb_root)
+        print(f"On XOrg, you can try the layout{'s' if len(layouts) > 1 else ''} with:")
+        for locale, variants in xkb_index:
             for name in variants.keys():
                 print(f"    setxkbmap {locale} -variant {name}")
         print()

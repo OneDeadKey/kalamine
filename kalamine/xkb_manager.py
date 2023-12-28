@@ -250,11 +250,12 @@ def update_symbols_locale(path, named_layouts):
             symbols.truncate()
 
         # add new Kalamine layouts
+        locale = path.name
         for name, layout in named_layouts.items():
             if layout is None:
-                print('      - ' + name)
+                print(f'      - {locale}/{name}')
             else:
-                print('      + ' + name)
+                print(f'      + {locale}/{name}')
                 mark = get_symbol_mark(name)
                 symbols.write('\n')
                 symbols.write(mark['begin'])
