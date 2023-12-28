@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import json
 import os
-import pkg_resources
+from importlib import metadata
 
 import click
 
@@ -68,7 +68,7 @@ def make(input, version, watch, out):
     """ Convert toml/yaml descriptions into OS-specific keyboard layouts. """
 
     if version:
-        print(f"kalamine { pkg_resources.require('kalamine')[0].version }")
+        print(f"kalamine { metadata.version('kalamine') }")
 
     if watch:
         keyboard_server(input[0])

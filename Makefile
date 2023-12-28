@@ -15,13 +15,11 @@ lint:
 publish:
 	# flake8 kalamine
 	rm -rf dist/*
-	python3 setup.py bdist_wheel
-	python3 setup.py sdist
+	python3 -m build
 	twine check dist/*
 	twine upload dist/*
 
-publish-deps:
-	pip3 install --user twine wheel
-
 dev:
-	pip3 install --user -e .
+	# python3 -m pip install --user --upgrade twine wheel
+	python3 -m pip install --user --upgrade build
+	python3 -m pip install --user -e .

@@ -14,11 +14,17 @@ def xdg_config_home():
         return Path(xdg_config)
     return Path.home() / '.config'
 
+def wayland_running():
+    xdg_session = environ.get('XDG_SESSION_TYPE')
+    if xdg_session:
+        return xdg_session.startswith('wayland')
+    return False
+
 
 XKB_HOME = xdg_config_home() / 'xkb'
 XKB_ROOT = Path(environ.get('XKB_CONFIG_ROOT') or '/usr/share/X11/xkb/')
 
-WAYLAND = environ.get('XDG_SESSION_TYPE').startswith('wayland')
+WAYLAND = wayland_running()
 
 
 class XKBManager:
