@@ -189,7 +189,7 @@ On Wayland, keyboard layouts can be installed in user-space:
 
 .. code-block:: bash
 
-    # Install a keyboard layout into ~/.config/xkb
+    # Install a YAML/TOML keyboard layout into ~/.config/xkb
     xkalamine install layout.toml
 
     # Uninstall Kalamine layouts from ~/.config/xkb
@@ -220,7 +220,7 @@ However, installing a layout so it can be selected in the keyboard preferences r
 
 .. code-block:: bash
 
-    # Install a keyboard layout into /usr/share/X11/xkb
+    # Install a YAML/TOML keyboard layout into /usr/share/X11/xkb
     sudo xkalamine install layout.toml
 
     # Uninstall Kalamine layouts from /usr/share/X11/xkb
