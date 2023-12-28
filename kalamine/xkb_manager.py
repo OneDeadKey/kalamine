@@ -6,6 +6,7 @@ from lxml import etree
 from lxml.builder import E
 from os import environ
 from pathlib import Path
+from textwrap import dedent
 
 
 def xdg_config_home():

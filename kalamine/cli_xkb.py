@@ -5,7 +5,6 @@ import sys
 import tempfile
 
 from pathlib import Path
-from textwrap import dedent
 
 import click
 
