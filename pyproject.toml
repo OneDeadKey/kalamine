@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kalamine"
-version = "0.20"
+version = "0.20.1"
 description = "a cross-platform Keyboard Layout Maker"
 readme = "README.rst"
 
