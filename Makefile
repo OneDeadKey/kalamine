@@ -1,4 +1,6 @@
-all:
+all: test
+
+test:
 	kalamine layouts/*.toml
 	pytest
 
@@ -12,7 +14,7 @@ clean:
 lint:
 	flake8 kalamine
 
-publish:
+publish: test
 	# flake8 kalamine
 	rm -rf dist/*
 	python3 -m build
