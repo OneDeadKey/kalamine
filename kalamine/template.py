@@ -210,12 +210,6 @@ def klc_1dk(layout):
             if key_name.startswith('- Space') or key_name == 'spce':
                 continue
 
-            if key_name.startswith('-'):
-                if output:
-                    output.append('')
-                output.append('//' + key_name[1:])
-                continue
-
             if key_name in ext_layer:
                 base = base_layer[key_name]
                 if base in layout.dead_keys:
