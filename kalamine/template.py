@@ -331,7 +331,7 @@ def osx_actions(layout):
             continue
 
         for i in [0, 1]:
-            if key_name not in layout.layers[i]:
+            if key_name == 'spce' or key_name not in layout.layers[i]:
                 continue
 
             key = layout.layers[i][key_name]
@@ -359,9 +359,9 @@ def osx_actions(layout):
     for k in layout.dk_index:
         dk = layout.dead_keys[k]
         actions.append((dk['name'], dk['alt_space']))
-    append_actions('&#x0020;', actions)
-    append_actions('&#x00a0;', actions)
-    append_actions('&#x202f;', actions)
+    append_actions('&#x0020;', actions)  # space
+    append_actions('&#x00a0;', actions)  # no-break space
+    append_actions('&#x202f;', actions)  # fine no-break space
 
     return ret_actions
 
