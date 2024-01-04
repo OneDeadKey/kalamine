@@ -274,9 +274,9 @@ def osx_keymap(layout):
 
             char = f"code=\"{KEY_CODES['osx'][key_name]}\"".ljust(10)
             if final_key:
-                action = f"output=\"{symbol}\""
+                action = f'output="{symbol}"'
             else:
-                action = f"action=\"{xml_proof_id(symbol)}\""
+                action = f'action="{xml_proof_id(symbol)}"'
             output.append(f"<key {char} {action} />")
 
         ret_str.append(output)
@@ -289,17 +289,17 @@ def osx_actions(layout):
     ret_actions = []
 
     def when(state, action):
-        state_attr = f"state=\"{state}\"".ljust(18)
+        state_attr = f'state="{state}"'.ljust(18)
         if action in layout.dead_keys:
             action_attr = f"next=\"{layout.dead_keys[action]['name']}\""
         elif action.startswith('dead_'):
-            action_attr = f"next=\"{action[5:]}\""
+            action_attr = f'next="{action[5:]}"'
         else:
-            action_attr = f"output=\"{xml_proof(action)}\""
-        return f"  <when {state_attr} {action_attr} />"
+            action_attr = f'output="{xml_proof(action)}"'
+        return f'  <when {state_attr} {action_attr} />'
 
     def append_actions(symbol, actions):
-        ret_actions.append(f"<action id=\"{xml_proof_id(symbol)}\">")
+        ret_actions.append(f'<action id="{xml_proof_id(symbol)}">')
         ret_actions.append(when('none', symbol))
         for (state, out) in actions:
             ret_actions.append(when(state, out))
@@ -307,9 +307,13 @@ def osx_actions(layout):
 
     # dead key definitions
     for key in layout.dead_keys:
-        symbol = layout.dead_keys[key]['name']
-        ret_actions.append(f"<action id=\"dead_{symbol}\">")
-        ret_actions.append(f"  <when state=\"none\" next=\"{symbol}\" />")
+        name = layout.dead_keys[key]['name']
+        term = layout.dead_keys[key]['alt_self']
+        ret_actions.append(f'<action id="dead_{name}">')
+        ret_actions.append(f'  <when state="none" next="{name}" />')
+        if name == '1dk' and term in layout.dead_keys:
+            nested_dk = layout.dead_keys[term]['name']
+            ret_actions.append(f'  <when state="1dk" next="{nested_dk}" />')
         ret_actions.append('</action>')
         continue
 
@@ -317,11 +321,11 @@ def osx_actions(layout):
     for key_name in LAYER_KEYS:
         if key_name.startswith('-'):
             ret_actions.append('')
-            ret_actions.append('<!--' + key_name[1:] + ' -->')
+            ret_actions.append(f'<!--{key_name[1:]} -->')
             continue
 
         for i in [0, 1]:
-            if key_name not in layout.layers[i]:
+            if key_name == 'spce' or key_name not in layout.layers[i]:
                 continue
 
             key = layout.layers[i][key_name]
@@ -333,9 +337,14 @@ def osx_actions(layout):
             actions = []
             for k in layout.dk_index:
                 dk = layout.dead_keys[k]
-                if key in dk['base']:
-                    idx = dk['base'].index(key)
-                    actions.append((dk['name'], dk['alt'][idx]))
+                if k == ODK_ID:
+                    if key_name in layout.layers[i + 2]:
+                        alt = layout.layers[i + 2][key_name]
+                        actions.append((dk['name'], alt))
+                else:
+                    if key in dk['base']:
+                        idx = dk['base'].index(key)
+                        actions.append((dk['name'], dk['alt'][idx]))
             if actions:
                 append_actions(xml_proof(key), actions)
 
@@ -344,9 +353,9 @@ def osx_actions(layout):
     for k in layout.dk_index:
         dk = layout.dead_keys[k]
         actions.append((dk['name'], dk['alt_space']))
-    append_actions('&#x0020;', actions)
-    append_actions('&#x00a0;', actions)
-    append_actions('&#x202f;', actions)
+    append_actions('&#x0020;', actions)  # space
+    append_actions('&#x00a0;', actions)  # no-break space
+    append_actions('&#x202f;', actions)  # fine no-break space
 
     return ret_actions
 
@@ -355,11 +364,14 @@ def osx_terminators(layout):
     """ macOS layout, dead key terminators. """
 
     ret_terminators = []
-    for k in layout.dk_index:
-        dk = layout.dead_keys[k]
-        state = f"state=\"{dk['name']}\"".ljust(18)
-        output = f"output=\"{xml_proof(dk['alt_self'])}\""
-        ret_terminators.append(f"<when {state} {output} />")
+    for key in layout.dk_index:
+        name = layout.dead_keys[key]['name']
+        term = layout.dead_keys[key]['alt_self']
+        if name == '1dk' and term in layout.dead_keys:
+            term = layout.dead_keys[key]['alt_space']
+        state = f'state="{name}"'.ljust(18)
+        output = f'output="{xml_proof(term)}"'
+        ret_terminators.append(f'<when {state} {output} />')
     return ret_terminators
 
 
