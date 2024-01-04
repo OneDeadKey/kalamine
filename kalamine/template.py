@@ -327,7 +327,7 @@ def osx_actions(layout):
     for key_name in LAYER_KEYS:
         if key_name.startswith('-'):
             ret_actions.append('')
-            ret_actions.append('<!--' + key_name[1:] + ' -->')
+            ret_actions.append(f'<!--{key_name[1:]} -->')
             continue
 
         for i in [0, 1]:
@@ -343,9 +343,14 @@ def osx_actions(layout):
             actions = []
             for k in layout.dk_index:
                 dk = layout.dead_keys[k]
-                if key in dk['base']:
-                    idx = dk['base'].index(key)
-                    actions.append((dk['name'], dk['alt'][idx]))
+                if k == ODK_ID:
+                    if key_name in layout.layers[i + 2]:
+                        alt = layout.layers[i + 2][key_name]
+                        actions.append((dk['name'], alt))
+                else:
+                    if key in dk['base']:
+                        idx = dk['base'].index(key)
+                        actions.append((dk['name'], dk['alt'][idx]))
             if actions:
                 append_actions(xml_proof(key), actions)
 
