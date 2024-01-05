@@ -373,14 +373,14 @@ class KeyboardLayout:
     def xkb(self):  # will not work with Wayland
         """ GNU/Linux driver (standalone / user-space) """
         out = load_tpl(self, '.xkb')
-        out = substitute_lines(out, 'LAYOUT', xkb_keymap(self, False))
+        out = substitute_lines(out, 'LAYOUT', xkb_keymap(self, xkbcomp=True))
         return out
 
     @property
     def xkb_patch(self):
-        """ GNU/Linux driver (system patch) """
+        """ GNU/Linux driver (xkb patch, system or user-space) """
         out = load_tpl(self, '.xkb_patch')
-        out = substitute_lines(out, 'LAYOUT', xkb_keymap(self, True))
+        out = substitute_lines(out, 'LAYOUT', xkb_keymap(self, xkbcomp=False))
         return out
 
     ###
