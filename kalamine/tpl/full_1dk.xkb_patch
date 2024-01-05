@@ -19,8 +19,9 @@ xkb_symbols "${variant}" {
 
     KALAMINE::LAYOUT
 
-    // The “OneDeadKey” is an ISO_Level3_Latch, i.e. a “dead AltGr” key:
-    // this is the only way to have a multi-purpose dead key with XKB.
-    // The real AltGr key is an ISO_Level5_Switch.
-    include "level5(ralt_switch)"
+    // The AltGr key is an ISO_Level3_Shift:
+    include "level3(ralt_switch)"
+
+    // The “OneDeadKey” is an ISO_Level5_Latch:
+    include "level5(modifier_mapping)"
 };
