@@ -26,6 +26,7 @@ xkb_keymap {
   partial alphanumeric_keys modifier_keys
   xkb_symbols "${variant}" {
     include "pc"
+    include "inet(evdev)"
 
     // The “OneDeadKey” is an ISO_Level3_Latch, i.e. a “dead AltGr” key.
     // This is the only way to have a multi-purpose dead key with XKB.
