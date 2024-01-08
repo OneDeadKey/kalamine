@@ -5,7 +5,9 @@
 
 # The only exception is the '1dk' key, which is:
 #   - a standard dead key for the macOS and Windows drivers;
-#   - a dead AltGr key (ISO_Level3_Latch) for the Linux driver.
+#   - a dead level key  for the Linux driver:
+#     - ISO_Level3_Latch if the layout has no AltGr layer
+#     - ISO_Level5_Latch if the layout uses an AltGr key (= ISO_Level3_Shift).
 
 # All other dead keys have been grep’ed from my Ubuntu 18.04LTS box,
 # excluding multiple diacritic combinations and combining characters.

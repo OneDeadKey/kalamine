@@ -20,7 +20,7 @@ xkb_keymap {
   // KALAMINE::GEOMETRY_base
 
   partial alphanumeric_keys modifier_keys
-  xkb_symbols "OneDeadKey" {
+  xkb_symbols "${variant}" {
     include "pc"
 
     name[group1]= "${description}";

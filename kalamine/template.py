@@ -26,14 +26,16 @@ def xml_proof_id(symbol):
 
 ###
 # GNU/Linux: XKB
-# - standalone xkb file to be used by `setxkbcomp` (Xorg only)
-# - system-wide installer script for Xorg & Wayland
+# - standalone xkb file to be used by `xkbcomp` (XOrg only)
+# - xkb patch for XOrg (system-wide) & Wayland (system-wide/user-space)
 #
 
-def xkb_keymap(layout, eight_levels):
+def xkb_keymap(layout, xkbcomp=False):
     """ Linux layout. """
 
     show_description = True
+    eight_level = layout.has_altgr and layout.has_1dk and not xkbcomp
+    odk_symbol = 'ISO_Level5_Latch' if eight_level else 'ISO_Level3_Latch'
     max_length = 16  # `ISO_Level3_Latch` should be the longest symbol name
 
     output = []
@@ -54,7 +56,7 @@ def xkb_keymap(layout, eight_levels):
                     dk = layout.dead_keys[symbol]
                     desc = dk['alt_self']
                     if dk['char'] == ODK_ID:
-                        symbol = 'ISO_Level3_Latch'
+                        symbol = odk_symbol
                     else:
                         symbol = 'dead_' + dk['name']
                 elif symbol in XKB_KEY_SYM \
@@ -72,15 +74,14 @@ def xkb_keymap(layout, eight_levels):
         key = 'key <{}> {{[ {}, {}, {}, {}]}};'  # 4-level layout by default
         if layout.has_altgr and layout.has_1dk:
             # 6 layers are needed: they won't fit on the 4-level format.
-            # System XKB files require a Neo-like eight-level solution.
-            # Standalone XKB files work best with a dual-group solution:
-            # one 4-level group for base+1dk, one two-level group for AltGr.
-            if eight_levels:  # system XKB file (patch)
-                key = 'key <{}> {{[ {}, {}, {}, {}, {}, {}, {}, {}]}};'
-                symbols.append('VoidSymbol'.ljust(max_length))
-                symbols.append('VoidSymbol'.ljust(max_length))
-            else:  # user-space XKB file (standalone)
+            if xkbcomp:  # user-space XKB file (standalone)
+                # standalone XKB files work best with a dual-group solution:
+                # one 4-level group for base+1dk, one two-level group for AltGr
                 key = 'key <{}> {{[ {}, {}, {}, {}],[ {}, {}]}};'
+            else:  # eight_level XKB patch (Neo-like)
+                key = 'key <{0}> {{[ {1}, {2}, {5}, {6}, {3}, {4}, {7}, {8}]}};'
+                symbols.append('VoidSymbol'.ljust(max_length))
+                symbols.append('VoidSymbol'.ljust(max_length))
         elif layout.has_altgr:
             del symbols[3]
             del symbols[2]
