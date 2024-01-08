@@ -145,7 +145,7 @@ Recent versions of XKB allow *one* custom keyboard layout in root space:
 
 .. code-block:: bash
 
-    sudo cp layout.xkb_custom /usr/share/X11/xkb/symbols/custom
+    sudo cp layout.xkb_custom ${XKB_CONFIG_ROOT:-/usr/share/X11/xkb}/symbols/custom
 
 Your keyboard layout will be listed as “Custom” in the keyboard settings.
 This works on both Wayland and X.Org. Depending on your system, you might have to relog to your session or to reboot X completely.
@@ -157,23 +157,39 @@ On X.Org you can also select your keyboard layout from the command line:
     setxkbmap custom  # select your keyboard layout
     setxkbmap us      # get back to QWERTY
 
+On Wayland, this depends on your compositor. For Sway, tweak your keyboard input section like this:
+
+.. code-block:: properties
+
+    input type:keyboard {
+        xkb_layout "custom"
+    }
+
 
 Linux (user)
 ````````````
 
-On X.Org, ``*.xkb`` keyboard descriptions can be applied in user-space with ``xkbcomp``:
+``*.xkb`` keyboard descriptions can be applied in user-space. The main limitation is that the keyboard layout won’t show up in the keyboard settings.
+
+On X.Org it is straight-forward with ``xkbcomp``:
 
 .. code-block:: bash
 
     xkbcomp -w10 layout.xkb $DISPLAY
 
-This has limitations: the keyboard layout won’t show up in the keyboard settings, media keys might stop working, and Wayland is not supported.
-
-Again, ``setxkbmap`` can be used to get back to the standard us-qwerty layout:
+Again, ``setxkbmap`` can be used to get back to the standard us-qwerty layout on X.Org:
 
 .. code-block:: bash
 
     setxkbmap us
+
+On Wayland, this depends on your compositor. For Sway, tweak your keyboard input section like this:
+
+.. code-block:: properties
+
+    input type:keyboard {
+        xkb_file /path/to/layout.xkb
+    }
 
 
 XKalamine
@@ -203,7 +219,15 @@ On Wayland, keyboard layouts can be installed in user-space:
     xkalamine list us --all      # list all layouts for US English
     xkalamine list --all         # list all layouts, ordered by locale
 
-Once installed, layouts are selectable in the desktop environment’s keyboard preferences.
+Once installed, layouts are selectable in the desktop environment’s keyboard preferences. On Sway, you can also select a layout like this:
+
+.. code-block:: properties
+
+    input type:keyboard {
+        xkb_layout "us"
+        xkb_variant "prog"
+    }
+
 
 
 X.Org (root)
@@ -227,6 +251,12 @@ However, installing a layout so it can be selected in the keyboard preferences r
     sudo xkalamine remove us/prog
     sudo xkalamine remove fr
     sudo xkalamine remove "*"
+
+Once installed, you can apply a keyboard layout like this:
+
+.. code-block:: bash
+
+   setxkbmap us -variant prog
 
 Note that updating XKB will delete all layouts installed using ``sudo xkalamine install``.
 
