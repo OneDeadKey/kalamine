@@ -117,6 +117,9 @@ def klc_keymap(layout):
         if key_name.startswith('-'):
             continue
 
+        if key_name in ['ae13', 'ab11']:  # ABNT / JIS keys
+            continue  # these two keys are not supported yet
+
         symbols = []
         description = '//'
         alpha = False
