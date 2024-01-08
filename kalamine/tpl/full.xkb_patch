@@ -10,12 +10,10 @@
 
 partial alphanumeric_keys modifier_keys
 xkb_symbols "${variant}" {
-    include "pc"
-    include "inet(evdev)"
-    include "level3(ralt_switch)"
-
     name[group1]= "${description}";
     key.type[group1] = "FOUR_LEVEL";
 
     KALAMINE::LAYOUT
+
+    include "level3(ralt_switch)"
 };

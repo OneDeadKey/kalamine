@@ -14,9 +14,6 @@
 
 partial alphanumeric_keys modifier_keys
 xkb_symbols "${variant}" {
-    include "pc"
-    include "inet(evdev)"
-
     name[group1]= "${description}";
     key.type[group1] = "EIGHT_LEVEL";
 
