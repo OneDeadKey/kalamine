@@ -504,6 +504,7 @@ def osx_terminators(layout):
 # https://github.com/fabi1cazenave/x-keyboard
 #
 
+
 def web_keymap(layout: "KeyboardLayout") -> dict[str, list[str]]:
     """Web layout, main part.
 
@@ -539,7 +540,7 @@ def web_deadkeys(layout: "KeyboardLayout") -> dict[str, dict[str, str]]:
     deadkeys = {}
     if layout.has_1dk:  # ensure 1dk is first in the dead key dictionary
         deadkeys[ODK_ID] = {}
-    for (id, dk) in layout.dead_keys.items():
+    for id, dk in layout.dead_keys.items():
         deadkeys[id] = {}
         deadkeys[id][id] = dk["alt_self"]
         deadkeys[id]["\u0020"] = dk["alt_space"]

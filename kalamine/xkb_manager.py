@@ -227,7 +227,6 @@ def update_symbols_locale(path, named_layouts):
     text = ""
     modified_text = False
     with open(path, "r+", encoding="utf-8") as symbols:
-
         # look for Kalamine layouts to be updated or removed
         between_marks = False
         closing_mark = ""
@@ -332,9 +331,13 @@ def remove_rules_variant(variant_list, name):
 
 
 def add_rules_variant(variant_list, name, description):
+<<<<<<< HEAD
     variant_list.append(
         E.variant(E.configItem(E.name(name), E.description(description)))
     )
+=======
+    variant_list.append(E.variant(E.configItem(E.name(name), E.description(description))))
+>>>>>>> de4a7b4 (fix: Apply black and isort)
 
 
 def update_rules(xkb_root, kb_index):
@@ -358,9 +361,13 @@ def update_rules(xkb_root, kb_index):
                         description = layout.meta["description"]
                         add_rules_variant(vlist[0], name, description)
 
+<<<<<<< HEAD
             tree.write(
                 filepath, pretty_print=True, xml_declaration=True, encoding="utf-8"
             )
+=======
+            tree.write(filepath, pretty_print=True, xml_declaration=True, encoding="utf-8")
+>>>>>>> de4a7b4 (fix: Apply black and isort)
             print(f"... {filepath}")
 
         except Exception as exc:

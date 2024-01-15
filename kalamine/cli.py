@@ -67,9 +67,9 @@ def make_all(layout, subdir):
     print("... " + json_path)
 
     # SVG data
-    svg_path = out_path('.svg')
-    layout.svg.write(svg_path, pretty_print=True, encoding='utf-8')
-    print('... ' + svg_path)
+    svg_path = out_path(".svg")
+    layout.svg.write(svg_path, pretty_print=True, encoding="utf-8")
+    print("... " + svg_path)
 
 
 @click.command()
@@ -121,8 +121,8 @@ def make(input, version, watch, out):
                 file.write(layout.xkb_patch)
         elif output_file.endswith(".json"):
             pretty_json(layout, output_file)
-        elif output_file.endswith('.svg'):
-            layout.svg.write(output_file, pretty_print=True, encoding='utf-8')
+        elif output_file.endswith(".svg"):
+            layout.svg.write(output_file, pretty_print=True, encoding="utf-8")
         else:
             print("Unsupported output format.")
             return
