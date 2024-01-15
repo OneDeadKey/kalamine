@@ -148,7 +148,8 @@ def klc_keymap(layout):
             output.append('\t'.join([
                 KEY_CODES['klc'][key_name],    # scan code & virtual key
                 '1' if alpha else '0',         # affected by CapsLock?
-                symbols[0], symbols[1], '-1',  # base layer
+                symbols[0], symbols[1],        # base layer
+                '-1', '-1',                    # ctrl layer
                 symbols[2], symbols[3],        # altgr layer
                 description.strip()
             ]))
@@ -156,7 +157,8 @@ def klc_keymap(layout):
             output.append('\t'.join([
                 KEY_CODES['klc'][key_name],    # scan code & virtual key
                 '1' if alpha else '0',         # affected by CapsLock?
-                symbols[0], symbols[1], '-1',  # base layer
+                symbols[0], symbols[1],        # base layer
+                '-1', '-1',                    # ctrl layer
                 description.strip()
             ]))
 

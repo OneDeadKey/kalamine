@@ -11,7 +11,7 @@
 //
 
 KBD	${name8}	"${name}"
-COPYRIGHT	"(c) 2010-2020 ${author}"
+COPYRIGHT	"(c) 2010-2024 ${author}"
 COMPANY	"${author}"
 LOCALENAME	"fr-FR"
 LOCALEID	"0000040c"
@@ -25,16 +25,17 @@ VERSION	1.0
 
 SHIFTSTATE
 0	// Column 4
-1	// Column 5: Shft
+1	// Column 5: Shift
 2	// Column 6:       Ctrl
-6	// Column 7:       Ctrl Alt
-7	// Column 8: Shft  Ctrl Alt
+3	// Column 7: Shift Ctrl
+6	// Column 8:       Ctrl Alt
+7	// Column 9: Shift Ctrl Alt
 
 LAYOUT //{{{
 // an extra '@' at the end is a dead key
-//SC	VK_	Cap	0	1	2	6	7
+//SC	VK_	Cap	0	1	2	3	6	7
 KALAMINE::LAYOUT
-53	DECIMAL	0	002e	002e	-1	-1	-1	// FULL STOP, FULL STOP, <none>, <none>, <none>
+53	DECIMAL	0	002e	002e	-1	-1	-1	-1	// FULL STOP, FULL STOP, <none>, <none>, <none>
 //}}}
 
 KALAMINE::DEAD_KEYS
