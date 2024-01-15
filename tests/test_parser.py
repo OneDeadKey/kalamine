@@ -3,8 +3,7 @@ from kalamine import KeyboardLayout
 
 
 def load_layout(filename):
-    path = os.path.join('.', 'layouts', filename + '.toml')
-    return KeyboardLayout(path)
+    return KeyboardLayout(os.path.join('.', 'layouts', filename + '.toml'))
 
 
 def test_layouts():
