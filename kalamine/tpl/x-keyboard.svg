@@ -1,3 +1,4 @@
+<!-- dk altgr-->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" platform="gnu" theme="" class="iso intlBackslash">
   <style>
     rect, path {
@@ -236,7 +237,7 @@
 
     /* dimmed AltGr + bold dead keys */
     .level3, .level4 { fill: blue; opacity: .5; }
-    .level5, .level6 { fill: green; }
+    .level5, .level6 { fill: green; display: none }
     .deadKey {
       fill: red;
       font-size: 14px;
@@ -252,9 +253,9 @@
 
     /* highlight AltGr + Dead Keys */
     .dk .level1, .altgr .level1,
-    .dk .level2, .altgr .level2 { opacity: 0.25; }
+    .dk .level2, .altgr .level2 { opacity: 0.25; display: block; }
     .dk .level5, .altgr .level3,
-    .dk .level6, .altgr .level4 { opacity: 1; }
+    .dk .level6, .altgr .level4 { opacity: 1; display: block;}
     .dk .level3,
     .dk .level4 { display: none; }
 
@@ -536,7 +537,7 @@
           <text class="level1" width="22" height="22" x="12.8" y="43.4"></text>
           <text class="level2" width="22" height="22" x="12.8" y="20.6"></text>
           <text class="level3" width="22" height="22" x="38" y="43.4"></text>
-          <text class="level4 deadKey diacritic" width="22" height="22" x="38" y="20.6"></text>
+          <text class="level4" width="22" height="22" x="38" y="20.6"></text>
           <text class="level5 dk" width="22" height="22" x="38" y="43.4"></text>
           <text class="level6 dk" width="22" height="22" x="38" y="20.6"></text>
         </g>
@@ -569,7 +570,7 @@
           <text class="level1" width="22" height="22" x="12.8" y="43.4"></text>
           <text class="level2" width="22" height="22" x="12.8" y="20.6"></text>
           <text class="level3" width="22" height="22" x="38" y="43.4"></text>
-          <text class="level4 deadKey diacritic" width="22" height="22" x="38" y="20.6"></text>
+          <text class="level4" width="22" height="22" x="38" y="20.6"></text>
           <text class="level5 dk" width="22" height="22" x="38" y="43.4"></text>
           <text class="level6 dk" width="22" height="22" x="38" y="20.6"></text>
         </g>
@@ -580,7 +581,7 @@
           <text class="level1" width="22" height="22" x="12.8" y="43.4"></text>
           <text class="level2" width="22" height="22" x="12.8" y="20.6"></text>
           <text class="level3" width="22" height="22" x="38" y="43.4"></text>
-          <text class="level4 deadKey diacritic" width="22" height="22" x="38" y="20.6"></text>
+          <text class="level4" width="22" height="22" x="38" y="20.6"></text>
           <text class="level5 dk" width="22" height="22" x="38" y="43.4"></text>
           <text class="level6 dk" width="22" height="22" x="38" y="20.6"></text>
         </g>
@@ -736,7 +737,7 @@
           <text class="level1" width="22" height="22" x="12.8" y="43.4"></text>
           <text class="level2 deadKey" width="22" height="22" x="12.8" y="20.6"></text>
           <text class="level3" width="22" height="22" x="38" y="43.4"></text>
-          <text class="level4 deadKey diacritic" width="22" height="22" x="38" y="20.6"></text>
+          <text class="level4" width="22" height="22" x="38" y="20.6"></text>
           <text class="level5 dk" width="22" height="22" x="38" y="43.4"></text>
           <text class="level6 dk" width="22" height="22" x="38" y="20.6"></text>
         </g>
@@ -790,7 +791,7 @@
           <text class="level1" width="22" height="22" x="12.8" y="43.4"></text>
           <text class="level2" width="22" height="22" x="12.8" y="20.6"></text>
           <text class="level3" width="22" height="22" x="38" y="43.4"></text>
-          <text class="level4 deadKey diacritic" width="22" height="22" x="38" y="20.6"></text>
+          <text class="level4" width="22" height="22" x="38" y="20.6"></text>
           <text class="level5 dk" width="22" height="22" x="38" y="43.4"></text>
           <text class="level6 dk" width="22" height="22" x="38" y="20.6"></text>
         </g>
@@ -869,7 +870,7 @@
           <text class="level1" width="22" height="22" x="12.8" y="43.4"></text>
           <text class="level2" width="22" height="22" x="12.8" y="20.6"></text>
           <text class="level3" width="22" height="22" x="38" y="43.4"></text>
-          <text class="level4 deadKey diacritic" width="22" height="22" x="38" y="20.6"></text>
+          <text class="level4" width="22" height="22" x="38" y="20.6"></text>
           <text class="level5 dk" width="22" height="22" x="38" y="43.4"></text>
           <text class="level6 dk" width="22" height="22" x="38" y="20.6"></text>
         </g>

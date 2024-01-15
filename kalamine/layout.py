@@ -3,6 +3,7 @@ import datetime
 import os
 import re
 import sys
+from typing import Any
 
 import tomli
 import yaml
@@ -425,17 +426,46 @@ class KeyboardLayout:
     @property
     def svg(self):
         """ SVG drawing """
+        # Parse SVG data
         filepath = os.path.join(os.path.dirname(__file__), 'tpl', 'x-keyboard.svg')
         svg = etree.parse(filepath, etree.XMLParser(remove_blank_text=True))
         ns = {'svg': 'http://www.w3.org/2000/svg'}
 
-        # for key in svg.xpath('//svg:text[starts-with(@class, "level")]', namespaces=ns):
-        #     key.text = ''
+        # Get Layout data
+        keymap = web_keymap(self)
+        deadkeys = web_deadkeys(self)
 
-        for (name, chars) in web_keymap(self).items():
+        # Fill-in with layout
+        for name, chars in keymap.items():
             for key in svg.xpath(f'//svg:g[@id="{name}"]', namespaces=ns):
-                for lv2 in key.xpath('svg:g/svg:text[@class="level2"]', namespaces=ns):
-                    lv2.text = chars[1]
+
+                # Print 1-4 level chars
+                for level_num, char in enumerate(chars, start=1):
+                    if chars[0] == chars[1].lower() and level_num == 1 and char != "**":
+                        # Do not print letters twice (lower and upper)
+                        continue
+
+                    for location in key.xpath(
+                            f"svg:g/svg:text[@class='level{level_num}']",
+                            namespaces=ns
+                        ):
+
+                        location.text = char
+                        if char in deadkeys:
+                            # Apply special class for deadkeys
+                            location.set("class", location.get("class") + " deadKey diacritic")
+
+
+                # Print 5-6 levels (1dk deadkeys)
+                for level_num, char in enumerate(chars[:2], start=5):
+                    if (dead_char:= deadkeys["**"].get(char)):
+                        for location in key.xpath(
+                            f"svg:g/svg:text[@class='level{level_num} dk']",
+                            namespaces=ns
+                        ):
+
+                            location.text = dead_char
+
 
         return svg
 
