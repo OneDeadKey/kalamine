@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import json
+
 from .utils import LAYER_KEYS, ODK_ID, load_data
 
 ###
@@ -91,6 +93,104 @@ def xkb_keymap(layout, xkbcomp=False):
             if line.endswith("\\"):
                 line += " "  # escape trailing backslash
         output.append(line)
+
+    return output
+
+
+###
+# Windows: AHK
+# To be used by AutoHotKey v1.1: https://autohotkey.com
+# During our tests, AHK 2.0 has raised serious performance and stability issues.
+# FWIW, PKL and EPKL still rely on AHK 1.1, too.
+
+
+def ahk_keymap(layout, altgr=False):
+    """AHK layout, main and AltGr layers."""
+
+    prefixes = [" ", "+", "", "", " <^>!", "<^>!+"]
+    specials = " \u00a0\u202f‘’'\"^`~"
+    esc_all = True  # set to False to ease the debug (more readable AHK script)
+
+    def ahk_escape(key):
+        if len(key) == 1:
+            return f"U+{ord(key):04x}" if esc_all or key in specials else key
+        return f"{key}`" if key.endswith("`") else key  # deadkey identifier
+
+    def ahk_actions(symbol):
+        actions = {}
+        for key in layout.dead_keys:
+            dk = layout.dead_keys[key]
+            dk_id = ahk_escape(dk["char"])
+            if symbol == "spce":
+                actions[dk_id] = ahk_escape(dk["alt_space"])
+            elif symbol in dk["base"]:
+                actions[dk_id] = ahk_escape(dk["alt"][dk["base"].index(symbol)])
+        return actions
+
+    output = []
+    for key_name in LAYER_KEYS:
+        if key_name.startswith("-"):
+            output.append(f"; {key_name[1:]}")
+            output.append("")
+            continue
+
+        if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+            continue  # these two keys are not supported yet
+
+        sc = f"SC{KEY_CODES['klc'][key_name][:2]}"
+        for i in [4, 5] if altgr else [0, 1]:
+            layer = layout.layers[i]
+            if key_name not in layer:
+                continue
+
+            symbol = layer[key_name]
+            sym = ahk_escape(symbol)
+
+            if symbol in layout.dead_keys:
+                actions = {sym: layout.dead_keys[symbol]["alt_self"]}
+            elif key_name == "spce":
+                actions = ahk_actions(key_name)
+            else:
+                actions = ahk_actions(symbol)
+
+            desc = f" ; {symbol}" if symbol != sym else ""
+            act = json.dumps(actions, ensure_ascii=False)
+            output.append(f'{prefixes[i]}{sc}::SendKey("{sym}", {act}){desc}')
+
+        if output[-1]:
+            output.append("")
+
+    return output
+
+
+def ahk_shortcuts(layout):
+    """AHK layout, shortcuts."""
+
+    prefixes = [" ^", "^+"]
+    enabled = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+    output = []
+    for key_name in LAYER_KEYS:
+        if key_name.startswith("-"):
+            output.append(f"; {key_name[1:]}")
+            output.append("")
+            continue
+
+        if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+            continue  # these two keys are not supported yet
+
+        sc = f"SC{KEY_CODES['klc'][key_name][:2]}"
+        for i in [0, 1]:
+            layer = layout.layers[i]
+            if key_name not in layer:
+                continue
+
+            symbol = layer[key_name]
+            if symbol in enabled:
+                output.append(f"{prefixes[i]}{sc}::Send {prefixes[i]}{symbol}")
+
+        if output[-1]:
+            output.append("")
 
     return output
 
