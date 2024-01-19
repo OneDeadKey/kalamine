@@ -3,31 +3,34 @@ import os
 import platform
 import sys
 import tempfile
-
 from pathlib import Path
 
 import click
 
 from .layout import KeyboardLayout
-from .xkb_manager import XKBManager, WAYLAND
+from .xkb_manager import WAYLAND, XKBManager
 
 
 @click.group()
 def cli():
-    if platform.system() != 'Linux':
-        sys.exit('This command is only compatible with GNU/Linux, sorry.')
+    if platform.system() != "Linux":
+        sys.exit("This command is only compatible with GNU/Linux, sorry.")
 
 
 @cli.command()
-@click.argument('input', nargs=1, type=click.Path(exists=True))
+@click.argument("input", nargs=1, type=click.Path(exists=True))
 def apply(input):
-    """ Apply a Kalamine layout. """
+    """Apply a Kalamine layout."""
 
     if WAYLAND:
-        sys.exit('You appear to be running Wayland, which does not support this operation.')
+        sys.exit(
+            "You appear to be running Wayland, which does not support this operation."
+        )
 
     layout = KeyboardLayout(input)
-    with tempfile.NamedTemporaryFile(mode='w+', suffix='.xkb', encoding='utf-8') as temp_file:
+    with tempfile.NamedTemporaryFile(
+        mode="w+", suffix=".xkb", encoding="utf-8"
+    ) as temp_file:
         try:
             temp_file.write(layout.xkb)
             os.system(f"xkbcomp -w0 {temp_file.name} $DISPLAY")
@@ -36,9 +39,9 @@ def apply(input):
 
 
 @cli.command()
-@click.argument('layouts', nargs=-1, type=click.Path(exists=True))
+@click.argument("layouts", nargs=-1, type=click.Path(exists=True))
 def install(layouts):
-    """ Install a list of Kalamine layouts. """
+    """Install a list of Kalamine layouts."""
 
     if not layouts:
         return
@@ -48,7 +51,7 @@ def install(layouts):
     for file in layouts:
         layout = KeyboardLayout(file)
         kb_layouts.append(layout)
-        kb_locales.add(layout.meta['locale'])
+        kb_locales.add(layout.meta["locale"])
 
     def xkb_install(xkb):
         for layout in kb_layouts:
@@ -57,7 +60,7 @@ def install(layouts):
         xkb.clean()
         xkb.update()
         print()
-        print('Successfully installed.')
+        print("Successfully installed.")
         return index
 
     # EAFP (Easier to Ask Forgiveness than Permission)
@@ -71,19 +74,19 @@ def install(layouts):
         print()
 
     except PermissionError:
-        print('    Not writable: switching to user-space.')
+        print("    Not writable: switching to user-space.")
         print()
         xkb_home = XKBManager()
         xkb_home.ensure_xkb_config_is_ready()
         xkb_install(xkb_home)
-        print('Warning: user-space layouts only work with Wayland.')
+        print("Warning: user-space layouts only work with Wayland.")
         print()
 
 
 @cli.command()
-@click.argument('mask')  # [locale]/[name]
+@click.argument("mask")  # [locale]/[name]
 def remove(mask):
-    """ Remove a list of Kalamine layouts. """
+    """Remove a list of Kalamine layouts."""
 
     def xkb_remove(root=False):
         xkb = XKBManager(root=root)
@@ -101,10 +104,10 @@ def remove(mask):
 
 
 @cli.command()
-@click.argument('mask', default='*')
-@click.option('--all', '-a', is_flag=True)
+@click.argument("mask", default="*")
+@click.option("--all", "-a", is_flag=True)
 def list(mask, all):
-    """ List installed Kalamine layouts. """
+    """List installed Kalamine layouts."""
 
     for root in [True, False]:
         filtered = {}
@@ -116,7 +119,7 @@ def list(mask, all):
                 filtered[f"{locale}/{name}"] = desc
 
         if mask == "*" and root and xkb.has_custom_symbols():
-            filtered['custom'] = ''
+            filtered["custom"] = ""
 
         if bool(filtered):
             print(xkb.path)

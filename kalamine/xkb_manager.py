@@ -1,35 +1,36 @@
 #!/usr/bin/env python3
 import sys
 import traceback
-
-from lxml import etree
-from lxml.builder import E
 from os import environ
 from pathlib import Path
 from textwrap import dedent
 
+from lxml import etree
+from lxml.builder import E
+
 
 def xdg_config_home():
-    xdg_config = environ.get('XDG_CONFIG_HOME')
+    xdg_config = environ.get("XDG_CONFIG_HOME")
     if xdg_config:
         return Path(xdg_config)
-    return Path.home() / '.config'
+    return Path.home() / ".config"
+
 
 def wayland_running():
-    xdg_session = environ.get('XDG_SESSION_TYPE')
+    xdg_session = environ.get("XDG_SESSION_TYPE")
     if xdg_session:
-        return xdg_session.startswith('wayland')
+        return xdg_session.startswith("wayland")
     return False
 
 
-XKB_HOME = xdg_config_home() / 'xkb'
-XKB_ROOT = Path(environ.get('XKB_CONFIG_ROOT') or '/usr/share/X11/xkb/')
+XKB_HOME = xdg_config_home() / "xkb"
+XKB_ROOT = Path(environ.get("XKB_CONFIG_ROOT") or "/usr/share/X11/xkb/")
 
 WAYLAND = wayland_running()
 
 
 class XKBManager:
-    """ Wrapper to list/add/remove keyboard drivers to XKB. """
+    """Wrapper to list/add/remove keyboard drivers to XKB."""
 
     def __init__(self, root=False):
         self._as_root = root
@@ -45,8 +46,8 @@ class XKBManager:
         return self._rootdir
 
     def add(self, layout):
-        locale = layout.meta['locale']
-        variant = layout.meta['variant']
+        locale = layout.meta["locale"]
+        variant = layout.meta["variant"]
         if locale not in self._index:
             self._index[locale] = {}
         self._index[locale][variant] = layout
@@ -62,41 +63,41 @@ class XKBManager:
         self._index = {}
 
     def clean(self):
-        """ Drop the obsolete 'type' attributes Kalamine used to add. """
-        for filename in ['base.xml', 'evdev.xml']:
-            filepath = self._rootdir / 'rules' / filename
+        """Drop the obsolete 'type' attributes Kalamine used to add."""
+        for filename in ["base.xml", "evdev.xml"]:
+            filepath = self._rootdir / "rules" / filename
             if not filepath.exists():
                 continue
             tree = etree.parse(filepath, etree.XMLParser(remove_blank_text=True))
-            for variant in tree.xpath('//variant[@type]'):
-                variant.attrib.pop('type')
+            for variant in tree.xpath("//variant[@type]"):
+                variant.attrib.pop("type")
 
-    def list(self, mask=''):
+    def list(self, mask=""):
         layouts = list_rules(self._rootdir, mask)
         return list_symbols(self._rootdir, layouts)
 
-    def list_all(self, mask=''):
+    def list_all(self, mask=""):
         return list_rules(self._rootdir, mask)
 
     def has_custom_symbols(self):
-        """ Check if there is a usable xkb/symbols/custom file. """
+        """Check if there is a usable xkb/symbols/custom file."""
 
-        custom_path = self._rootdir / 'symbols' / 'custom'
+        custom_path = self._rootdir / "symbols" / "custom"
         if not custom_path.exists():
             return False
 
-        for filename in ['base.xml', 'evdev.xml']:
-            filepath = self._rootdir / 'rules' / filename
+        for filename in ["base.xml", "evdev.xml"]:
+            filepath = self._rootdir / "rules" / filename
             if not filepath.exists():
                 continue
             tree = etree.parse(filepath)
-            if bool(tree.xpath(f"//layout/configItem/name[text()=\"custom\"]")):
+            if bool(tree.xpath(f'//layout/configItem/name[text()="custom"]')):
                 return True
 
         return False
 
     def ensure_xkb_config_is_ready(self):
-        """ Ensure there is an XKB configuration in user-space. """
+        """Ensure there is an XKB configuration in user-space."""
         # See xkblayout.py for a more extensive version of this feature:
         # https://gitlab.freedesktop.org/whot/xkblayout
 
@@ -105,33 +106,41 @@ class XKBManager:
 
         # ensure all expected directories exist (don't care about 'geometry')
         XKB_HOME.mkdir(exist_ok=True)
-        for subdir in ['compat', 'keycodes', 'rules', 'symbols', 'types']:
+        for subdir in ["compat", "keycodes", "rules", "symbols", "types"]:
             (XKB_HOME / subdir).mkdir(exist_ok=True)
 
         # ensure there are XKB rules
         # (new locales and symbols will be added by XKBManager)
-        for ruleset in ['evdev']:  # add 'base', too?
+        for ruleset in ["evdev"]:  # add 'base', too?
             # xkb/rules/evdev
-            rules = XKB_HOME / 'rules' / ruleset
+            rules = XKB_HOME / "rules" / ruleset
             if not rules.exists():
-                with open(rules, 'w') as rulesfile:
-                    rulesfile.write(dedent(f'''
+                with open(rules, "w") as rulesfile:
+                    rulesfile.write(
+                        dedent(
+                            f"""
                         // Generated by Kalamine
                         // Include the system '{ruleset}' file
                         ! include %S/{ruleset}
-                        '''))
+                        """
+                        )
+                    )
             # xkb/rules/evdev.xml
-            xmlpath = XKB_HOME / 'rules' / f'{ruleset}.xml'
+            xmlpath = XKB_HOME / "rules" / f"{ruleset}.xml"
             if not xmlpath.exists():
-                with open(xmlpath, 'w') as xmlfile:
-                    xmlfile.write(dedent(f'''\
+                with open(xmlpath, "w") as xmlfile:
+                    xmlfile.write(
+                        dedent(
+                            f"""\
                         <?xml version="1.0" encoding="UTF-8"?>
                         <!DOCTYPE xkbConfigRegistry SYSTEM "xkb.dtd">
                         <!-- Generated by Kalamine -->
                         <xkbConfigRegistry version="1.1">
                             <layoutList/>
                         </xkbConfigRegistry>
-                        '''))
+                        """
+                        )
+                    )
 
 
 """ On GNU/Linux, keyboard layouts must be installed in /usr/share/X11/xkb. To
@@ -183,6 +192,7 @@ class XKBManager:
     remove one without removing the other.
 """
 
+
 def clean_legacy_lafayette():
     return
 
@@ -192,52 +202,49 @@ def clean_legacy_lafayette():
 #
 
 
-LEGACY_MARK = {
-    'begin': '// LAFAYETTE::BEGIN\n',
-    'end': '// LAFAYETTE::END\n'
-}
+LEGACY_MARK = {"begin": "// LAFAYETTE::BEGIN\n", "end": "// LAFAYETTE::END\n"}
 
 
 def get_symbol_mark(name):
     return {
-        'begin': '// KALAMINE::' + name.upper() + '::BEGIN\n',
-        'end': '// KALAMINE::' + name.upper() + '::END\n'
+        "begin": "// KALAMINE::" + name.upper() + "::BEGIN\n",
+        "end": "// KALAMINE::" + name.upper() + "::END\n",
     }
 
 
 def is_new_symbol_mark(line):
-    if line.endswith('::BEGIN\n'):
-        if line.startswith('// KALAMINE::'):
+    if line.endswith("::BEGIN\n"):
+        if line.startswith("// KALAMINE::"):
             return line[13:-8].lower()  # XXX Kalamine expects lowercase names
-        elif line.startswith('// LAFAYETTE::'):  # obsolete marker
-            return 'lafayette'
+        elif line.startswith("// LAFAYETTE::"):  # obsolete marker
+            return "lafayette"
     return None
 
 
 def update_symbols_locale(path, named_layouts):
-    """ Update Kalamine layouts in an xkb/symbols file. """
+    """Update Kalamine layouts in an xkb/symbols file."""
 
-    text = ''
+    text = ""
     modified_text = False
-    with open(path, 'r+', encoding='utf-8') as symbols:
+    with open(path, "r+", encoding="utf-8") as symbols:
 
         # look for Kalamine layouts to be updated or removed
         between_marks = False
-        closing_mark = ''
+        closing_mark = ""
         for line in symbols:
             name = is_new_symbol_mark(line)
             if name:
                 if name in named_layouts.keys():
-                    closing_mark = line[:-6] + 'END\n'
+                    closing_mark = line[:-6] + "END\n"
                     modified_text = True
                     between_marks = True
                     text = text.rstrip()
                 else:
                     text += line
-            elif line.endswith('::END\n'):
+            elif line.endswith("::END\n"):
                 if between_marks and line.startswith(closing_mark):
                     between_marks = False
-                    closing_mark = ''
+                    closing_mark = ""
                 else:
                     text += line
             elif not between_marks:
@@ -246,37 +253,37 @@ def update_symbols_locale(path, named_layouts):
         # clear previous Kalamine layouts if needed
         if modified_text:
             symbols.seek(0)
-            symbols.write(text.rstrip() + '\n')
+            symbols.write(text.rstrip() + "\n")
             symbols.truncate()
 
         # add new Kalamine layouts
         locale = path.name
         for name, layout in named_layouts.items():
             if layout is None:
-                print(f'      - {locale}/{name}')
+                print(f"      - {locale}/{name}")
             else:
-                print(f'      + {locale}/{name}')
+                print(f"      + {locale}/{name}")
                 mark = get_symbol_mark(name)
-                symbols.write('\n')
-                symbols.write(mark['begin'])
-                symbols.write(layout.xkb_patch.rstrip() + '\n')
-                symbols.write(mark['end'])
+                symbols.write("\n")
+                symbols.write(mark["begin"])
+                symbols.write(layout.xkb_patch.rstrip() + "\n")
+                symbols.write(mark["end"])
 
         symbols.close()
 
 
 def update_symbols(xkb_root, kb_index):
-    """ Update Kalamine layouts in all xkb/symbols files. """
+    """Update Kalamine layouts in all xkb/symbols files."""
 
     for locale, named_layouts in kb_index.items():
-        path = xkb_root / 'symbols' / locale
+        path = xkb_root / "symbols" / locale
         if not path.exists():
-            with open(path, 'w') as file:
-                file.write('// Generated by Kalamine')
+            with open(path, "w") as file:
+                file.write("// Generated by Kalamine")
                 file.close()
 
         try:
-            print(f'... {path}')
+            print(f"... {path}")
             update_symbols_locale(path, named_layouts)
 
         except Exception as exc:
@@ -284,15 +291,15 @@ def update_symbols(xkb_root, kb_index):
 
 
 def list_symbols(xkb_root, kb_index):
-    """ Filter input layouts: only keep the ones defined with Kalamine. """
+    """Filter input layouts: only keep the ones defined with Kalamine."""
 
     filtered_index = {}
     for locale, variants in sorted(kb_index.items()):
-        path = xkb_root / 'symbols' / locale
+        path = xkb_root / "symbols" / locale
         if not path.exists():
             continue
 
-        with open(path, 'r', encoding='utf-8') as symbols:
+        with open(path, "r", encoding="utf-8") as symbols:
             for line in symbols:
                 name = is_new_symbol_mark(line)
                 if name in variants.keys():
@@ -307,14 +314,14 @@ def list_symbols(xkb_root, kb_index):
 # Helpers: XKB/rules
 #
 
+
 def get_rules_locale(tree, locale):
     query = f'//layout/configItem/name[text()="{locale}"]/../..'
     result = tree.xpath(query)
     if len(result) != 1:
-        tree.xpath('//layoutList')[0].append(
-            E.layout(
-                E.configItem(E.name(locale)),
-                E.variantList()))
+        tree.xpath("//layoutList")[0].append(
+            E.layout(E.configItem(E.name(locale)), E.variantList())
+        )
     return tree.xpath(query)[0]
 
 
@@ -326,17 +333,15 @@ def remove_rules_variant(variant_list, name):
 
 def add_rules_variant(variant_list, name, description):
     variant_list.append(
-        E.variant(
-            E.configItem(
-                E.name(name),
-                E.description(description))))
+        E.variant(E.configItem(E.name(name), E.description(description)))
+    )
 
 
 def update_rules(xkb_root, kb_index):
-    """ Update references in XKB/rules/{base,evdev}.xml. """
+    """Update references in XKB/rules/{base,evdev}.xml."""
 
-    for filename in ['base.xml', 'evdev.xml']:
-        filepath = xkb_root / 'rules' / filename
+    for filename in ["base.xml", "evdev.xml"]:
+        filepath = xkb_root / "rules" / filename
         if not filepath.exists():
             continue
 
@@ -344,31 +349,32 @@ def update_rules(xkb_root, kb_index):
             tree = etree.parse(filepath, etree.XMLParser(remove_blank_text=True))
 
             for locale, named_layouts in kb_index.items():
-                vlist = get_rules_locale(tree, locale).xpath('variantList')
+                vlist = get_rules_locale(tree, locale).xpath("variantList")
                 if len(vlist) != 1:
                     exit(f"Error: unexpected xml format in {filepath}.")
                 for name, layout in named_layouts.items():
                     remove_rules_variant(vlist[0], name)
                     if layout is not None:
-                        description = layout.meta['description']
+                        description = layout.meta["description"]
                         add_rules_variant(vlist[0], name, description)
 
-            tree.write(filepath, pretty_print=True, xml_declaration=True,
-                       encoding='utf-8')
-            print(f'... {filepath}')
+            tree.write(
+                filepath, pretty_print=True, xml_declaration=True, encoding="utf-8"
+            )
+            print(f"... {filepath}")
 
         except Exception as exc:
             exit_FileNotWritable(exc, filepath)
 
 
-def list_rules(xkb_root, mask='*'):
-    """ List all matching XKB layouts. """
+def list_rules(xkb_root, mask="*"):
+    """List all matching XKB layouts."""
 
-    if mask in ('', '*'):
-        locale_mask = '*'
-        variant_mask = '*'
+    if mask in ("", "*"):
+        locale_mask = "*"
+        variant_mask = "*"
     else:
-        m = mask.split('/')
+        m = mask.split("/")
         if len(m) == 2:
             locale_mask, variant_mask = m
         else:
@@ -376,18 +382,18 @@ def list_rules(xkb_root, mask='*'):
             variant_mask = "*"
 
     kb_index = {}
-    for filename in ['base.xml', 'evdev.xml']:
-        filepath = xkb_root / 'rules' / filename
+    for filename in ["base.xml", "evdev.xml"]:
+        filepath = xkb_root / "rules" / filename
         if not filepath.exists():
             continue
 
         tree = etree.parse(filepath)
-        for variant in tree.xpath('//variant'):
-            locale = variant.xpath('../../configItem/name')[0].text
-            name = variant.xpath('configItem/name')[0].text
-            desc = variant.xpath('configItem/description')[0].text
+        for variant in tree.xpath("//variant"):
+            locale = variant.xpath("../../configItem/name")[0].text
+            name = variant.xpath("configItem/name")[0].text
+            desc = variant.xpath("configItem/description")[0].text
 
-            if locale_mask in ('*', locale) and variant_mask in ('*', name):
+            if locale_mask in ("*", locale) and variant_mask in ("*", name):
                 if locale not in kb_index:
                     kb_index[locale] = {}
                 kb_index[locale][name] = desc
@@ -399,12 +405,13 @@ def list_rules(xkb_root, mask='*'):
 # Exception Handling (there must be a better way...)
 #
 
+
 def exit_FileNotWritable(exception, path):
     if isinstance(exception, PermissionError):  # noqa: F821
         raise exception
     elif isinstance(exception, IOError):
-        print('')
-        sys.exit(f'Error: could not write to file {path}.')
+        print("")
+        sys.exit(f"Error: could not write to file {path}.")
     else:
-        print('')
-        sys.exit(f'Error: {exception}.\n{traceback.format_exc()}')
+        print("")
+        sys.exit(f"Error: {exception}.\n{traceback.format_exc()}")

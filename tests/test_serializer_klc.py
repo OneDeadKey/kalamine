@@ -2,11 +2,11 @@ import os
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
-from kalamine.template import klc_keymap, klc_deadkeys, klc_dk_index
+from kalamine.template import klc_deadkeys, klc_dk_index, klc_keymap
 
 
 def load_layout(filename):
-    return KeyboardLayout(os.path.join('.', 'layouts', filename + '.toml'))
+    return KeyboardLayout(os.path.join(".", "layouts", filename + ".toml"))
 
 
 def split(multiline_str):
@@ -14,11 +14,12 @@ def split(multiline_str):
 
 
 def test_ansi():
-    layout = load_layout('ansi')
+    layout = load_layout("ansi")
 
     keymap = klc_keymap(layout)
     assert len(keymap) == 49
-    assert keymap == split('''
+    assert keymap == split(
+        """
         02	1	0	1	0021	-1	-1	// 1 !
         03	2	0	2	0040	-1	-1	// 2 @
         04	3	0	3	0023	-1	-1	// 3 #
@@ -68,18 +69,20 @@ def test_ansi():
         2b	OEM_5	0	005c	007c	-1	-1	// \\ |
         56	OEM_102	0	-1	-1	-1	-1	//
         39	SPACE	0	0020	0020	-1	-1	//
-        ''')
+        """
+    )
 
     assert len(klc_dk_index(layout)) == 0
     assert len(klc_deadkeys(layout)) == 0
 
 
 def test_intl():
-    layout = load_layout('intl')
+    layout = load_layout("intl")
 
     keymap = klc_keymap(layout)
     assert len(keymap) == 49
-    assert keymap == split('''
+    assert keymap == split(
+        """
         02	1	0	1	0021	-1	-1	// 1 !
         03	2	0	2	0040	-1	-1	// 2 @
         04	3	0	3	0023	-1	-1	// 3 #
@@ -129,21 +132,25 @@ def test_intl():
         2b	OEM_5	0	005c	007c	-1	-1	// \\ |
         56	OEM_102	0	005c	007c	-1	-1	// \\ |
         39	SPACE	0	0020	0020	-1	-1	//
-        ''')
+        """
+    )
 
     dk_index = klc_dk_index(layout)
     assert len(dk_index) == 5
-    assert dk_index == split('''
+    assert dk_index == split(
+        """
         0027	"1DK"
         0060	"GRAVE"
         005e	"CIRCUMFLEX"
         007e	"TILDE"
         0022	"DIAERESIS"
-        ''')
+        """
+    )
 
     deadkeys = klc_deadkeys(layout)
     assert len(deadkeys) == 138
-    assert deadkeys == split('''
+    assert deadkeys == split(
+        """
         // DEADKEY: 1DK //{{{
         DEADKEY	0027
         0065	00e9	// e -> é
@@ -282,15 +289,17 @@ def test_intl():
         00a0	0022	//   -> "
         0020	0022	//   -> "
         //}}}
-        ''')
+        """
+    )
 
 
 def test_prog():
-    layout = load_layout('prog')
+    layout = load_layout("prog")
 
     keymap = klc_keymap(layout)
     assert len(keymap) == 49
-    assert keymap == split('''
+    assert keymap == split(
+        """
         02	1	0	1	0021	-1	-1	0021	-1	// 1 ! !
         03	2	0	2	0040	-1	-1	0028	-1	// 2 @ (
         04	3	0	3	0023	-1	-1	0029	-1	// 3 # )
@@ -340,21 +349,25 @@ def test_prog():
         2b	OEM_5	0	005c	007c	-1	-1	-1	-1	// \\ |
         56	OEM_102	0	-1	-1	-1	-1	-1	-1	//
         39	SPACE	0	0020	0020	-1	-1	0020	0020	//
-        ''')
+        """
+    )
 
     dk_index = klc_dk_index(layout)
     assert len(dk_index) == 5
-    assert dk_index == split('''
+    assert dk_index == split(
+        """
         0060	"GRAVE"
         0027	"ACUTE"
         005e	"CIRCUMFLEX"
         007e	"TILDE"
         0022	"DIAERESIS"
-        ''')
+        """
+    )
 
     deadkeys = klc_deadkeys(layout)
     assert len(deadkeys) == 158
-    assert deadkeys == split('''
+    assert deadkeys == split(
+        """
         // DEADKEY: GRAVE //{{{
         DEADKEY	0060
         0041	00c0	// A -> À
@@ -513,4 +526,5 @@ def test_prog():
         00a0	0022	//   -> "
         0020	0022	//   -> "
         //}}}
-        ''')
+        """
+    )
