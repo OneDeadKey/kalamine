@@ -40,3 +40,6 @@ Homepage = "https://github.com/fabi1cazenave/kalamine"
 [project.scripts]
 kalamine = "kalamine.cli:make"
 xkalamine = "kalamine.cli_xkb:cli"
+
+[tool.isort]
+profile = "black"

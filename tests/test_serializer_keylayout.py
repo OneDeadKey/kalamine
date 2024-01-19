@@ -2,18 +2,19 @@ import os
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
-from kalamine.template import osx_keymap, osx_actions, osx_terminators
+from kalamine.template import osx_actions, osx_keymap, osx_terminators
 
 
 def load_layout(filename):
-    return KeyboardLayout(os.path.join('.', 'layouts', filename + '.toml'))
+    return KeyboardLayout(os.path.join(".", "layouts", filename + ".toml"))
 
 
 def split(multiline_str):
     return dedent(multiline_str).lstrip().rstrip().splitlines()
 
 
-EMPTY_KEYMAP = split('''
+EMPTY_KEYMAP = split(
+    """
     <!-- Digits -->
     <key code="18"  output="&#x0010;" />
     <key code="19"  output="&#x0010;" />
@@ -74,16 +75,18 @@ EMPTY_KEYMAP = split('''
 
     <!-- Space bar -->
     <key code="49"  output="&#x0010;" />
-    ''')
+    """
+)
 
 
 def test_ansi():
-    layout = load_layout('ansi')
+    layout = load_layout("ansi")
 
     keymap = osx_keymap(layout)
 
     assert len(keymap[0]) == 60
-    assert keymap[0] == split('''
+    assert keymap[0] == split(
+        """
         <!-- Digits -->
         <key code="18"  output="1" />
         <key code="19"  output="2" />
@@ -144,10 +147,12 @@ def test_ansi():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[1]) == 60
-    assert keymap[1] == split('''
+    assert keymap[1] == split(
+        """
         <!-- Digits -->
         <key code="18"  output="!" />
         <key code="19"  output="@" />
@@ -208,10 +213,12 @@ def test_ansi():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[2]) == 60
-    assert keymap[2] == split('''
+    assert keymap[2] == split(
+        """
         <!-- Digits -->
         <key code="18"  output="1" />
         <key code="19"  output="2" />
@@ -272,7 +279,8 @@ def test_ansi():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[3]) == 60
     assert keymap[3] == EMPTY_KEYMAP
@@ -281,7 +289,8 @@ def test_ansi():
     assert keymap[4] == EMPTY_KEYMAP
 
     actions = osx_actions(layout)
-    assert actions[1:] == split('''
+    assert actions[1:] == split(
+        """
         <!-- Digits -->
 
         <!-- Letters, first row -->
@@ -302,19 +311,21 @@ def test_ansi():
         <action id="x202f">
           <when state="none"       output="&#x202f;" />
         </action>
-        ''')
+        """
+    )
 
     terminators = osx_terminators(layout)
     assert len(terminators) == 0
 
 
 def test_intl():
-    layout = load_layout('intl')
+    layout = load_layout("intl")
 
     keymap = osx_keymap(layout)
 
     assert len(keymap[0]) == 60
-    assert keymap[0] == split('''
+    assert keymap[0] == split(
+        """
         <!-- Digits -->
         <key code="18"  action="1" />
         <key code="19"  action="2" />
@@ -375,10 +386,12 @@ def test_intl():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[1]) == 60
-    assert keymap[1] == split('''
+    assert keymap[1] == split(
+        """
         <!-- Digits -->
         <key code="18"  output="!" />
         <key code="19"  output="@" />
@@ -439,10 +452,12 @@ def test_intl():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[2]) == 60
-    assert keymap[2] == split('''
+    assert keymap[2] == split(
+        """
         <!-- Digits -->
         <key code="18"  action="1" />
         <key code="19"  action="2" />
@@ -503,7 +518,8 @@ def test_intl():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[3]) == 60
     assert keymap[3] == EMPTY_KEYMAP
@@ -512,7 +528,8 @@ def test_intl():
     assert keymap[4] == EMPTY_KEYMAP
 
     actions = osx_actions(layout)
-    assert actions == split('''
+    assert actions == split(
+        """
         <action id="dead_grave">
           <when state="none" next="grave" />
         </action>
@@ -825,26 +842,30 @@ def test_intl():
           <when state="tilde"      output="~" />
           <when state="diaeresis"  output="&#x0022;" />
         </action>
-        ''')
+        """
+    )
 
     terminators = osx_terminators(layout)
     assert len(terminators) == 5
-    assert terminators == split('''
+    assert terminators == split(
+        """
         <when state="1dk"        output="´" />
         <when state="grave"      output="`" />
         <when state="circumflex" output="^" />
         <when state="tilde"      output="~" />
         <when state="diaeresis"  output="¨" />
-        ''')
+        """
+    )
 
 
 def test_prog():
-    layout = load_layout('prog')
+    layout = load_layout("prog")
 
     keymap = osx_keymap(layout)
 
     assert len(keymap[0]) == 60
-    assert keymap[0] == split('''
+    assert keymap[0] == split(
+        """
         <!-- Digits -->
         <key code="18"  action="1" />
         <key code="19"  action="2" />
@@ -905,10 +926,12 @@ def test_prog():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[1]) == 60
-    assert keymap[1] == split('''
+    assert keymap[1] == split(
+        """
         <!-- Digits -->
         <key code="18"  output="!" />
         <key code="19"  output="@" />
@@ -969,10 +992,12 @@ def test_prog():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[2]) == 60
-    assert keymap[2] == split('''
+    assert keymap[2] == split(
+        """
         <!-- Digits -->
         <key code="18"  action="1" />
         <key code="19"  action="2" />
@@ -1033,10 +1058,12 @@ def test_prog():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[3]) == 60
-    assert keymap[3] == split('''
+    assert keymap[3] == split(
+        """
         <!-- Digits -->
         <key code="18"  output="!" />
         <key code="19"  action="(" />
@@ -1097,10 +1124,12 @@ def test_prog():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     assert len(keymap[4]) == 60
-    assert keymap[4] == split('''
+    assert keymap[4] == split(
+        """
         <!-- Digits -->
         <key code="18"  output="&#x0010;" />
         <key code="19"  output="&#x0010;" />
@@ -1161,10 +1190,12 @@ def test_prog():
 
         <!-- Space bar -->
         <key code="49"  action="x0020" />
-        ''')
+        """
+    )
 
     actions = osx_actions(layout)
-    assert actions == split('''
+    assert actions == split(
+        """
         <action id="dead_grave">
           <when state="none" next="grave" />
         </action>
@@ -1525,14 +1556,17 @@ def test_prog():
           <when state="tilde"      output="~" />
           <when state="diaeresis"  output="&#x0022;" />
         </action>
-        ''')
+        """
+    )
 
     terminators = osx_terminators(layout)
     assert len(terminators) == 5
-    assert terminators == split('''
+    assert terminators == split(
+        """
         <when state="grave"      output="`" />
         <when state="acute"      output="´" />
         <when state="circumflex" output="^" />
         <when state="tilde"      output="~" />
         <when state="diaeresis"  output="¨" />
-        ''')
+        """
+    )

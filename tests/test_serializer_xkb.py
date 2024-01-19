@@ -6,7 +6,7 @@ from kalamine.template import xkb_keymap
 
 
 def load_layout(filename):
-    return KeyboardLayout(os.path.join('.', 'layouts', filename + '.toml'))
+    return KeyboardLayout(os.path.join(".", "layouts", filename + ".toml"))
 
 
 def split(multiline_str):
@@ -14,9 +14,10 @@ def split(multiline_str):
 
 
 def test_ansi():
-    layout = load_layout('ansi')
+    layout = load_layout("ansi")
 
-    expected = split('''
+    expected = split(
+        """
         // Digits
         key <AE01> {[ 1               , exclam          , VoidSymbol      , VoidSymbol      ]}; // 1 !
         key <AE02> {[ 2               , at              , VoidSymbol      , VoidSymbol      ]}; // 2 @
@@ -79,7 +80,8 @@ def test_ansi():
 
         // Space bar
         key <SPCE> {[ space           , space           , apostrophe      , apostrophe      ]}; //     ' '
-        ''')
+        """
+    )
 
     xkbcomp = xkb_keymap(layout, xkbcomp=True)
     assert len(xkbcomp) == len(expected)
@@ -91,9 +93,10 @@ def test_ansi():
 
 
 def test_intl():
-    layout = load_layout('intl')
+    layout = load_layout("intl")
 
-    expected = split('''
+    expected = split(
+        """
         // Digits
         key <AE01> {[ 1               , exclam          , VoidSymbol      , VoidSymbol      ]}; // 1 !
         key <AE02> {[ 2               , at              , VoidSymbol      , VoidSymbol      ]}; // 2 @
@@ -156,7 +159,8 @@ def test_intl():
 
         // Space bar
         key <SPCE> {[ space           , space           , apostrophe      , apostrophe      ]}; //     ' '
-        ''')
+        """
+    )
 
     xkbcomp = xkb_keymap(layout, xkbcomp=True)
     assert len(xkbcomp) == len(expected)
@@ -168,9 +172,10 @@ def test_intl():
 
 
 def test_prog():
-    layout = load_layout('prog')
+    layout = load_layout("prog")
 
-    expected = split('''
+    expected = split(
+        """
         // Digits
         key <AE01> {[ 1               , exclam          , exclam          , VoidSymbol      ]}; // 1 !     !
         key <AE02> {[ 2               , at              , parenleft       , VoidSymbol      ]}; // 2 @     (
@@ -233,7 +238,8 @@ def test_prog():
 
         // Space bar
         key <SPCE> {[ space           , space           , space           , space           ]}; //     ' '
-        ''')
+        """
+    )
 
     xkbcomp = xkb_keymap(layout, xkbcomp=True)
     assert len(xkbcomp) == len(expected)
