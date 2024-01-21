@@ -28,6 +28,13 @@ def make_all(layout, subdir):
     if not os.path.exists(subdir):
         os.makedirs(subdir)
 
+    # AHK driver
+    ahk_path = out_path(".ahk")
+    with open(ahk_path, "w", encoding="utf-8", newline="\n") as file:
+        file.write("\uFEFF")  # AHK scripts require a BOM
+        file.write(layout.ahk)
+    print("... " + ahk_path)
+
     # Windows driver
     klc_path = out_path(".klc")
     with open(klc_path, "w", encoding="utf-16le", newline="\r\n") as file:
@@ -89,7 +96,11 @@ def make(input, version, watch, out):
             output_file = out
 
         # detailed output
-        if output_file.endswith(".klc"):
+        if output_file.endswith(".ahk"):
+            with open(output_file, "w", encoding="utf-8", newline="\n") as file:
+                file.write("\uFEFF")  # AHK scripts require a BOM
+                file.write(layout.ahk)
+        elif output_file.endswith(".klc"):
             with open(output_file, "w", encoding="utf-16le", newline="\r\n") as file:
                 file.write(layout.klc)
         elif output_file.endswith(".keylayout"):

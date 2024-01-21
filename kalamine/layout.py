@@ -8,6 +8,8 @@ import tomli
 import yaml
 
 from .template import (
+    ahk_keymap,
+    ahk_shortcuts,
     klc_deadkeys,
     klc_dk_index,
     klc_keymap,
@@ -370,6 +372,15 @@ class KeyboardLayout:
             out = substitute_lines(out, "LAYER_" + str(i), layer)
         out = substitute_lines(out, "ACTIONS", osx_actions(self))
         out = substitute_lines(out, "TERMINATORS", osx_terminators(self))
+        return out
+
+    @property
+    def ahk(self):
+        """Windows AHK driver"""
+        out = load_tpl(self, ".ahk")
+        out = substitute_lines(out, "LAYOUT", ahk_keymap(self))
+        out = substitute_lines(out, "ALTGR", ahk_keymap(self, True))
+        out = substitute_lines(out, "SHORTCUTS", ahk_shortcuts(self))
         return out
 
     @property
