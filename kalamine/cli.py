@@ -4,6 +4,8 @@ import os
 from importlib import metadata
 
 import click
+from lxml import etree
+from lxml.builder import E
 
 from .layout import KeyboardLayout
 from .server import keyboard_server
@@ -64,6 +66,11 @@ def make_all(layout, subdir):
     pretty_json(layout, json_path)
     print("... " + json_path)
 
+    # SVG data
+    svg_path = out_path('.svg')
+    layout.svg.write(svg_path, pretty_print=True, encoding='utf-8')
+    print('... ' + svg_path)
+
 
 @click.command()
 @click.argument("input", nargs=-1, type=click.Path(exists=True))
@@ -90,7 +97,7 @@ def make(input, version, watch, out):
             continue
 
         # quick output: reuse the input name and change the file extension
-        if out in ["keylayout", "klc", "xkb", "xkb_custom"]:
+        if out in ['keylayout', 'klc', 'xkb', 'xkb_custom', 'svg']:
             output_file = os.path.splitext(input_file)[0] + "." + out
         else:
             output_file = out
@@ -114,6 +121,8 @@ def make(input, version, watch, out):
                 file.write(layout.xkb_patch)
         elif output_file.endswith(".json"):
             pretty_json(layout, output_file)
+        elif output_file.endswith('.svg'):
+            layout.svg.write(output_file, pretty_print=True, encoding='utf-8')
         else:
             print("Unsupported output format.")
             return

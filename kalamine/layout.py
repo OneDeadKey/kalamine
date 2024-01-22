@@ -6,6 +6,7 @@ import sys
 
 import tomli
 import yaml
+from lxml import etree
 
 from .template import (
     ahk_keymap,
@@ -20,14 +21,7 @@ from .template import (
     web_keymap,
     xkb_keymap,
 )
-from .utils import (
-    DEAD_KEYS,
-    ODK_ID,
-    lines_to_text,
-    load_data,
-    open_local_file,
-    text_to_lines,
-)
+from .utils import DEAD_KEYS, ODK_ID, lines_to_text, load_data, open_local_file, text_to_lines
 
 ###
 # Helpers
@@ -422,3 +416,26 @@ class KeyboardLayout:
             "deadkeys": web_deadkeys(self),
             "altgr": self.has_altgr,
         }
+
+
+    ###
+    # SVG output
+    #
+
+    @property
+    def svg(self):
+        """ SVG drawing """
+        filepath = os.path.join(os.path.dirname(__file__), 'tpl', 'x-keyboard.svg')
+        svg = etree.parse(filepath, etree.XMLParser(remove_blank_text=True))
+        ns = {'svg': 'http://www.w3.org/2000/svg'}
+
+        # for key in svg.xpath('//svg:text[starts-with(@class, "level")]', namespaces=ns):
+        #     key.text = ''
+
+        for (name, chars) in web_keymap(self).items():
+            for key in svg.xpath(f'//svg:g[@id="{name}"]', namespaces=ns):
+                for lv2 in key.xpath('svg:g/svg:text[@class="level2"]', namespaces=ns):
+                    lv2.text = chars[1]
+
+        return svg
+
