@@ -439,7 +439,7 @@ class KeyboardLayout:
             for key in svg.xpath(f'//svg:g[@id="{name}"]', namespaces=ns):
                 # Print 1-4 level chars
                 for level_num, char in enumerate(chars, start=1):
-                    if chars[0] == chars[1].lower() and level_num == 1 and char != "**":
+                    if chars[0] == chars[1].lower() and level_num == 1 :
                         # Do not print letters twice (lower and upper)
                         continue
 

@@ -46,6 +46,10 @@
   | 1  5 |
   ========
 
+  Mixed display
+  +++++++++++++
+
+  Adding mixed class to main svg tag shows a mixed view with altgr and 1dk layers.
   -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" platform="gnu" theme="" class="iso intlBackslash">
   <style>
@@ -303,9 +307,13 @@
     .dk .level1, .altgr .level1,
     .dk .level2, .altgr .level2 { opacity: 0.25; display: block; }
     .dk .level5, .altgr .level3,
-    .dk .level6, .altgr .level4 { opacity: 1; display: block;}
-    .dk .level3,
-    .dk .level4 { display: none; }
+    .dk .level6, .altgr .level4,
+    .mixed .level3, .mixed .level5 { opacity: 1; display: block;}
+    .dk .level3, .dk .level4,
+    .mixed .level4, .mixed .level6 { display: none; }
+
+    /* Translate level5 upward if mixed */
+    .mixed .level5 {transform: translate(0px, -22.8px);}
 
     @media (prefers-color-scheme: dark) {
       rect, path { stroke: #777; fill: #444; }
