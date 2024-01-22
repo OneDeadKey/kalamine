@@ -1,4 +1,52 @@
-<!-- dk altgr-->
+<!--
+  How to use this SVG?
+  ====================
+
+  The layers
+  ++++++++++
+
+  This SVG has 6 layers by key:
+  - layer 1 : No mod
+  - layer 2 : Maj
+  - layer 3 : AltGr
+  - layer 4 : AltGr + Maj
+  - layer 5 (dk) : dk
+  - layer 6 (dk) : dk + Maj
+
+  Layers 5 and 6 correspond to main deadkey. Other deadkeys are not represented.
+
+  Default display
+  +++++++++++++++
+
+  The default display represents layers on a key like this.
+
+  ========
+  | 2  4 |
+  |      |
+  | 1  3 |
+  ========
+
+  AltGr display
+  +++++++++++++
+
+  If `altgr` is added as a class to base `svg` tag, the layers display
+  like default display except layers 3 and 4 are highlighted.
+
+  Deadkey display
+  +++++++++++++++
+
+  Deadkeys are represented as red characters in different layers.
+
+  Adding classes to base `svg` tag replaces layers 3 and 4 with main deadkey
+  layers and highlight them. The keys are represented as:
+
+  ========
+  | 2  6 |
+  |      |
+  | 1  5 |
+  ========
+
+  -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" platform="gnu" theme="" class="iso intlBackslash">
   <style>
     rect, path {
@@ -735,7 +783,7 @@
         <rect class="" width="52" height="52" rx="5" ry="5"/>
         <g class="key">
           <text class="level1" width="22" height="22" x="12.8" y="43.4"></text>
-          <text class="level2 deadKey" width="22" height="22" x="12.8" y="20.6"></text>
+          <text class="level2" width="22" height="22" x="12.8" y="20.6"></text>
           <text class="level3" width="22" height="22" x="38" y="43.4"></text>
           <text class="level4" width="22" height="22" x="38" y="20.6"></text>
           <text class="level5 dk" width="22" height="22" x="38" y="43.4"></text>
