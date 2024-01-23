@@ -4,8 +4,6 @@ import os
 from importlib import metadata
 
 import click
-from lxml import etree
-from lxml.builder import E
 
 from .layout import KeyboardLayout
 from .server import keyboard_server

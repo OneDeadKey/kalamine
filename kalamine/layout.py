@@ -454,7 +454,6 @@ class KeyboardLayout:
                         f"svg:g/svg:text[@class='level{level_num}']", namespaces=ns
                     ):
                         if char not in deadkeys:
-                            # Not a deadkey
                             location.text = char
                         else:
                             location.text = (
