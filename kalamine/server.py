@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 import json
 import os
+import threading
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+from livereload import Server
 
 from .layout import KeyboardLayout
 
@@ -10,7 +13,8 @@ def keyboard_server(file_path):
     kb_layout = KeyboardLayout(file_path)
 
     host_name = "localhost"
-    server_port = 8080
+    webserver_port = 8080
+    lr_server_port = 5500
 
     def main_page(layout):
         return f"""
@@ -21,6 +25,7 @@ def keyboard_server(file_path):
                 <title>Kalamine</title>
                 <link rel="stylesheet" type="text/css" href="style.css" />
                 <script src="x-keyboard.js" type="module"></script>
+                <script src="http://{host_name}:{lr_server_port}/livereload.js"></script>
                 <script src="demo.js" type="text/javascript"></script>
             </head>
             <body>
@@ -85,14 +90,22 @@ def keyboard_server(file_path):
             else:
                 return SimpleHTTPRequestHandler.do_GET(self)
 
-    webserver = HTTPServer((host_name, server_port), LayoutHandler)
-    print(f"Server started: http://{host_name}:{server_port}")
-    print("Hit Ctrl-C to stop.")
+    webserver = HTTPServer((host_name, webserver_port), LayoutHandler)
+    thread = threading.Thread(None, webserver.serve_forever)
 
     try:
-        webserver.serve_forever()
+        thread.start()
+        print(f"Server started: http://{host_name}:{webserver_port}")
+        print("Hit Ctrl-C to stop.")
+
+        lr_server = Server()
+        lr_server.watch(file_path)
+        lr_server.serve(host=host_name, port=lr_server_port)
+
     except KeyboardInterrupt:
         pass
 
+    webserver.shutdown()
     webserver.server_close()
+    thread.join()
     print("Server stopped.")

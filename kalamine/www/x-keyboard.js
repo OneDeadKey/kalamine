@@ -66,6 +66,7 @@ function getKeySequence(keyMap, dkDict, str = '') {
       rv.push(getKeyList(keyMap, dk.base)[0]);
     } else { // not available
       rv.push({});
+      console.error('char not found:', char); // eslint-disable-line
     }
   });
   return rv;
@@ -133,8 +134,8 @@ function newKeyboardLayout(keyMap = {}, deadKeys = {}, geometry = '') {
     },
 
     // keyboard hints
-    getKey: (char) => getKeyList(keyMap, char)[0],
-    getKeySequence: (str) => getKeySequence(keyMap, deadKeyDict, str),
+    getKey: char => getKeyList(keyMap, char)[0],
+    getKeySequence: str => getKeySequence(keyMap, deadKeyDict, str),
 
     // keyboard emulation
     keyUp: (keyCode) => {
@@ -150,11 +151,10 @@ function newKeyboardLayout(keyMap = {}, deadKeys = {}, geometry = '') {
       if (!key) {
         return '';
       }
-      const value = key[getModifierLevel(modifiers, platform)];
+      let value = key[getModifierLevel(modifiers, platform)];
       if (pendingDK) {
-        const dk = pendingDK;
+        value = pendingDK[value] || '';
         pendingDK = undefined;
-        return dk[value] || '';
       }
       if (isDeadKey(value)) {
         pendingDK = deadKeys[value];
@@ -169,12 +169,12 @@ function newKeyboardLayout(keyMap = {}, deadKeys = {}, geometry = '') {
  * Styling: colors & dimensions
  */
 
-const KEY_BG         = '#fff';
+const KEY_BG         = '#f8f8f8';
 const SPECIAL_KEY_BG = '#e4e4e4';
 const KEY_COLOR      = '#333';
 const KEY_COLOR_L3   = 'blue';
-const KEY_COLOR_L5   = '#e83';
-const DEAD_KEY_COLOR = '#e83';
+const KEY_COLOR_L5   = 'green';
+const DEAD_KEY_COLOR = 'red';
 
 const KEY_WIDTH = 60;  // 1U = 0.75" = 19.05mm = 60px
 const KEY_PADDING = 4; // 8px between two key edges
@@ -290,7 +290,6 @@ const text = (content, cname = '', attributes) => sgml('text', {
   height: 0.50,
   x: 0.34,
   y: 0.78,
-  'text-anchor': 'middle',
   ...attributes,
 }, [content]);
 
@@ -307,7 +306,7 @@ const gKey = (className, finger, x, id, children = emptyKey) => sgml('g', {
  */
 
 const keyLevel = (level, label, position) => {
-  const attrs = { 'text-anchor': 'middle', ...position };
+  const attrs = { ...position };
   const symbol = symbols[label] || '';
   const content = symbol || (label || '').slice(-1);
   let className = '';
@@ -362,14 +361,24 @@ function drawKey(element, keyMap) {
 }
 
 function drawDK(element, keyMap, deadKey) {
+  const drawChar = (element, content) => {
+    if (isDeadKey(content)) {
+      element.classList.add('deadKey', 'diacritic');
+      element.textContent = content[1];
+    } else {
+      element.classList.remove('deadKey', 'diacritic');
+      element.textContent = content || '';
+    }
+  };
+
   const keyChars = keyMap[element.parentNode.id];
-  if (!keyChars) {
-    return;
-  }
+  if (!keyChars) return;
+
   const alt0 = deadKey[keyChars[0]];
   const alt1 = deadKey[keyChars[1]];
-  element.querySelector('.level5').textContent = alt0 || '';
-  element.querySelector('.level6').textContent = altUpperChar(alt0, alt1);
+
+  drawChar(element.querySelector('.level5'), alt0);
+  drawChar(element.querySelector('.level6'), altUpperChar(alt0, alt1));
 }
 
 /**
@@ -380,12 +389,13 @@ function drawDK(element, keyMap, deadKey) {
 
 const numberRow = g('left', [
   gKey('specialKey', 'l5', 0, 'Escape', [
-    rect('ergo'),
+    rect('ergo', { width: 1.25 }),
     text('⎋', 'ergo'),
   ]),
   gKey('pinkyKey', 'l5', 0, 'Backquote', [
-    rect('specialKey jis'),
-    rect('ansi alt iso ergo'),
+    rect('specialKey jis', { width: 1 }),
+    rect('ansi alt iso',   { width: 1 }),
+    rect('ol60',           { width: 1.25 }),
     text('半角', 'jis', { x: 0.5, y: 0.4 }), // half-width (hankaku)
     text('全角', 'jis', { x: 0.5, y: 0.6 }), // full-width (zenkaku)
     text('漢字', 'jis', { x: 0.5, y: 0.8 }), // kanji
@@ -403,12 +413,16 @@ const numberRow = g('left', [
   gKey('numberKey',  'r4',  9, 'Digit9'),
   gKey('numberKey',  'r5', 10, 'Digit0'),
   gKey('pinkyKey',   'r5', 11, 'Minus'),
-  gKey('pinkyKey',   'r5', 12, 'Equal'),
+  gKey('pinkyKey',   'r5', 12, 'Equal', [
+    rect('ansi', { width: 1.00 }),
+    rect('ol60', { width: 1.25 }),
+    g('key'),
+  ]),
   gKey('pinkyKey',   'r5', 13, 'IntlYen'),
   gKey('specialKey', 'r5', 13, 'Backspace', [
-    rect('ansi', { width: 2 }),
-    rect('ol60', { height: 2, y: -1 }),
-    rect('ol40 ol50'),
+    rect('ansi',      { width: 2 }),
+    rect('ol60',      { width: 1.25, height: 2, y: -1 }),
+    rect('ol40 ol50', { width: 1.25 }),
     rect('alt', { x: 1 }),
     text('⌫', 'ansi'),
     text('⌫', 'ergo'),
@@ -419,7 +433,7 @@ const numberRow = g('left', [
 const letterRow1 = g('left', [
   gKey('specialKey', 'l5', 0, 'Tab', [
     rect('', { width: 1.5 }),
-    rect('ergo'),
+    rect('ergo', { width: 1.25 }),
     text('↹'),
     text('↹', 'ergo'),
   ]),
@@ -435,7 +449,11 @@ const letterRow1 = g('left', [
   gKey('letterKey', 'r4',  9.5, 'KeyO'),
   gKey('letterKey', 'r5', 10.5, 'KeyP'),
   gKey('pinkyKey',  'r5', 11.5, 'BracketLeft'),
-  gKey('pinkyKey',  'r5', 12.5, 'BracketRight'),
+  gKey('pinkyKey',  'r5', 12.5, 'BracketRight', [
+    rect('ansi', { width: 1.00 }),
+    rect('ol60', { width: 1.25 }),
+    g('key'),
+  ]),
   gKey('pinkyKey',  'r5', 13.5, 'Backslash', [
     rect('ansi', { width: 1.5 }),
     rect('iso ol60'),
@@ -464,9 +482,9 @@ const letterRow2 = g('left', [
   gKey('specialKey',        'r5', 12.75, 'Enter', [
     path('alt', altEnterPath),
     path('iso', isoEnterPath),
-    rect('ansi', { width: 2.25 }),
-    rect('ol60', { height: 2, y: -1 }),
-    rect('ol40 ol50'),
+    rect('ansi',      { width: 2.25 }),
+    rect('ol60',      { width: 1.25, height: 2, y: -1 }),
+    rect('ol40 ol50', { width: 1.25 }),
     text('⏎', 'ansi alt ergo'),
     text('⏎', 'iso', { translateX: 1 }),
   ]),
@@ -476,8 +494,8 @@ const letterRow3 = g('left', [
   gKey('specialKey', 'l5', 0, 'ShiftLeft', [
     rect('ansi alt',  { width: 2.25 }),
     rect('iso',       { width: 1.25 }),
-    rect('ol50 ol60', { height: 2, y: -1 }),
-    rect('ol40'),
+    rect('ol50 ol60', { width: 1.25, height: 2, y: -1 }),
+    rect('ol40',      { width: 1.25 }),
     text('⇧'),
     text('⇧', 'ergo'),
   ]),
@@ -497,8 +515,8 @@ const letterRow3 = g('left', [
   gKey('specialKey', 'r5', 12.25, 'ShiftRight', [
     rect('ansi',      { width: 2.75 }),
     rect('abnt',      { width: 1.75,  x: 1 }),
-    rect('ol50 ol60', { height: 2, y: -1 }),
-    rect('ol40'),
+    rect('ol50 ol60', { width: 1.25, height: 2, y: -1 }),
+    rect('ol40',      { width: 1.25 }),
     text('⇧', 'ansi'),
     text('⇧', 'ergo'),
     text('⇧', 'abnt', { translateX: 1 }),
@@ -509,7 +527,7 @@ const nonIcon = { x: 0.25, 'text-anchor': 'start' };
 const baseRow = g('left', [
   gKey('specialKey', 'l5', 0, 'ControlLeft', [
     rect('', { width: 1.25 }),
-    rect('ergo'),
+    rect('ergo', { width: 1.25 }),
     text('Ctrl', 'win gnu', nonIcon),
     text('⌃',    'mac'),
   ]),
@@ -536,8 +554,8 @@ const baseRow = g('left', [
   ]),
 ]) + gKey('homeKey', 'm1', 3.75, 'Space', [
   rect('ansi',      { width: 6.25 }),
-  rect('ol60',      { width: 5.00, x: -1 }),
-  rect('ol50 ol40', { width: 4.00 }),
+  rect('ol60',      { width: 5.50, x: -1 }),
+  rect('ol50 ol40', { width: 4.50 }),
   rect('ks',        { width: 4.25, x: 1 }),
   rect('jis',       { width: 3.25, x: 1 }),
 ]) + g('right', [
@@ -576,7 +594,7 @@ const baseRow = g('left', [
   ]),
   gKey('specialKey', 'r5', 13.75, 'ControlRight', [
     rect('', { width: 1.25 }),
-    rect('ergo'),
+    rect('ergo', { width: 1.25 }),
     text('Ctrl', 'win gnu', nonIcon),
     text('⌃',    'mac'),
   ]),
@@ -585,11 +603,11 @@ const baseRow = g('left', [
 const svgContent = `
   <svg viewBox="0 0 ${KEY_WIDTH * 15} ${KEY_WIDTH * 5}"
       xmlns="http://www.w3.org/2000/svg">
-    <g id="row_AE"> ${numberRow}  </g>
-    <g id="row_AD"> ${letterRow1} </g>
-    <g id="row_AC"> ${letterRow2} </g>
-    <g id="row_AB"> ${letterRow3} </g>
-    <g id="row_AA"> ${baseRow}    </g>
+    <g id="row_AE" text-anchor="middle"> ${numberRow}  </g>
+    <g id="row_AD" text-anchor="middle"> ${letterRow1} </g>
+    <g id="row_AC" text-anchor="middle"> ${letterRow2} </g>
+    <g id="row_AB" text-anchor="middle"> ${letterRow3} </g>
+    <g id="row_AA" text-anchor="middle"> ${baseRow}    </g>
   </svg>
 `;
 
@@ -630,7 +648,7 @@ const classicGeometry = `
   #row_AB ${translate(0, 3, true)}
   #row_AA ${translate(0, 4, true)}
 
-  /* Backslash & Enter */
+  /* Backslash + Enter */
   #Enter path.alt,
   #Enter     .iso,
   #Backslash .iso,
@@ -643,22 +661,22 @@ const classicGeometry = `
   .alt #Enter     .alt,
   .iso #Enter     .iso,
   .iso #Backslash .iso { display: block; }
-  .iso #Backslash,
-  .alt #Backslash ${translate(12.75, 1)}
+  .iso #Backslash ${translate(12.75, 1)}
+  .alt #Backslash ${translate(13.0, -1)}
 
-  /* Backspace & IntlYen */
+  /* Backspace + IntlYen */
   #IntlYen, #Backspace .alt,
   .intlYen  #Backspace .ansi { display: none; }
   .intlYen  #Backspace .alt,
   .intlYen  #IntlYen { display: block; }
 
-  /* ShiftLeft & IntlBackslash */
+  /* ShiftLeft + IntlBackslash */
   #IntlBackslash, #ShiftLeft .iso,
   .intlBackslash  #ShiftLeft .ansi { display: none; }
   .intlBackslash  #ShiftLeft .iso,
   .intlBackslash  #IntlBackslash { display: block; }
 
-  /* ShiftRight & IntlRo */
+  /* ShiftRight + IntlRo */
   #IntlRo, #ShiftRight .abnt,
   .intlRo  #ShiftRight .ansi { display: none; }
   .intlRo  #ShiftRight .abnt,
@@ -667,13 +685,16 @@ const classicGeometry = `
 
 // ortholinear geometry: TypeMatrix (60%), OLKB (50%, 40%)
 const orthoGeometry = `
-  .specialKey .ergo,
-  .specialKey .ol60,
-  .specialKey .ol50,
-  .specialKey .ol40,
-  #Space      .ol60,
-  #Space      .ol50,
-  #Space      .ol40,
+  .specialKey   .ergo,
+  .specialKey   .ol60,
+  .specialKey   .ol50,
+  .specialKey   .ol40,
+  #Space        .ol60,
+  #Space        .ol50,
+  #Space        .ol40,
+  #Backquote    .ol60,
+  #BracketRight .ol60,
+  #Equal        .ol60,
   .ergo #CapsLock,
   .ergo #Space      rect,
   .ergo #Backslash  rect,
@@ -681,14 +702,17 @@ const orthoGeometry = `
   .ergo .specialKey text { display: none; }
   .ol50 #Escape,
   .ol40 #Escape,
-  .ol60 #Space      .ol60,
-  .ol50 #Space      .ol50,
-  .ol40 #Space      .ol40,
-  .ol60 #Backslash  .ol60,
-  .ol60 .specialKey .ol60,
-  .ol50 .specialKey .ol50,
-  .ol40 .specialKey .ol40,
-  .ergo .specialKey .ergo { display: block; }
+  .ol60 #Space        .ol60,
+  .ol50 #Space        .ol50,
+  .ol40 #Space        .ol40,
+  .ol60 #Backquote    .ol60,
+  .ol60 #BracketRight .ol60,
+  .ol60 #Backslash    .ol60,
+  .ol60 #Equal        .ol60,
+  .ol60 .specialKey   .ol60,
+  .ol50 .specialKey   .ol50,
+  .ol40 .specialKey   .ol40,
+  .ergo .specialKey   .ergo { display: block; }
 
   .ol50 .pinkyKey, .ol50 #ContextMenu,
   .ol40 .pinkyKey, .ol40 #ContextMenu,
@@ -699,28 +723,33 @@ const orthoGeometry = `
   .ergo #row_AC       ${translate(0.75, 2, true)}
   .ergo #row_AB       ${translate(0.25, 3, true)}
 
-  .ergo #Tab          ${translate(0.50)}
-  .ergo #ShiftLeft    ${translate(1.25)}
-  .ergo #ControlLeft  ${translate(1.50)}
+  .ergo #Tab          ${translate(0.25)}
+  .ergo #ShiftLeft    ${translate(1.00)}
+  .ergo #ControlLeft  ${translate(1.25)}
   .ergo #MetaLeft     ${translate(2.50)}
   .ergo #AltLeft      ${translate(4.00)}
-  .ergo #Space        ${translate(5.50)}
+  .ergo #Space        ${translate(5.25)}
   .ergo #AltRight     ${translate(9.00)}
   .ergo #MetaRight    ${translate(10.5)}
   .ergo #ControlRight ${translate(12.5)}
 
-  .ol60 .left         ${translate(-1.00)}
+  .ergo .left         ${translate(-0.25)}
+  .ergo .right        ${translate(0.25)}
+
+  .ol60 .left         ${translate(-1.25)}
   .ol60 #ControlRight ${translate(13.50)}
+  .ol60 #Backquote    ${translate(-0.25)}
   .ol60 #ShiftRight   ${translate(13.25)}
   .ol60 #ContextMenu  ${translate(12.50)}
   .ol60 #Backslash    ${translate(11.50, 2)}
-  .ol60 #Backspace    ${translate(5.00, 1)}
-  .ol60 #Enter        ${translate(5.75, 1)}
+  .ol60 #Backspace    ${translate(4.625, 1)}
+  .ol60 #Enter        ${translate(5.375, 1)}
 
+  .ol50 #Escape       ${translate(-0.25)}
   .ol50 #Backspace    ${translate(11.00)}
   .ol50 #Enter        ${translate(11.75, -1)}
 
-  .ol40 #Escape       ${translate(0, 2)}
+  .ol40 #Escape       ${translate(-0.25, 2)}
   .ol40 #Backspace    ${translate(11.00, 1)}
   .ol40 #Enter        ${translate(11.75, 0)}
 
@@ -747,7 +776,7 @@ const orthoGeometry = `
                   .ergo #AltRight  ${translate(11.0)}
 `;
 
-// Korean & Japanese input systems
+// Korean + Japanese input systems
 const cjkKeys = `
   #NonConvert, #Convert, #KanaMode,
   #Lang1, #Lang2,
@@ -838,8 +867,8 @@ const themes = `
     fill: white;
   }
 
-  /* dimmed AltGr & bold dead keys */
-  .level3, .level4 { fill: ${KEY_COLOR_L3}; opacity: .4; }
+  /* dimmed AltGr + bold dead keys */
+  .level3, .level4 { fill: ${KEY_COLOR_L3}; opacity: .5; }
   .level5, .level6 { fill: ${KEY_COLOR_L5}; }
   .deadKey {
     fill: ${DEAD_KEY_COLOR};
@@ -854,7 +883,7 @@ const themes = `
   .level4        { display: none; }
   .altgr .level4 { display: block; }
 
-  /* highlight AltGr & Dead Keys */
+  /* highlight AltGr + Dead Keys */
   .dk .level1, .altgr .level1,
   .dk .level2, .altgr .level2 { opacity: 0.25; }
   .dk .level5, .altgr .level3,
@@ -866,8 +895,35 @@ const themes = `
     rect, path { stroke: #777; fill: #444; }
     .specialKey, .specialKey rect, .specialKey path { fill: #333; }
     g:target rect, .press rect, g:target path, .press path { fill: #558; }
-    text { fill: #baa; }
-    .level3, .level4 { fill: #99f; opacity: .7; }
+    text { fill: #bbb; }
+    .level3, .level4 { fill: #99f; }
+    .level5, .level6 { fill: #6d6; }
+    .deadKey { fill: #f44; }
+
+    [theme="reach"] .pinkyKey  rect { fill: hsl(  0, 20%, 30%); }
+    [theme="reach"] .numberKey rect { fill: hsl( 35, 25%, 30%); }
+    [theme="reach"] .letterKey rect { fill: hsl( 61, 30%, 30%); }
+    [theme="reach"] .homeKey   rect { fill: hsl(136, 30%, 30%); }
+    [theme="reach"] .press     rect { fill: #449; }
+
+    [theme="hints"] [finger="m1"] rect { fill: hsl(  0, 25%, 30%); }
+    [theme="hints"] [finger="l2"] rect { fill: hsl( 31, 30%, 30%); }
+    [theme="hints"] [finger="r2"] rect { fill: hsl( 61, 30%, 30%); }
+    [theme="hints"] [finger="l3"] rect,
+    [theme="hints"] [finger="r3"] rect { fill: hsl(136, 30%, 30%); }
+    [theme="hints"] [finger="l4"] rect,
+    [theme="hints"] [finger="r4"] rect { fill: hsl(200, 30%, 30%); }
+    [theme="hints"] [finger="l5"] rect,
+    [theme="hints"] [finger="r5"] rect { fill: hsl(230, 30%, 30%); }
+    [theme="hints"] .specialKey   rect,
+    [theme="hints"] .specialKey   path { fill: #333; }
+    [theme="hints"] .hint         rect { fill: #a33; }
+    [theme="hints"] .press        rect { fill: #335; }
+    [theme="hints"] .press        text { fill: #fff; }
+    [theme="hints"] .hint text {
+      font-weight: bold;
+      fill: white;
+    }
   }
 `;
 
@@ -956,14 +1012,6 @@ class Keyboard extends HTMLElement {
     this.root.querySelector('svg').setAttribute('theme', value);
   }
 
-  setCustomColors(keymap) {
-    Object.entries(keymap).forEach(([id, color]) => {
-      this.root.getElementById(id).querySelectorAll('rect').forEach((key) => {
-        key.style.fill = color;
-      });
-    });
-  }
-
   get geometry() {
     return this._state.geometry;
   }
@@ -1031,21 +1079,11 @@ class Keyboard extends HTMLElement {
     this._state.layout.platform = this.platform;
     this.geometry = this._state.geometry;
     Array.from(this.root.querySelectorAll('.key'))
-      .forEach((key) => drawKey(key, value.keyMap));
+      .forEach(key => drawKey(key, value.keyMap));
   }
 
   setKeyboardLayout(keyMap, deadKeys, geometry) {
     this.layout = newKeyboardLayout(keyMap, deadKeys, geometry);
-  }
-
-  get fingerAssignments() {
-    const fingers = ['l5', 'l4', 'l3', 'l2', 'r2', 'r2', 'r3', 'r4', 'r5'];
-    const keys = {};
-    fingers.forEach((f) => {
-      keys[f] = Array.from(this.root.querySelectorAll(`[finger=${f}]`))
-        .map((element) => element.id);
-    });
-    return keys;
   }
 
   /**
@@ -1076,7 +1114,8 @@ class Keyboard extends HTMLElement {
             span.textContent = '';
           });
       }
-    } else if (this.layout.pendingDK) { // show hints for this dead key
+    }
+    if (this.layout.pendingDK) { // show hints for this dead key
       Array.from(this.root.querySelectorAll('.key')).forEach((key) => {
         drawDK(key, this.layout.keyMap, this.layout.pendingDK);
       });
@@ -1108,9 +1147,9 @@ class Keyboard extends HTMLElement {
 
   clearStyle() {
     Array.from(this.root.querySelectorAll('[style]'))
-      .forEach((element) => element.removeAttribute('style'));
+      .forEach(element => element.removeAttribute('style'));
     Array.from(this.root.querySelectorAll('.press'))
-      .forEach((element) => element.classList.remove('press'));
+      .forEach(element => element.classList.remove('press'));
   }
 
   showKeys(chars, cssText) {
@@ -1124,7 +1163,7 @@ class Keyboard extends HTMLElement {
   showHint(keyObj) {
     let hintClass = '';
     Array.from(this.root.querySelectorAll('.hint'))
-      .forEach((key) => key.classList.remove('hint'));
+      .forEach(key => key.classList.remove('hint'));
     getKeyChord(this.root, keyObj).forEach((key) => {
       key.classList.add('hint');
       hintClass += `${key.getAttribute('finger')} `;

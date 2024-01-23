@@ -28,10 +28,11 @@ classifiers = [
 
 requires-python = ">= 3.6"
 dependencies = [
-    'click',
-    'pyyaml',
-    'tomli',
-    'lxml',
+    "click",
+    "livereload",
+    "lxml",
+    "pyyaml",
+    "tomli",
 ]
 
 [project.urls]
