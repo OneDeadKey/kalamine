@@ -35,6 +35,12 @@ dependencies = [
     "tomli",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort"
+]
+
 [project.urls]
 Homepage = "https://github.com/fabi1cazenave/kalamine"
 

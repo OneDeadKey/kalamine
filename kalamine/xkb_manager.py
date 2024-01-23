@@ -227,7 +227,6 @@ def update_symbols_locale(path, named_layouts):
     text = ""
     modified_text = False
     with open(path, "r+", encoding="utf-8") as symbols:
-
         # look for Kalamine layouts to be updated or removed
         between_marks = False
         closing_mark = ""
