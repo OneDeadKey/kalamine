@@ -7,7 +7,7 @@ A text-based, cross-platform Keyboard Layout Maker.
 Install
 --------------------------------------------------------------------------------
 
-All you need is a Python environment:
+All you need is a Python environment with version >= 3.8:
 
 .. code-block:: bash
 
@@ -18,6 +18,12 @@ Developers can also install it from the current directory:
 .. code-block:: bash
 
     python3 -m pip install -e .
+
+To install dev dependencies, specify the extra dependencies:
+
+.. code-block:: bash
+
+    python3 -m pip install -e ".[dev]"
 
 And to uninstall kalamine:
 
