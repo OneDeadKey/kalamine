@@ -106,9 +106,9 @@ Your layout can be emulated in a browser — including dead keys and an AltGr la
 .. code-block:: bash
 
     $ kalamine layouts/prog.toml --watch
-    Server started: http://localhost:8080
+    Server started: http://localhost:1664
 
-Open your browser, type in the input area, test your layout. Changes on your TOML file are not auto-detected yet, you’ll have to refresh the page manually.
+Check your browser, type in the input area, test your layout. Changes on your TOML file are auto-detected and reloaded automatically.
 
 .. image:: watch.png
 

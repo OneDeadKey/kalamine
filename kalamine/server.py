@@ -2,6 +2,7 @@
 import json
 import os
 import threading
+import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
 from livereload import Server
@@ -13,7 +14,7 @@ def keyboard_server(file_path):
     kb_layout = KeyboardLayout(file_path)
 
     host_name = "localhost"
-    webserver_port = 8080
+    webserver_port = 1664
     lr_server_port = 5500
 
     def main_page(layout):
@@ -95,9 +96,12 @@ def keyboard_server(file_path):
 
     try:
         thread.start()
-        print(f"Server started: http://{host_name}:{webserver_port}")
+        url = f"http://{host_name}:{webserver_port}"
+        print(f"Server started: {url}")
         print("Hit Ctrl-C to stop.")
+        webbrowser.open(url)
 
+        # livereload
         lr_server = Server()
         lr_server.watch(file_path)
         lr_server.serve(host=host_name, port=lr_server_port)
