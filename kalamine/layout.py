@@ -457,7 +457,7 @@ class KeyboardLayout:
                             location.text = char
                         else:
                             location.text = (
-                                "★" if char == "**" else char.removeprefix("*")
+                                "★" if char == "**" else char[1:]
                             )
                             # Apply special class for deadkeys
                             location.set(

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List
 
 from .utils import LAYER_KEYS, ODK_ID, load_data
 
@@ -505,7 +505,7 @@ def osx_terminators(layout):
 #
 
 
-def web_keymap(layout: "KeyboardLayout") -> dict[str, list[str]]:
+def web_keymap(layout: "KeyboardLayout") -> Dict[str, List[str]]:
     """Web layout, main part.
 
     Returns
@@ -528,7 +528,7 @@ def web_keymap(layout: "KeyboardLayout") -> dict[str, list[str]]:
     return keymap
 
 
-def web_deadkeys(layout: "KeyboardLayout") -> dict[str, dict[str, str]]:
+def web_deadkeys(layout: "KeyboardLayout") -> Dict[str, Dict[str, str]]:
     """Web layout, dead keys.
 
     Returns
