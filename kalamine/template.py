@@ -424,7 +424,7 @@ def osx_actions(layout):
     def append_actions(symbol, actions):
         ret_actions.append(f'<action id="{xml_proof_id(symbol)}">')
         ret_actions.append(when("none", symbol))
-        for (state, out) in actions:
+        for state, out in actions:
             ret_actions.append(when(state, out))
         ret_actions.append("</action>")
 

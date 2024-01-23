@@ -97,7 +97,7 @@ def make(input, version, watch, out):
             continue
 
         # quick output: reuse the input name and change the file extension
-        if out in ['keylayout', 'klc', 'xkb', 'xkb_custom', 'svg']:
+        if out in ["keylayout", "klc", "xkb", "xkb_custom", "svg"]:
             output_file = os.path.splitext(input_file)[0] + "." + out
         else:
             output_file = out
