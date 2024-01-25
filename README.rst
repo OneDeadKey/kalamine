@@ -44,57 +44,46 @@ If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment 
 Building Distributable Layouts
 --------------------------------------------------------------------------------
 
-Draw your keyboard layout in one of the provided ASCII-art templates and include it in a TOML document:
-
-.. code-block:: toml
-
-    name = "qwerty-ansi"
-    name8 = "q-ansi"
-    description = "QWERTY-US layout"
-    version = "1.0.0"
-    geometry = "ANSI"
-
-    base = '''
-    ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┲━━━━━━━━━━┓
-    │ ~   │ !   │ @   │ #   │ $   │ %   │ ^   │ &   │ *   │ (   │ )   │ _   │ +   ┃          ┃
-    │ `   │ 1   │ 2   │ 3   │ 4   │ 5   │ 6   │ 7   │ 8   │ 9   │ 0   │ -   │ =   ┃ ⌫        ┃
-    ┢━━━━━┷━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┺━━┯━━━━━━━┩
-    ┃        ┃ Q   │ W   │ E   │ R   │ T   │ Y   │ U   │ I   │ O   │ P   │ {   │ }   │ |     │
-    ┃ ↹      ┃     │     │     │     │     │     │     │     │     │     │ [   │ ]   │ \     │
-    ┣━━━━━━━━┻┱────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┲━━━━┷━━━━━━━┪
-    ┃         ┃ A   │ S   │ D   │ F   │ G   │ H   │ J   │ K   │ L   │ :   │ "   ┃            ┃
-    ┃ ⇬       ┃     │     │     │     │     │     │     │     │     │ ;   │ '   ┃ ⏎          ┃
-    ┣━━━━━━━━━┻━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┲━━┻━━━━━━━━━━━━┫
-    ┃            ┃ Z   │ X   │ C   │ V   │ B   │ N   │ M   │ <   │ >   │ ?   ┃               ┃
-    ┃ ⇧          ┃     │     │     │     │     │     │     │ ,   │ .   │ /   ┃ ⇧             ┃
-    ┣━━━━━━━┳━━━━┻━━┳━━┷━━━━┱┴─────┴─────┴─────┴─────┴─────┴─┲━━━┷━━━┳━┷━━━━━╋━━━━━━━┳━━━━━━━┫
-    ┃       ┃       ┃       ┃                                ┃       ┃       ┃       ┃       ┃
-    ┃ Ctrl  ┃ super ┃ Alt   ┃ ␣                              ┃ Alt   ┃ super ┃ menu  ┃ Ctrl  ┃
-    ┗━━━━━━━┻━━━━━━━┻━━━━━━━┹────────────────────────────────┺━━━━━━━┻━━━━━━━┻━━━━━━━┻━━━━━━━┛
-    '''
-
-Build it:
+Create a keyboard layout with ``kalamine create``:
 
 .. code-block:: bash
 
-    kalamine layouts/ansi.toml
+   kalamine create layout.toml                  # make a basic layout
+   kalamine create layout.toml --altgr          # use an AltGr layer
+   kalamine create layout.toml --1dk            # use a custom dead key
+   kalamine create layout.toml --geometry ERGO  # apply an ortholinear geometry
+
+Edit this layout with your preferred text editor:
+
+- the `user guide`_ is available at the end of the ``*.toml`` file
+- the layout can be rendered and emulated with ``kalamine watch`` (see next section)
+
+.. _`user guide`: https://github.com/fabi1cazenave/kalamine/tree/master/docs
+
+Build your layout:
+
+.. code-block:: bash
+
+    kalamine make layout.toml
 
 Get all distributable keyboard drivers:
 
 .. code-block:: bash
 
     dist/
-     ├─ q-ansi.klc         # Windows
-     ├─ q-ansi.keylayout   # macOS
-     ├─ q-ansi.xkb         # Linux (user)
-     ├─ q-ansi.xkb_custom  # Linux (root)
-     └─ q-ansi.json        # web
+     ├─ layout.ahk         # Windows (user)
+     ├─ layout.klc         # Windows (admin)
+     ├─ layout.keylayout   # macOS
+     ├─ layout.xkb         # Linux (user)
+     ├─ layout.xkb_custom  # Linux (root)
+     ├─ layout.json        # web
+     └─ layout.svg
 
 You can also ask for a single target by specifying the file extension:
 
 .. code-block:: bash
 
-    kalamine layouts/ansi.toml --out q-ansi.xkb_custom
+    kalamine make layout.toml --out layout.xkb_custom
 
 
 Emulating Layouts
@@ -105,7 +94,7 @@ Your layout can be emulated in a browser — including dead keys and an AltGr la
 
 .. code-block:: bash
 
-    $ kalamine layouts/prog.toml --watch
+    $ kalamine watch layout.toml
     Server started: http://localhost:1664
 
 Check your browser, type in the input area, test your layout. Changes on your TOML file are auto-detected and reloaded automatically.
@@ -233,7 +222,6 @@ Once installed, layouts are selectable in the desktop environment’s keyboard p
         xkb_layout "us"
         xkb_variant "prog"
     }
-
 
 
 X.Org (root)
