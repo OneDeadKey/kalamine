@@ -11,11 +11,6 @@ Same layout, but ``'"^`~`` are turned into dead keys:
 - `"`, `a` = ä
 - `'`, `e` = è
 
-Notice that in the YAML description, these ``'"^`~`` signs are turned into their combining diacritics equivalent:
-
-- `´` → `space` + `U+301` (combining acute)
-- `~` → `space` + `U+303` (combining tilde)
-
 ## Qwerty-prog
 
 A qwerty-intl variant with an AltGr layer for dead diacritics and coding symbols.
