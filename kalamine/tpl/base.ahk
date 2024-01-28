@@ -73,7 +73,11 @@ DoTerm(base:="") {
 DoAction(action:="") {
   global DeadKey
 
-  if (StrLen(action) != 2) {
+  if (action == "U+0020") {
+    Send, {SC39}
+    DeadKey := ""
+  }
+  else if (StrLen(action) != 2) {
     Send, {%action%}
     DeadKey := ""
   }
