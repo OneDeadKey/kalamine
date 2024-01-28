@@ -48,9 +48,9 @@ Create a keyboard layout with ``kalamine create``:
 
 .. code-block:: bash
 
-   kalamine create layout.toml                  # make a basic layout
-   kalamine create layout.toml --altgr          # use an AltGr layer
-   kalamine create layout.toml --1dk            # use a custom dead key
+   kalamine create layout.toml                  # basic layout
+   kalamine create layout.toml --altgr          # layout with an AltGr layer
+   kalamine create layout.toml --1dk            # layout with a custom dead key
    kalamine create layout.toml --geometry ERGO  # apply an ortholinear geometry
 
 Edit this layout with your preferred text editor:
@@ -104,37 +104,57 @@ Check your browser, type in the input area, test your layout. Changes on your TO
 Press Ctrl-C when you’re done, and kalamine will write all platform-specific files.
 
 
-Installing Distributable Layouts
+Using Distributable Layouts
 --------------------------------------------------------------------------------
 
 
-Windows
-```````
+Windows (user): ``*.ahk``
+`````````````````````````
+
+* download the `AHK 1.1 archive`_
+* load the ``*.ahk`` script with it.
+
+The keyboard layout appears in the notification area. It can be enabled/disabled by pressing both Alt keys.
+
+.. _`AHK 1.1 archive`: https://www.autohotkey.com/download/ahk.zip
+
+You may also use Ahk2Exe to turn your ``*.ahk`` script into an executable file. The ``U32 Unicode 32-bit.bin`` setting seems to work fine.
+
+
+Windows (admin): ``*.klc``
+``````````````````````````
 
 * get a keyboard layout installer: MSKLC_ (freeware) or KbdEdit_ (shareware);
 * load the ``*.klc`` file with it;
 * run this installer to generate a setup program;
 * run the setup program;
-* the keyboard layout appears in the language bar.
+* :strong:`restart your computer`, even if Windows doesn’t ask you to.
+
+The keyboard layout appears in the language bar.
 
 .. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=102134
 .. _KbdEdit: http://www.kbdedit.com/
 
+Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11. KbdEdit works fine.
 
-macOS
-`````
+
+macOS: ``*.keylayout``
+``````````````````````
 
 * copy your ``*.keylayout`` file into:
 
   * either ``~/Library/Keyboard Layouts`` for the current user only,
   * or ``/Library/Keyboard Layouts`` for all users;
 
-* restart your session;
-* the keyboard layout appears in the “Language and Text” preferences, “Input Methods” tab.
+* restart your session.
+
+The keyboard layout appears in the “Language and Text” preferences, “Input Methods” tab.
 
 
-Linux (root)
-````````````
+Linux (root): ``*.xkb_custom``
+``````````````````````````````
+
+:strong:`This is by far the simplest method to install a custom keyboard layout on Linux.`
 
 Recent versions of XKB allow *one* custom keyboard layout in root space:
 
@@ -161,8 +181,8 @@ On Wayland, this depends on your compositor. For Sway, tweak your keyboard input
     }
 
 
-Linux (user)
-````````````
+Linux (user): ``*.xkb``
+```````````````````````
 
 ``*.xkb`` keyboard descriptions can be applied in user-space. The main limitation is that the keyboard layout won’t show up in the keyboard settings.
 
