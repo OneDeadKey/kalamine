@@ -9,8 +9,7 @@ dev:  ## Install a development environment
 
 
 test:  ## Run tests
-	# python3 -m kalamine.cli make layouts/*.toml
-	kalamine make layouts/*.toml
+	python3 -m kalamine.cli make layouts/*.toml
 	pytest
 
 publish: test  ## Publish package

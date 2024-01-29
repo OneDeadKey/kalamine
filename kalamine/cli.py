@@ -206,3 +206,7 @@ def version():
     """Show version number and exit."""
 
     print(f"kalamine { metadata.version('kalamine') }")
+
+
+if __name__ == "__main__":
+    cli()
