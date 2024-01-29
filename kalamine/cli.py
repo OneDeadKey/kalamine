@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 import json
 import os
+import shutil
 from importlib import metadata
+from pathlib import Path
 
 import click
 
 from .layout import KeyboardLayout
 from .server import keyboard_server
+
+
+@click.group()
+def cli():
+    pass
 
 
 def pretty_json(layout, path):
@@ -70,23 +77,15 @@ def make_all(layout, subdir):
     print("... " + svg_path)
 
 
-@click.command()
-@click.argument("input", nargs=-1, type=click.Path(exists=True))
-@click.option("--version", "-v", is_flag=True)
-@click.option("--watch", "-w", is_flag=True)
+@cli.command()
+@click.argument("layout_descriptors", nargs=-1, type=click.Path(exists=True))
 @click.option(
-    "--out", default="all", type=click.Path(), help="Keyboard driver(s) to generate."
+    "--out", default="all", type=click.Path(), help="Keyboard drivers to generate."
 )
-def make(input, version, watch, out):
-    """Convert toml/yaml descriptions into OS-specific keyboard layouts."""
+def make(layout_descriptors, out):
+    """Convert TOML/YAML descriptions into OS-specific keyboard drivers."""
 
-    if version:
-        print(f"kalamine { metadata.version('kalamine') }")
-
-    if watch:
-        keyboard_server(input[0])
-
-    for input_file in input:
+    for input_file in layout_descriptors:
         layout = KeyboardLayout(input_file)
 
         # default: build all in the `dist` subdirectory
@@ -129,5 +128,80 @@ def make(input, version, watch, out):
         print("... " + output_file)
 
 
-if __name__ == "__main__":
-    make()
+TOML_HEADER = """# kalamine keyboard layout descriptor
+name        = "qwerty-custom"  # full layout name, displayed in the keyboard settings
+name8       = "custom"         # short Windows filename: no spaces, no special chars
+locale      = "us"             # locale/language id
+variant     = "custom"         # layout variant id
+author      = "nobody"         # author name
+description = "custom QWERTY layout"
+url         = "https://fabi1cazenave.github.com/kalamine"
+version     = "0.0.1"
+geometry    = """
+
+TOML_FOOTER = """
+[spacebar]
+1dk         = "'"  # apostrophe
+1dk_shift   = "'"  # apostrophe"""
+
+@cli.command()
+@click.argument("output_file", nargs=1, type=click.Path(exists=False))
+@click.option("--geometry", default="ISO", help="Specify keyboard geometry.")
+@click.option("--altgr/--no-altgr", default=False, help="Set an AltGr layer.")
+@click.option("--1dk/--no-1dk", "odk", default=False, help="Set a custom dead key.")
+def create(output_file, geometry, altgr, odk):
+    """Create a new TOML layout description."""
+
+    root = Path(__file__).resolve(strict=True).parent.parent
+
+    def get_layout(name):
+        layout = KeyboardLayout(str(root / "layouts" / f"{name}.toml"))
+        layout.geometry = geometry
+        return layout
+
+    def keymap(layout_name, layout_layer, layer_name=""):
+        layer = "\n"
+        layer += f"\n{layer_name or layout_layer} = '''"
+        layer += "\n"
+        layer += "\n".join(getattr(get_layout(layout_name), layout_layer))
+        layer += "\n'''"
+        return layer
+
+    content = f'{TOML_HEADER}"{geometry.upper()}"'
+    if odk:
+        content += keymap("intl", "base")
+        if altgr:
+            content += keymap("prog", "altgr")
+        content += "\n"
+        content += TOML_FOOTER
+    elif altgr:
+        content += keymap("prog", "full")
+    else:
+        content += keymap("ansi", "base")
+
+    # append user guide sections
+    with (root / "docs" / "README.md").open() as f:
+        sections = "".join(f.readlines()).split("\n\n\n")
+    for topic in sections[1:]:
+        content += "\n\n"
+        content += "\n# "
+        content += "\n# ".join(topic.rstrip().split("\n"))
+
+    with open(output_file, "w", encoding="utf-8", newline="\n") as file:
+        file.write(content)
+    print("... " + output_file)
+
+
+@cli.command()
+@click.argument("input", nargs=1, type=click.Path(exists=True))
+def watch(input):
+    """Watch a TOML/YAML layout description and display it in a web server."""
+
+    keyboard_server(input)
+
+
+@cli.command()
+def version():
+    """Show version number and exit."""
+
+    print(f"kalamine { metadata.version('kalamine') }")

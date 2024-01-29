@@ -44,57 +44,46 @@ If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment 
 Building Distributable Layouts
 --------------------------------------------------------------------------------
 
-Draw your keyboard layout in one of the provided ASCII-art templates and include it in a TOML document:
-
-.. code-block:: toml
-
-    name = "qwerty-ansi"
-    name8 = "q-ansi"
-    description = "QWERTY-US layout"
-    version = "1.0.0"
-    geometry = "ANSI"
-
-    base = '''
-    ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┲━━━━━━━━━━┓
-    │ ~   │ !   │ @   │ #   │ $   │ %   │ ^   │ &   │ *   │ (   │ )   │ _   │ +   ┃          ┃
-    │ `   │ 1   │ 2   │ 3   │ 4   │ 5   │ 6   │ 7   │ 8   │ 9   │ 0   │ -   │ =   ┃ ⌫        ┃
-    ┢━━━━━┷━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┺━━┯━━━━━━━┩
-    ┃        ┃ Q   │ W   │ E   │ R   │ T   │ Y   │ U   │ I   │ O   │ P   │ {   │ }   │ |     │
-    ┃ ↹      ┃     │     │     │     │     │     │     │     │     │     │ [   │ ]   │ \     │
-    ┣━━━━━━━━┻┱────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┲━━━━┷━━━━━━━┪
-    ┃         ┃ A   │ S   │ D   │ F   │ G   │ H   │ J   │ K   │ L   │ :   │ "   ┃            ┃
-    ┃ ⇬       ┃     │     │     │     │     │     │     │     │     │ ;   │ '   ┃ ⏎          ┃
-    ┣━━━━━━━━━┻━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┲━━┻━━━━━━━━━━━━┫
-    ┃            ┃ Z   │ X   │ C   │ V   │ B   │ N   │ M   │ <   │ >   │ ?   ┃               ┃
-    ┃ ⇧          ┃     │     │     │     │     │     │     │ ,   │ .   │ /   ┃ ⇧             ┃
-    ┣━━━━━━━┳━━━━┻━━┳━━┷━━━━┱┴─────┴─────┴─────┴─────┴─────┴─┲━━━┷━━━┳━┷━━━━━╋━━━━━━━┳━━━━━━━┫
-    ┃       ┃       ┃       ┃                                ┃       ┃       ┃       ┃       ┃
-    ┃ Ctrl  ┃ super ┃ Alt   ┃ ␣                              ┃ Alt   ┃ super ┃ menu  ┃ Ctrl  ┃
-    ┗━━━━━━━┻━━━━━━━┻━━━━━━━┹────────────────────────────────┺━━━━━━━┻━━━━━━━┻━━━━━━━┻━━━━━━━┛
-    '''
-
-Build it:
+Create a keyboard layout with ``kalamine create``:
 
 .. code-block:: bash
 
-    kalamine layouts/ansi.toml
+   kalamine create layout.toml                  # basic layout
+   kalamine create layout.toml --altgr          # layout with an AltGr layer
+   kalamine create layout.toml --1dk            # layout with a custom dead key
+   kalamine create layout.toml --geometry ERGO  # apply an ortholinear geometry
+
+Edit this layout with your preferred text editor:
+
+- the `user guide`_ is available at the end of the ``*.toml`` file
+- the layout can be rendered and emulated with ``kalamine watch`` (see next section)
+
+.. _`user guide`: https://github.com/fabi1cazenave/kalamine/tree/master/docs
+
+Build your layout:
+
+.. code-block:: bash
+
+    kalamine make layout.toml
 
 Get all distributable keyboard drivers:
 
 .. code-block:: bash
 
     dist/
-     ├─ q-ansi.klc         # Windows
-     ├─ q-ansi.keylayout   # macOS
-     ├─ q-ansi.xkb         # Linux (user)
-     ├─ q-ansi.xkb_custom  # Linux (root)
-     └─ q-ansi.json        # web
+     ├─ layout.ahk         # Windows (user)
+     ├─ layout.klc         # Windows (admin)
+     ├─ layout.keylayout   # macOS
+     ├─ layout.xkb         # Linux (user)
+     ├─ layout.xkb_custom  # Linux (root)
+     ├─ layout.json        # web
+     └─ layout.svg
 
 You can also ask for a single target by specifying the file extension:
 
 .. code-block:: bash
 
-    kalamine layouts/ansi.toml --out q-ansi.xkb_custom
+    kalamine make layout.toml --out layout.xkb_custom
 
 
 Emulating Layouts
@@ -105,7 +94,7 @@ Your layout can be emulated in a browser — including dead keys and an AltGr la
 
 .. code-block:: bash
 
-    $ kalamine layouts/prog.toml --watch
+    $ kalamine watch layout.toml
     Server started: http://localhost:1664
 
 Check your browser, type in the input area, test your layout. Changes on your TOML file are auto-detected and reloaded automatically.
@@ -115,37 +104,57 @@ Check your browser, type in the input area, test your layout. Changes on your TO
 Press Ctrl-C when you’re done, and kalamine will write all platform-specific files.
 
 
-Installing Distributable Layouts
+Using Distributable Layouts
 --------------------------------------------------------------------------------
 
 
-Windows
-```````
+Windows (user): ``*.ahk``
+`````````````````````````
+
+* download the `AHK 1.1 archive`_
+* load the ``*.ahk`` script with it.
+
+The keyboard layout appears in the notification area. It can be enabled/disabled by pressing both Alt keys.
+
+.. _`AHK 1.1 archive`: https://www.autohotkey.com/download/ahk.zip
+
+You may also use Ahk2Exe to turn your ``*.ahk`` script into an executable file. The ``U32 Unicode 32-bit.bin`` setting seems to work fine.
+
+
+Windows (admin): ``*.klc``
+``````````````````````````
 
 * get a keyboard layout installer: MSKLC_ (freeware) or KbdEdit_ (shareware);
 * load the ``*.klc`` file with it;
 * run this installer to generate a setup program;
 * run the setup program;
-* the keyboard layout appears in the language bar.
+* :strong:`restart your computer`, even if Windows doesn’t ask you to.
+
+The keyboard layout appears in the language bar.
 
 .. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=102134
 .. _KbdEdit: http://www.kbdedit.com/
 
+Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11. KbdEdit works fine.
 
-macOS
-`````
+
+macOS: ``*.keylayout``
+``````````````````````
 
 * copy your ``*.keylayout`` file into:
 
   * either ``~/Library/Keyboard Layouts`` for the current user only,
   * or ``/Library/Keyboard Layouts`` for all users;
 
-* restart your session;
-* the keyboard layout appears in the “Language and Text” preferences, “Input Methods” tab.
+* restart your session.
+
+The keyboard layout appears in the “Language and Text” preferences, “Input Methods” tab.
 
 
-Linux (root)
-````````````
+Linux (root): ``*.xkb_custom``
+``````````````````````````````
+
+:strong:`This is by far the simplest method to install a custom keyboard layout on Linux.`
 
 Recent versions of XKB allow *one* custom keyboard layout in root space:
 
@@ -172,8 +181,8 @@ On Wayland, this depends on your compositor. For Sway, tweak your keyboard input
     }
 
 
-Linux (user)
-````````````
+Linux (user): ``*.xkb``
+```````````````````````
 
 ``*.xkb`` keyboard descriptions can be applied in user-space. The main limitation is that the keyboard layout won’t show up in the keyboard settings.
 
@@ -233,7 +242,6 @@ Once installed, layouts are selectable in the desktop environment’s keyboard p
         xkb_layout "us"
         xkb_variant "prog"
     }
-
 
 
 X.Org (root)
