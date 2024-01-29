@@ -25,6 +25,7 @@ from .template import (
 from .utils import (
     DEAD_KEYS,
     ODK_ID,
+    Layer,
     lines_to_text,
     load_data,
     open_local_file,
@@ -179,29 +180,31 @@ class KeyboardLayout:
         rows = GEOMETRY[self.meta["geometry"]]["rows"]
         if "full" in cfg:
             full = text_to_lines(cfg["full"])
-            self._parse_template(full, rows, 0)
-            self._parse_template(full, rows, 4)
+            self._parse_template(full, rows, Layer.BASE)
+            self._parse_template(full, rows, Layer.ALTGR)
             self.has_altgr = True
         else:
             base = text_to_lines(cfg["base"])
-            self._parse_template(base, rows, 0)
-            self._parse_template(base, rows, 2)
+            self._parse_template(base, rows, Layer.BASE)
+            self._parse_template(base, rows, Layer.ODK)
             if "altgr" in cfg:
                 self.has_altgr = True
-                self._parse_template(text_to_lines(cfg["altgr"]), rows, 4)
+                self._parse_template(text_to_lines(cfg["altgr"]), rows, Layer.ALTGR)
 
         # space bar
         spc = SPACEBAR.copy()
         if "spacebar" in cfg:
             for k in cfg["spacebar"]:
                 spc[k] = cfg["spacebar"][k]
-        self.layers[0]["spce"] = " "
-        self.layers[1]["spce"] = spc["shift"]
-        self.layers[2]["spce"] = spc["1dk"]
-        self.layers[3]["spce"] = spc["shift_1dk"] if "shift_1dk" in spc else spc["1dk"]
+        self.layers[Layer.BASE]["spce"] = " "
+        self.layers[Layer.SHIFT]["spce"] = spc["shift"]
+        self.layers[Layer.ODK]["spce"] = spc["1dk"]
+        self.layers[Layer.ODK_SHIFT]["spce"] = (
+            spc["shift_1dk"] if "shift_1dk" in spc else spc["1dk"]
+        )
         if self.has_altgr:
-            self.layers[4]["spce"] = spc["altgr"]
-            self.layers[5]["spce"] = spc["altgr_shift"]
+            self.layers[Layer.ALTGR]["spce"] = spc["altgr"]
+            self.layers[Layer.ALTGR_SHIFT]["spce"] = spc["altgr_shift"]
 
         # active dead keys: self.dk_index
         for dk in DEAD_KEYS:
@@ -221,7 +224,9 @@ class KeyboardLayout:
             used_base = ""
             used_alt = ""
             for i in range(len(base)):
-                if layer_has_char(base[i], 0) or layer_has_char(base[i], 1):
+                if layer_has_char(base[i], Layer.BASE) or layer_has_char(
+                    base[i], Layer.SHIFT
+                ):
                     used_base += base[i]
                     used_alt += alt[i]
             self.dead_keys[dk_id]["base"] = used_base
@@ -233,13 +238,13 @@ class KeyboardLayout:
             odk = self.dead_keys[ODK_ID]
             # alt_self (double-press), alt_space (1dk+space)
             odk["alt_space"] = spc["1dk"]
-            for key in self.layers[0]:
-                if self.layers[0][key] == ODK_ID:
-                    odk["alt_self"] = self.layers[2][key]
+            for key in self.layers[Layer.BASE]:
+                if self.layers[Layer.BASE][key] == ODK_ID:
+                    odk["alt_self"] = self.layers[Layer.ODK][key]
                     break
             # copy the 2nd and 3rd layers to the dead key
-            for i in [0, 1]:
-                for name, alt_char in self.layers[i + 2].items():
+            for i in [Layer.BASE, Layer.SHIFT]:
+                for name, alt_char in self.layers[i + Layer.ODK].items():
                     base_char = self.layers[i][name]
                     if name != "spce" and base_char != ODK_ID:
                         odk["base"] += base_char
@@ -248,7 +253,7 @@ class KeyboardLayout:
     def _parse_template(self, template, rows, layer_number):
         """Extract a keyboard layer from a template."""
 
-        if layer_number == 0:  # base layer
+        if layer_number == Layer.BASE:
             col_offset = 0
         else:  # AltGr or 1dk
             col_offset = 2
@@ -265,12 +270,12 @@ class KeyboardLayout:
                 base_key = ("*" if base[i - 1] == "*" else "") + base[i]
                 shift_key = ("*" if shift[i - 1] == "*" else "") + shift[i]
 
-                if layer_number == 0 and base_key == " ":  # 'shift' prevails
+                if layer_number == Layer.BASE and base_key == " ":  # 'shift' prevails
                     base_key = shift_key.lower()
-                if layer_number != 0 and shift_key == " ":
+                if layer_number != Layer.BASE and shift_key == " ":
                     shift_key = upper_key(base_key)
-                    if shift_key == " ":
-                        shift_key = base_key.upper()
+                    # if shift_key == " ":
+                    #     shift_key = base_key.upper()
 
                 if base_key != " ":
                     self.layers[layer_number + 0][key] = base_key
@@ -294,7 +299,7 @@ class KeyboardLayout:
     def _fill_template(self, template, rows, layer_number):
         """Fill a template with a keyboard layer."""
 
-        if layer_number == 0:  # base layer
+        if layer_number == Layer.BASE:
             col_offset = 0
             shift_prevails = True
         else:  # AltGr or 1dk
@@ -346,7 +351,7 @@ class KeyboardLayout:
 
         return template
 
-    def _get_geometry(self, layers=[0]):
+    def _get_geometry(self, layers=[Layer.BASE]):
         """`geometry` view of the requested layers."""
 
         rows = GEOMETRY[self.geometry]["rows"]
@@ -371,17 +376,17 @@ class KeyboardLayout:
     @property
     def base(self):
         """Base + 1dk layers."""
-        return self._get_geometry([0, 2])
+        return self._get_geometry([0, Layer.ODK])
 
     @property
     def full(self):
         """Base + AltGr layers."""
-        return self._get_geometry([0, 4])
+        return self._get_geometry([0, Layer.ALTGR])
 
     @property
     def altgr(self):
         """AltGr layer only."""
-        return self._get_geometry([4])
+        return self._get_geometry([Layer.ALTGR])
 
     ###
     # OS-specific drivers: keylayout, klc, xkb, xkb_patch

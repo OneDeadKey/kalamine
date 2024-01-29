@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+from enum import IntEnum
 
 import yaml
 
@@ -25,6 +26,15 @@ def load_data(filename):
     return yaml.load(
         open_local_file(os.path.join("data", filename)), Loader=yaml.SafeLoader
     )
+
+
+class Layer(IntEnum):
+    BASE = 0
+    SHIFT = 1
+    ODK = 2
+    ODK_SHIFT = 3
+    ALTGR = 4
+    ALTGR_SHIFT = 5
 
 
 DEAD_KEYS = load_data("dead_keys.yaml")
