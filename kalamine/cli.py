@@ -144,6 +144,7 @@ TOML_FOOTER = """
 1dk         = "'"  # apostrophe
 1dk_shift   = "'"  # apostrophe"""
 
+
 @cli.command()
 @click.argument("output_file", nargs=1, type=click.Path(exists=False))
 @click.option("--geometry", default="ISO", help="Specify keyboard geometry.")
