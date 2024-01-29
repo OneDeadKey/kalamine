@@ -37,8 +37,12 @@ from .utils import (
 
 
 def upper_key(letter):
+    """This is used for presentation purposes: in a key, the upper character
+    becomes blank if it's an obvious uppercase version of the base character."""
+
     if len(letter) != 1:  # dead key?
         return " "
+
     custom_alpha = {
         "\u00df": "\u1e9e",  # ß ẞ
         "\u007c": "\u00a6",  # | ¦
@@ -55,6 +59,8 @@ def upper_key(letter):
         return custom_alpha[letter]
     if letter.upper() != letter.lower():
         return letter.upper()
+
+    # the upper character is obvious and doesn't have to be described
     return " "
 
 
@@ -263,6 +269,8 @@ class KeyboardLayout:
                     base_key = shift_key.lower()
                 if layer_number != 0 and shift_key == " ":
                     shift_key = upper_key(base_key)
+                    if shift_key == " ":
+                        shift_key = base_key.upper()
 
                 if base_key != " ":
                     self.layers[layer_number + 0][key] = base_key
