@@ -2,7 +2,7 @@
 import json
 from typing import TYPE_CHECKING, Dict, List
 
-from .utils import LAYER_KEYS, ODK_ID, load_data
+from .utils import LAYER_KEYS, ODK_ID, Layer, load_data
 
 if TYPE_CHECKING:
     from .layout import KeyboardLayout
@@ -142,7 +142,9 @@ def ahk_keymap(layout, altgr=False):
             continue  # these two keys are not supported yet
 
         sc = f"SC{KEY_CODES['klc'][key_name][:2]}"
-        for i in [4, 5] if altgr else [0, 1]:
+        for i in (
+            [Layer.ALTGR, Layer.ALTGR_SHIFT] if altgr else [Layer.BASE, Layer.SHIFT]
+        ):
             layer = layout.layers[i]
             if key_name not in layer:
                 continue
@@ -184,7 +186,7 @@ def ahk_shortcuts(layout):
             continue  # these two keys are not supported yet
 
         sc = f"SC{KEY_CODES['klc'][key_name][:2]}"
-        for i in [0, 1]:
+        for i in [Layer.BASE, Layer.SHIFT]:
             layer = layout.layers[i]
             if key_name not in layer:
                 continue
@@ -227,7 +229,7 @@ def klc_keymap(layout):
         description = "//"
         alpha = False
 
-        for i in [0, 1, 4, 5]:
+        for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
             layer = layout.layers[i]
 
             if key_name in layer:
@@ -237,7 +239,7 @@ def klc_keymap(layout):
                     desc = layout.dead_keys[symbol]["alt_space"]
                     symbol = hex_ord(desc) + "@"
                 else:
-                    if i == 0:
+                    if i == Layer.BASE:
                         alpha = symbol.upper() != symbol
                     if symbol not in supported_symbols:
                         symbol = hex_ord(symbol)
@@ -324,9 +326,9 @@ def klc_1dk(layout):
     """Windows layout, 1dk."""
 
     output = []
-    for i in [0, 1]:
+    for i in [Layer.BASE, Layer.SHIFT]:
         base_layer = layout.layers[i]
-        ext_layer = layout.layers[i + 2]
+        ext_layer = layout.layers[i + Layer.ODK]
 
         for key_name in LAYER_KEYS:
             if key_name.startswith("- Space") or key_name == "spce":
@@ -361,7 +363,9 @@ def osx_keymap(layout):
 
     ret_str = []
     for index in range(5):
-        layer = layout.layers[[0, 1, 0, 4, 5][index]]
+        layer = layout.layers[
+            [Layer.BASE, Layer.SHIFT, Layer.BASE, Layer.ALTGR, Layer.ALTGR_SHIFT][index]
+        ]
         caps = index == 2
 
         def has_dead_keys(letter):
@@ -447,7 +451,7 @@ def osx_actions(layout):
             ret_actions.append(f"<!--{key_name[1:]} -->")
             continue
 
-        for i in [0, 1]:
+        for i in [Layer.BASE, Layer.SHIFT]:
             if key_name == "spce" or key_name not in layout.layers[i]:
                 continue
 
@@ -461,8 +465,8 @@ def osx_actions(layout):
             for k in layout.dk_index:
                 dk = layout.dead_keys[k]
                 if k == ODK_ID:
-                    if key_name in layout.layers[i + 2]:
-                        alt = layout.layers[i + 2][key_name]
+                    if key_name in layout.layers[i + Layer.ODK]:
+                        alt = layout.layers[i + Layer.ODK][key_name]
                         actions.append((dk["name"], alt))
                 else:
                     if key in dk["base"]:
@@ -519,7 +523,7 @@ def web_keymap(layout: "KeyboardLayout") -> Dict[str, List[str]]:
         if key_name.startswith("-"):
             continue
         chars = list("")
-        for i in [0, 1, 4, 5]:
+        for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
             if key_name in layout.layers[i]:
                 chars.append(layout.layers[i][key_name])
         if chars:
@@ -550,11 +554,11 @@ def web_deadkeys(layout: "KeyboardLayout") -> Dict[str, Dict[str, str]]:
             for key_name in LAYER_KEYS:
                 if key_name.startswith("-"):
                     continue
-                for i in [3, 2]:
+                for i in [Layer.ODK_SHIFT, Layer.ODK]:
                     if key_name in layout.layers[i]:
-                        deadkeys[id][layout.layers[i - 2][key_name]] = layout.layers[i][
-                            key_name
-                        ]
+                        deadkeys[id][
+                            layout.layers[i - Layer.ODK][key_name]
+                        ] = layout.layers[i][key_name]
         else:
             base = dk["base"]
             alt = dk["alt"]
