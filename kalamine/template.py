@@ -7,6 +7,11 @@ from .utils import DEAD_KEYS, LAYER_KEYS, ODK_ID, Layer, load_data
 if TYPE_CHECKING:
     from .layout import KeyboardLayout
 
+DK_INDEX = {}
+for dk in DEAD_KEYS:
+    DK_INDEX[dk["char"]] = dk
+
+
 ###
 # Helpers
 #
@@ -56,19 +61,18 @@ def xkb_keymap(layout, xkbcomp=False):
         description = " //"
         for layer in layout.layers:
             if key_name in layer:
-                symbol = layer[key_name]
-                desc = symbol
-                if symbol in layout.dead_keys:
-                    dk = layout.dead_keys[symbol]
-                    desc = dk["alt_self"]
-                    if dk["char"] == ODK_ID:
-                        symbol = odk_symbol
-                    else:
-                        symbol = "dead_" + dk["name"]
-                elif symbol in XKB_KEY_SYM and len(XKB_KEY_SYM[symbol]) <= max_length:
-                    symbol = XKB_KEY_SYM[symbol]
+                keysym = layer[key_name]
+                desc = keysym
+                # dead key?
+                if keysym in DK_INDEX:
+                    name = DK_INDEX[keysym]["name"]
+                    desc = layout.new_dead_keys[keysym][keysym]
+                    symbol = odk_symbol if keysym == ODK_ID else f"dead_{name}"
+                # regular key: use a keysym if possible, utf-8 otherwise
+                elif keysym in XKB_KEY_SYM and len(XKB_KEY_SYM[keysym]) <= max_length:
+                    symbol = XKB_KEY_SYM[keysym]
                 else:
-                    symbol = "U" + hex_ord(symbol).upper()
+                    symbol = f"U{hex_ord(keysym).upper()}"
             else:
                 desc = " "
                 symbol = "VoidSymbol"
@@ -151,8 +155,10 @@ def ahk_keymap(layout, altgr=False):
             symbol = layer[key_name]
             sym = ahk_escape(symbol)
 
-            if symbol in layout.dead_keys:
-                actions = {sym: layout.dead_keys[symbol]["alt_self"]}
+            # if symbol in layout.dead_keys:
+            #     actions = {sym: layout.dead_keys[symbol]["alt_self"]}
+            if symbol in layout.new_dead_keys:
+                actions = {sym: layout.new_dead_keys[symbol][symbol]}
             elif key_name == "spce":
                 actions = ahk_actions(key_name)
             else:
@@ -234,8 +240,10 @@ def klc_keymap(layout):
             if key_name in layer:
                 symbol = layer[key_name]
                 desc = symbol
-                if symbol in layout.dead_keys:
-                    desc = layout.dead_keys[symbol]["alt_space"]
+                # if symbol in layout.dead_keys:
+                #     desc = layout.dead_keys[symbol]["alt_space"]
+                if symbol in layout.new_dead_keys:
+                    desc = layout.new_dead_keys[symbol][" "]
                     symbol = hex_ord(desc) + "@"
                 else:
                     if i == Layer.BASE:
