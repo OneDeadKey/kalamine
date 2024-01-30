@@ -141,10 +141,10 @@ def test_intl_deadkeys():
     assert len(dk_index) == 5
     assert dk_index == split(
         """
-        0060	"GRAVE"
-        007e	"TILDE"
-        005e	"CIRCUMFLEX"
         0027	"1DK"
+        0060	"GRAVE"
+        005e	"CIRCUMFLEX"
+        007e	"TILDE"
         0022	"DIAERESIS"
         """
     )
@@ -359,9 +359,9 @@ def test_prog_deadkeys():
     assert dk_index == split(
         """
         0060	"GRAVE"
-        007e	"TILDE"
-        005e	"CIRCUMFLEX"
         0027	"ACUTE"
+        005e	"CIRCUMFLEX"
+        007e	"TILDE"
         0022	"DIAERESIS"
         """
     )
