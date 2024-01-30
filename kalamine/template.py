@@ -2,7 +2,7 @@
 import json
 from typing import TYPE_CHECKING, Dict, List
 
-from .utils import LAYER_KEYS, ODK_ID, Layer, load_data
+from .utils import DEAD_KEYS, LAYER_KEYS, ODK_ID, Layer, load_data
 
 if TYPE_CHECKING:
     from .layout import KeyboardLayout
@@ -122,13 +122,12 @@ def ahk_keymap(layout, altgr=False):
 
     def ahk_actions(symbol):
         actions = {}
-        for key in layout.dead_keys:
-            dk = layout.dead_keys[key]
-            dk_id = ahk_escape(dk["char"])
+        for key, dk in layout.new_dead_keys.items():
+            dk_id = ahk_escape(key)
             if symbol == "spce":
-                actions[dk_id] = ahk_escape(dk["alt_space"])
-            elif symbol in dk["base"]:
-                actions[dk_id] = ahk_escape(dk["alt"][dk["base"].index(symbol)])
+                actions[dk_id] = ahk_escape(dk[" "])
+            elif symbol in dk:
+                actions[dk_id] = ahk_escape(dk[symbol])
         return actions
 
     output = []
@@ -294,10 +293,14 @@ def klc_deadkeys(layout):
     for k in layout.dk_index:
         dk = layout.dead_keys[k]
 
+    # for dk in DEAD_KEYS:
+    #     if dk["char"] not in layout.new_dead_keys:
+    #         continue
+
         output.append("// DEADKEY: " + dk["name"].upper() + " //{{{")
         output.append("DEADKEY\t" + hex_ord(dk["alt_space"]))
 
-        if k == ODK_ID:
+        if dk["char"] == ODK_ID:
             output.extend(klc_1dk(layout))
         else:
             for i in range(len(dk["base"])):
@@ -316,6 +319,9 @@ def klc_dk_index(layout):
     """Windows layout, dead key index."""
 
     output = []
+    # for dk in DEAD_KEYS:
+    #     if dk["char"] not in layout.new_dead_keys:
+    #         continue
     for k in layout.dk_index:
         dk = layout.dead_keys[k]
         output.append(f"{hex_ord(dk['alt_space'])}\t\"{dk['name'].upper()}\"")
@@ -544,12 +550,14 @@ def web_deadkeys(layout: "KeyboardLayout") -> Dict[str, Dict[str, str]]:
     deadkeys = {}
     if layout.has_1dk:  # ensure 1dk is first in the dead key dictionary
         deadkeys[ODK_ID] = {}
+
     for id, dk in layout.dead_keys.items():
         deadkeys[id] = {}
         deadkeys[id][id] = dk["alt_self"]
         deadkeys[id]["\u0020"] = dk["alt_space"]
         deadkeys[id]["\u00a0"] = dk["alt_space"]
         deadkeys[id]["\u202f"] = dk["alt_space"]
+
         if id == ODK_ID:
             for key_name in LAYER_KEYS:
                 if key_name.startswith("-"):
@@ -559,6 +567,7 @@ def web_deadkeys(layout: "KeyboardLayout") -> Dict[str, Dict[str, str]]:
                         deadkeys[id][
                             layout.layers[i - Layer.ODK][key_name]
                         ] = layout.layers[i][key_name]
+
         else:
             base = dk["base"]
             alt = dk["alt"]
