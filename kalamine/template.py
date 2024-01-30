@@ -351,8 +351,8 @@ def osx_keymap(layout):
         def has_dead_keys(letter):
             if letter in "\u0020\u00a0\u202f":  # space
                 return True
-            for k in layout.dead_keys:
-                if letter in layout.dead_keys[k]["base"]:
+            for k in layout.new_dead_keys:
+                if letter in layout.new_dead_keys[k]:
                     return True
             return False
 
@@ -372,8 +372,8 @@ def osx_keymap(layout):
 
             if key_name in layer:
                 key = layer[key_name]
-                if key in layout.dead_keys:
-                    symbol = "dead_" + layout.dead_keys[key]["name"]
+                if key in layout.new_dead_keys:
+                    symbol = f"dead_{DK_INDEX[key]['name']}"
                     final_key = False
                 else:
                     symbol = xml_proof(key.upper() if caps else key)
@@ -397,8 +397,8 @@ def osx_actions(layout):
 
     def when(state, action):
         state_attr = f'state="{state}"'.ljust(18)
-        if action in layout.dead_keys:
-            action_attr = f"next=\"{layout.dead_keys[action]['name']}\""
+        if action in layout.new_dead_keys:
+            action_attr = f"next=\"{DK_INDEX[action]['name']}\""
         elif action.startswith("dead_"):
             action_attr = f'next="{action[5:]}"'
         else:
@@ -413,13 +413,13 @@ def osx_actions(layout):
         ret_actions.append("</action>")
 
     # dead key definitions
-    for key in layout.dead_keys:
-        name = layout.dead_keys[key]["name"]
-        term = layout.dead_keys[key]["alt_self"]
+    for key in layout.new_dead_keys:
+        name = DK_INDEX[key]["name"]
+        term = layout.new_dead_keys[key][key]
         ret_actions.append(f'<action id="dead_{name}">')
         ret_actions.append(f'  <when state="none" next="{name}" />')
-        if name == "1dk" and term in layout.dead_keys:
-            nested_dk = layout.dead_keys[term]["name"]
+        if name == "1dk" and term in layout.new_dead_keys:
+            nested_dk = DK_INDEX[term]["name"]
             ret_actions.append(f'  <when state="1dk" next="{nested_dk}" />')
         ret_actions.append("</action>")
         continue
@@ -438,28 +438,24 @@ def osx_actions(layout):
             key = layout.layers[i][key_name]
             if i and key == layout.layers[0][key_name]:
                 continue
-            if key in layout.dead_keys:
+            if key in layout.new_dead_keys:
                 continue
 
             actions = []
-            for k in layout.dk_index:
-                dk = layout.dead_keys[k]
-                if k == ODK_ID:
-                    if key_name in layout.layers[i + Layer.ODK]:
-                        alt = layout.layers[i + Layer.ODK][key_name]
-                        actions.append((dk["name"], alt))
-                else:
-                    if key in dk["base"]:
-                        idx = dk["base"].index(key)
-                        actions.append((dk["name"], dk["alt"][idx]))
+            for k in DK_INDEX:
+                if k in layout.new_dead_keys:
+                    if key in layout.new_dead_keys[k]:
+                        actions.append(
+                            (DK_INDEX[k]["name"], layout.new_dead_keys[k][key])
+                        )
             if actions:
                 append_actions(xml_proof(key), actions)
 
     # spacebar actions
     actions = []
-    for k in layout.dk_index:
-        dk = layout.dead_keys[k]
-        actions.append((dk["name"], dk["alt_space"]))
+    for k in DK_INDEX:
+        if k in layout.new_dead_keys:
+            actions.append((DK_INDEX[k]["name"], layout.new_dead_keys[k][" "]))
     append_actions("&#x0020;", actions)  # space
     append_actions("&#x00a0;", actions)  # no-break space
     append_actions("&#x202f;", actions)  # fine no-break space
@@ -471,11 +467,14 @@ def osx_terminators(layout):
     """macOS layout, dead key terminators."""
 
     ret_terminators = []
-    for key in layout.dk_index:
-        name = layout.dead_keys[key]["name"]
-        term = layout.dead_keys[key]["alt_self"]
-        if name == "1dk" and term in layout.dead_keys:
-            term = layout.dead_keys[key]["alt_space"]
+    for key in DK_INDEX:
+        if key not in layout.new_dead_keys:
+            continue
+        dk = layout.new_dead_keys[key]
+        name = DK_INDEX[key]["name"]
+        term = dk[key]
+        if name == "1dk" and term in layout.new_dead_keys:
+            term = dk[" "]
         state = f'state="{name}"'.ljust(18)
         output = f'output="{xml_proof(term)}"'
         ret_terminators.append(f"<when {state} {output} />")
