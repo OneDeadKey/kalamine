@@ -15,6 +15,13 @@
 
 ---
 
+- char: '**'
+  name: 1dk
+  base: ''        # computed from the imported layout
+  alt:  ''        # computed from the imported layout
+  alt_space: "'"  # apostrophe (can be overriden by the `space.1dk` key)
+  alt_self:  "'"  # apostrophe (can be overriden from the imported layout)
+
 - char: '*`'
   name: grave
   base: AaEeIiNnOoUuWwYyЕеИи
@@ -22,33 +29,12 @@
   alt_space: '`'  # U+0060 GRAVE ACCENT
   alt_self:  '`'  # U+0060 GRAVE ACCENT
 
-- char: '*~'
-  name: tilde
-  base: AaEeIiNnOoUuVvYy<>=
-  alt:  ÃãẼẽĨĩÑñÕõŨũṼṽỸỹ≲≳≃
-  alt_space: '~'  # U+007E TILDE
-  alt_self:  '~'  # U+007E TILDE
-
 - char: '*‟' # there’s no “double grave accent” Unicode character :(
   name: doublegrave
   base: AaEeIiOoRrUuѴѴ
   alt:  ȀȁȄȅȈȉȌȍȐȑȔȕѶѷ
   alt_space: '‟'  # U+201F HIGH REVERSED-9 QUOTATION MARK
   alt_self:  '‟'  # U+201F HIGH REVERSED-9 QUOTATION MARK
-
-- char: '*^'
-  name: circumflex
-  base: AaCcEeGgHhIiJjOoSsUuWwYyZz0123456789()+-=
-  alt:  ÂâĈĉÊêĜĝĤĥÎîĴĵÔôŜŝÛûŴŵŶŷẐẑ⁰¹²³⁴⁵⁶⁷⁸⁹⁽⁾⁺⁻⁼
-  alt_space: '^'  # U+005E CIRCUMFLEX ACCENT
-  alt_self:  '^'  # U+005E CIRCUMFLEX ACCENT
-
-- char: '**'
-  name: 1dk
-  base: ''        # computed from the imported layout
-  alt:  ''        # computed from the imported layout
-  alt_space: "'"  # apostrophe (can be overriden by the `space.1dk` key)
-  alt_self:  "'"  # apostrophe (can be overriden from the imported layout)
 
 - char: '*´'
   name: acute
@@ -63,6 +49,13 @@
   alt:  ŐőŰűӲӳ
   alt_space: "”"  # U+201D RIGHT DOUBLE QUOTATION MARK
   alt_self:  "˝"  # U+02DD DOUBLE ACUTE ACCENT
+
+- char: '*^'
+  name: circumflex
+  base: AaCcEeGgHhIiJjOoSsUuWwYyZz0123456789()+-=
+  alt:  ÂâĈĉÊêĜĝĤĥÎîĴĵÔôŜŝÛûŴŵŶŷẐẑ⁰¹²³⁴⁵⁶⁷⁸⁹⁽⁾⁺⁻⁼
+  alt_space: '^'  # U+005E CIRCUMFLEX ACCENT
+  alt_self:  '^'  # U+005E CIRCUMFLEX ACCENT
 
 - char: '*ˇ'
   name: caron
@@ -84,6 +77,13 @@
   alt:  ȂȃȆȇȊȋȎȏȖȗȒȓ
   alt_space: '˘'  # U+02D8 BREVE
   alt_self:  '˘'  # U+02D8 BREVE
+
+- char: '*~'
+  name: tilde
+  base: AaEeIiNnOoUuVvYy<>=
+  alt:  ÃãẼẽĨĩÑñÕõŨũṼṽỸỹ≲≳≃
+  alt_space: '~'  # U+007E TILDE
+  alt_self:  '~'  # U+007E TILDE
 
 - char: '*¯'
   name: macron

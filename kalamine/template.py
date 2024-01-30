@@ -293,9 +293,9 @@ def klc_deadkeys(layout):
     for k in layout.dk_index:
         dk = layout.dead_keys[k]
 
-    # for dk in DEAD_KEYS:
-    #     if dk["char"] not in layout.new_dead_keys:
-    #         continue
+        # for dk in DEAD_KEYS:
+        #     if dk["char"] not in layout.new_dead_keys:
+        #         continue
 
         output.append("// DEADKEY: " + dk["name"].upper() + " //{{{")
         output.append("DEADKEY\t" + hex_ord(dk["alt_space"]))

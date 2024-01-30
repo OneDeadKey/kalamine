@@ -276,12 +276,21 @@ class KeyboardLayout:
         #     if dk["char"] in self.dk_set:
         #         self.dk_index.append(dk["char"])
 
-        # remove unused characters in self.dead_keys[].{base,alt}
-        def layer_has_char(char, layer_index):
-            for id in self.layers[layer_index]:
-                if self.layers[layer_index][id] == char:
-                    return True
+        def layout_has_char(char):
+            all_layers = [Layer.BASE, Layer.SHIFT]
+            if self.has_altgr:
+                all_layers += [Layer.ALTGR, Layer.ALTGR_SHIFT]
+
+            for layer_index in all_layers:
+                for id in self.layers[layer_index]:
+                    if self.layers[layer_index][id] == char:
+                        return True
             return False
+
+        all_spaces = []
+        for space in ["\u0020", "\u00a0", "\u202f"]:
+            if layout_has_char(space):
+                all_spaces.append(space)
 
         self.new_dead_keys = {}
         for dk in DEAD_KEYS:
@@ -303,21 +312,17 @@ class KeyboardLayout:
                             deadkey[self.layers[i - Layer.ODK][key_name]] = self.layers[
                                 i
                             ][key_name]
-                deadkey["\u0020"] = spc["1dk"]
-                deadkey["\u00a0"] = spc["1dk"]
-                deadkey["\u202f"] = spc["1dk"]
+                for space in all_spaces:
+                    deadkey[space] = spc["1dk"]
 
             else:
                 base = dk["base"]
                 alt = dk["alt"]
                 for i in range(len(base)):
-                    if layer_has_char(base[i], Layer.BASE) or layer_has_char(
-                        base[i], Layer.SHIFT
-                    ):
+                    if layout_has_char(base[i]):
                         deadkey[base[i]] = alt[i]
-                deadkey["\u0020"] = dk["alt_space"]
-                deadkey["\u00a0"] = dk["alt_space"]
-                deadkey["\u202f"] = dk["alt_space"]
+                for space in all_spaces:
+                    deadkey[space] = dk["alt_space"]
 
     def _parse_template(self, template, rows, layer_number):
         """Extract a keyboard layer from a template."""

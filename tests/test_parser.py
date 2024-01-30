@@ -7,7 +7,7 @@ def load_layout(filename):
     return KeyboardLayout(os.path.join(".", "layouts", filename + ".toml"))
 
 
-def test_layouts():
+def test_ansi():
     layout = load_layout("ansi")
     assert layout.layers[0]["ad01"] == "q"
     assert layout.layers[1]["ad01"] == "Q"
@@ -16,8 +16,10 @@ def test_layouts():
     assert not layout.has_altgr
     assert not layout.has_1dk
     assert "**" not in layout.dead_keys
+    assert "**" not in layout.new_dead_keys
 
-    # AltGr + dead keys
+
+def test_prog():  # AltGr + dead keys
     layout = load_layout("prog")
     assert layout.layers[0]["ad01"] == "q"
     assert layout.layers[1]["ad01"] == "Q"
@@ -28,8 +30,14 @@ def test_layouts():
     assert layout.has_altgr
     assert not layout.has_1dk
     assert "**" not in layout.dead_keys
+    assert "**" not in layout.new_dead_keys
+    assert len(layout.dead_keys["*`"]["base"]) == 16
+    assert len(layout.dead_keys["*~"]["base"]) == 19
+    assert len(layout.new_dead_keys["*`"]) == 18
+    assert len(layout.new_dead_keys["*~"]) == 21
 
-    # 1dk + dead keys
+
+def test_intl():  # 1dk + dead keys
     layout = load_layout("intl")
     assert layout.layers[0]["ad01"] == "q"
     assert layout.layers[1]["ad01"] == "Q"
@@ -38,11 +46,40 @@ def test_layouts():
     assert not layout.has_altgr
     assert layout.has_1dk
     assert "**" in layout.dead_keys
+
     assert layout.dead_keys["**"]["base"] == "euioac.EUIOAC"
     assert layout.dead_keys["**"]["alt"] == "éúíóáç…ÉÚÍÓÁÇ"
     assert layout.dead_keys["**"]["alt_self"] == "´"
+    assert len(layout.dead_keys["*`"]["base"]) == 16
+    assert len(layout.dead_keys["*~"]["base"]) == 19
+
+    assert len(layout.new_dead_keys) == 5
+    assert "**" in layout.new_dead_keys
+    assert "*`" in layout.new_dead_keys
+    assert "*^" in layout.new_dead_keys
+    assert "*¨" in layout.new_dead_keys
+    assert "*~" in layout.new_dead_keys
+    assert len(layout.new_dead_keys["**"]) == 15
+    assert len(layout.new_dead_keys["*`"]) == 18
+    assert len(layout.new_dead_keys["*^"]) == 43
+    assert len(layout.new_dead_keys["*¨"]) == 21
+    assert len(layout.new_dead_keys["*~"]) == 21
 
     # ensure the 1dk parser does not accumulate values from a previous run
     layout = load_layout("intl")
     assert layout.dead_keys["**"]["base"] == "euioac.EUIOAC"
     assert layout.dead_keys["**"]["alt"] == "éúíóáç…ÉÚÍÓÁÇ"
+    assert len(layout.new_dead_keys["*`"]) == 18
+    assert len(layout.new_dead_keys["*~"]) == 21
+
+    assert len(layout.new_dead_keys) == 5
+    assert "**" in layout.new_dead_keys
+    assert "*`" in layout.new_dead_keys
+    assert "*^" in layout.new_dead_keys
+    assert "*¨" in layout.new_dead_keys
+    assert "*~" in layout.new_dead_keys
+    assert len(layout.new_dead_keys["**"]) == 15
+    assert len(layout.new_dead_keys["*`"]) == 18
+    assert len(layout.new_dead_keys["*^"]) == 43
+    assert len(layout.new_dead_keys["*¨"]) == 21
+    assert len(layout.new_dead_keys["*~"]) == 21

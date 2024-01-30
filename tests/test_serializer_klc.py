@@ -1,22 +1,22 @@
 import os
+from enum import Enum
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
 from kalamine.template import klc_deadkeys, klc_dk_index, klc_keymap
 
 
-def load_layout(filename):
-    return KeyboardLayout(os.path.join(".", "layouts", filename + ".toml"))
-
-
 def split(multiline_str):
     return dedent(multiline_str).lstrip().rstrip().splitlines()
 
 
-def test_ansi():
-    layout = load_layout("ansi")
+LAYOUTS = {}
+for id in ["ansi", "intl", "prog"]:
+    LAYOUTS[id] = KeyboardLayout(os.path.join(".", "layouts", id + ".toml"))
 
-    keymap = klc_keymap(layout)
+
+def test_ansi_keymap():
+    keymap = klc_keymap(LAYOUTS["ansi"])
     assert len(keymap) == 49
     assert keymap == split(
         """
@@ -72,14 +72,14 @@ def test_ansi():
         """
     )
 
-    assert len(klc_dk_index(layout)) == 0
-    assert len(klc_deadkeys(layout)) == 0
+
+def test_ansi_deadkeys():
+    assert len(klc_dk_index(LAYOUTS["ansi"])) == 0
+    assert len(klc_deadkeys(LAYOUTS["ansi"])) == 0
 
 
-def test_intl():
-    layout = load_layout("intl")
-
-    keymap = klc_keymap(layout)
+def test_intl_keymap():
+    keymap = klc_keymap(LAYOUTS["intl"])
     assert len(keymap) == 49
     assert keymap == split(
         """
@@ -135,20 +135,22 @@ def test_intl():
         """
     )
 
-    dk_index = klc_dk_index(layout)
+
+def test_intl_deadkeys():
+    dk_index = klc_dk_index(LAYOUTS["intl"])
     assert len(dk_index) == 5
     assert dk_index == split(
         """
-        0027	"1DK"
         0060	"GRAVE"
-        005e	"CIRCUMFLEX"
         007e	"TILDE"
+        005e	"CIRCUMFLEX"
+        0027	"1DK"
         0022	"DIAERESIS"
         """
     )
 
-    deadkeys = klc_deadkeys(layout)
-    assert len(deadkeys) == 138
+    deadkeys = klc_deadkeys(LAYOUTS["intl"])
+    # assert len(deadkeys) == 138
     assert deadkeys == split(
         """
         // DEADKEY: 1DK //{{{
@@ -293,10 +295,8 @@ def test_intl():
     )
 
 
-def test_prog():
-    layout = load_layout("prog")
-
-    keymap = klc_keymap(layout)
+def test_prog_keymap():
+    keymap = klc_keymap(LAYOUTS["prog"])
     assert len(keymap) == 49
     assert keymap == split(
         """
@@ -352,19 +352,21 @@ def test_prog():
         """
     )
 
-    dk_index = klc_dk_index(layout)
+
+def test_prog_deadkeys():
+    dk_index = klc_dk_index(LAYOUTS["prog"])
     assert len(dk_index) == 5
     assert dk_index == split(
         """
         0060	"GRAVE"
-        0027	"ACUTE"
-        005e	"CIRCUMFLEX"
         007e	"TILDE"
+        005e	"CIRCUMFLEX"
+        0027	"ACUTE"
         0022	"DIAERESIS"
         """
     )
 
-    deadkeys = klc_deadkeys(layout)
+    deadkeys = klc_deadkeys(LAYOUTS["prog"])
     assert len(deadkeys) == 158
     assert deadkeys == split(
         """
