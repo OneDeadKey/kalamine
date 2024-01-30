@@ -155,8 +155,6 @@ def ahk_keymap(layout, altgr=False):
             symbol = layer[key_name]
             sym = ahk_escape(symbol)
 
-            # if symbol in layout.dead_keys:
-            #     actions = {sym: layout.dead_keys[symbol]["alt_self"]}
             if symbol in layout.new_dead_keys:
                 actions = {sym: layout.new_dead_keys[symbol][symbol]}
             elif key_name == "spce":
@@ -240,8 +238,6 @@ def klc_keymap(layout):
             if key_name in layer:
                 symbol = layer[key_name]
                 desc = symbol
-                # if symbol in layout.dead_keys:
-                #     desc = layout.dead_keys[symbol]["alt_space"]
                 if symbol in layout.new_dead_keys:
                     desc = layout.new_dead_keys[symbol][" "]
                     symbol = hex_ord(desc) + "@"
@@ -295,27 +291,28 @@ def klc_deadkeys(layout):
 
     output = []
 
-    def append_line(base, alt):
-        output.append(f"{hex_ord(base)}\t{hex_ord(alt)}\t// {base} -> {alt}")
+    for k in DK_INDEX:
+        if k not in layout.new_dead_keys:
+            continue
+        dk = layout.new_dead_keys[k]
 
-    for k in layout.dk_index:
-        dk = layout.dead_keys[k]
+        output.append(f"// DEADKEY: {DK_INDEX[k]['name'].upper()} //" + "{{{")
+        output.append(f"DEADKEY\t{hex_ord(dk[' '])}")
 
-        # for dk in DEAD_KEYS:
-        #     if dk["char"] not in layout.new_dead_keys:
-        #         continue
+        for base, alt in dk.items():
+            if base == k:
+                continue
 
-        output.append("// DEADKEY: " + dk["name"].upper() + " //{{{")
-        output.append("DEADKEY\t" + hex_ord(dk["alt_space"]))
+            if base in layout.new_dead_keys:
+                base = layout.new_dead_keys[base][" "]
 
-        if dk["char"] == ODK_ID:
-            output.extend(klc_1dk(layout))
-        else:
-            for i in range(len(dk["base"])):
-                append_line(dk["base"][i], dk["alt"][i])
+            if alt in layout.new_dead_keys:
+                alt = layout.new_dead_keys[alt][" "]
+                ext = hex_ord(alt) + "@"
+            else:
+                ext = hex_ord(alt)
 
-        append_line("\u00a0", dk["alt_space"])
-        append_line("\u0020", dk["alt_space"])
+            output.append(f"{hex_ord(base)}\t{ext}\t// {base} -> {alt}")
 
         output.append("//}}}")
         output.append("")
@@ -327,42 +324,11 @@ def klc_dk_index(layout):
     """Windows layout, dead key index."""
 
     output = []
-    # for dk in DEAD_KEYS:
-    #     if dk["char"] not in layout.new_dead_keys:
-    #         continue
-    for k in layout.dk_index:
-        dk = layout.dead_keys[k]
-        output.append(f"{hex_ord(dk['alt_space'])}\t\"{dk['name'].upper()}\"")
-    return output
-
-
-def klc_1dk(layout):
-    """Windows layout, 1dk."""
-
-    output = []
-    for i in [Layer.BASE, Layer.SHIFT]:
-        base_layer = layout.layers[i]
-        ext_layer = layout.layers[i + Layer.ODK]
-
-        for key_name in LAYER_KEYS:
-            if key_name.startswith("- Space") or key_name == "spce":
-                continue
-
-            if key_name in ext_layer:
-                base = base_layer[key_name]
-                if base in layout.dead_keys:
-                    base = layout.dead_keys[base]["alt_space"]
-                ext = ext_layer[key_name]
-                if ext in layout.dead_keys:
-                    ext = layout.dead_keys[ext]["alt_space"]
-                    odk = hex_ord(ext) + "@"
-                else:
-                    odk = hex_ord(ext)
-
-                output.append(
-                    "\t".join([hex_ord(base), odk, "// " + base + " -> " + ext])
-                )
-
+    for k in DK_INDEX:
+        if k not in layout.new_dead_keys:
+            continue
+        dk = layout.new_dead_keys[k]
+        output.append(f"{hex_ord(dk[' '])}\t\"{DK_INDEX[k]['name'].upper()}\"")
     return output
 
 
