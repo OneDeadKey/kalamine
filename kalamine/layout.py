@@ -3,8 +3,10 @@ import datetime
 import os
 import re
 import sys
-from typing import Any
+from pathlib import Path
+from typing import Dict, List, Union
 
+import click
 import tomli
 import yaml
 from lxml import etree
@@ -22,22 +24,14 @@ from .template import (
     web_keymap,
     xkb_keymap,
 )
-from .utils import (
-    DEAD_KEYS,
-    ODK_ID,
-    Layer,
-    lines_to_text,
-    load_data,
-    open_local_file,
-    text_to_lines,
-)
+from .utils import DEAD_KEYS, ODK_ID, Layer, lines_to_text, load_data, text_to_lines
 
 ###
 # Helpers
 #
 
 
-def upper_key(letter):
+def upper_key(letter: str) -> str:
     """This is used for presentation purposes: in a key, the upper character
     becomes blank if it's an obvious uppercase version of the base character."""
 
@@ -65,7 +59,7 @@ def upper_key(letter):
     return " "
 
 
-def substitute_lines(text, variable, lines):
+def substitute_lines(text: str, variable: str, lines: List[str]) -> str:
     prefix = "KALAMINE::"
     exp = re.compile(".*" + prefix + variable + ".*")
 
@@ -79,18 +73,18 @@ def substitute_lines(text, variable, lines):
     return exp.sub(lines_to_text(lines, indent), text)
 
 
-def substitute_token(text, token, value):
+def substitute_token(text: str, token: str, value: str) -> str:
     exp = re.compile("\\$\\{" + token + "(=[^\\}]*){0,1}\\}")
     return exp.sub(value, text)
 
 
-def load_tpl(layout, ext):
+def load_tpl(layout: "KeyboardLayout", ext: str) -> str:
     tpl = "base"
     if layout.has_altgr:
         tpl = "full"
         if layout.has_1dk and ext.startswith(".xkb"):
             tpl = "full_1dk"
-    out = open_local_file(os.path.join("tpl", tpl + ext)).read()
+    out = (Path(__file__).parent / "tpl" / (tpl + ext)).read_text(encoding="utf-8")
     out = substitute_lines(out, "GEOMETRY_base", layout.base)
     out = substitute_lines(out, "GEOMETRY_full", layout.full)
     out = substitute_lines(out, "GEOMETRY_altgr", layout.altgr)
@@ -99,11 +93,12 @@ def load_tpl(layout, ext):
     return out
 
 
-def load_descriptor(file_path):
-    if file_path.endswith(".yaml") or file_path.endswith(".yml"):
-        with open(file_path, encoding="utf-8") as file:
+def load_descriptor(file_path: Path) -> Dict:
+    if file_path.suffix in [".yaml", ".yml"]:
+        with file_path.open(encoding="utf-8") as file:
             return yaml.load(file, Loader=yaml.SafeLoader)
-    with open(file_path, mode="rb") as file:
+
+    with file_path.open(mode="rb") as file:
         return tomli.load(file)
 
 
@@ -137,7 +132,7 @@ GEOMETRY = load_data("geometry.yaml")
 class KeyboardLayout:
     """Lafayette-style keyboard layout: base + 1dk + altgr layers."""
 
-    def __init__(self, filepath):
+    def __init__(self, filepath: Path) -> None:
         """Import a keyboard layout to instanciate the object."""
 
         # initialize a blank layout
@@ -152,13 +147,13 @@ class KeyboardLayout:
         try:
             cfg = load_descriptor(filepath)
             if "extends" in cfg:
-                path = os.path.join(os.path.dirname(filepath), cfg["extends"])
+                path = filepath.parent / cfg["extends"]
                 ext = load_descriptor(path)
                 ext.update(cfg)
                 cfg = ext
         except Exception as exc:
-            print("File could not be parsed.")
-            print(f"Error: {exc}.")
+            click.echo("File could not be parsed.", err=True)
+            click.echo(f"Error: {exc}.", err=True)
             sys.exit(1)
 
         # metadata: self.meta
@@ -170,7 +165,7 @@ class KeyboardLayout:
                 and not isinstance(cfg[k], dict)
             ):
                 self.meta[k] = cfg[k]
-        filename = os.path.splitext(os.path.basename(filepath))[0]
+        filename = filepath.stem
         self.meta["name"] = cfg["name"] if "name" in cfg else filename
         self.meta["name8"] = cfg["name8"] if "name8" in cfg else self.meta["name"][0:8]
         self.meta["fileName"] = self.meta["name8"].lower()
@@ -212,25 +207,25 @@ class KeyboardLayout:
                 self.dk_index.append(dk["char"])
 
         # remove unused characters in self.dead_keys[].{base,alt}
-        def layer_has_char(char, layer_index):
-            for id in self.layers[layer_index]:
-                if self.layers[layer_index][id] == char:
-                    return True
-            return False
+        def layer_has_char(char: str, layer_index: int) -> bool:
+            return any(
+                self.layers[layer_index][layer_id] == char
+                for layer_id in self.layers[layer_index]
+            )
 
-        for dk_id in self.dead_keys:
-            base = self.dead_keys[dk_id]["base"]
-            alt = self.dead_keys[dk_id]["alt"]
+        for dk_dict in self.dead_keys.values():
+            base = dk_dict["base"]
+            alt = dk_dict["alt"]
             used_base = ""
             used_alt = ""
-            for i in range(len(base)):
-                if layer_has_char(base[i], Layer.BASE) or layer_has_char(
-                    base[i], Layer.SHIFT
+            for i, unknown_element in enumerate(base):
+                if layer_has_char(unknown_element, Layer.BASE) or layer_has_char(
+                    unknown_element, Layer.SHIFT
                 ):
-                    used_base += base[i]
+                    used_base += unknown_element
                     used_alt += alt[i]
-            self.dead_keys[dk_id]["base"] = used_base
-            self.dead_keys[dk_id]["alt"] = used_alt
+            dk_dict["base"] = used_base
+            dk_dict["alt"] = used_alt
 
         # 1dk behavior
         if ODK_ID in self.dead_keys:
@@ -250,7 +245,7 @@ class KeyboardLayout:
                         odk["base"] += base_char
                         odk["alt"] += alt_char
 
-    def _parse_template(self, template, rows, layer_number):
+    def _parse_template(self, template: str, rows: List[str], layer_number: Layer):
         """Extract a keyboard layer from a template."""
 
         if layer_number == Layer.BASE:
@@ -296,7 +291,9 @@ class KeyboardLayout:
     # Geometry: base, full, altgr
     #
 
-    def _fill_template(self, template, rows, layer_number):
+    def _fill_template(
+        self, template: str, rows: List[str], layer_number: Layer
+    ) -> str:
         """Fill a template with a keyboard layer."""
 
         if layer_number == Layer.BASE:
@@ -351,8 +348,10 @@ class KeyboardLayout:
 
         return template
 
-    def _get_geometry(self, layers=[Layer.BASE]):
+    def _get_geometry(self, layers: Union[List[Layer], None] = None) -> str:
         """`geometry` view of the requested layers."""
+        if layers is None:
+            layers = [Layer.BASE]
 
         rows = GEOMETRY[self.geometry]["rows"]
         template = GEOMETRY[self.geometry]["template"].split("\n")[:-1]
@@ -361,12 +360,12 @@ class KeyboardLayout:
         return template
 
     @property
-    def geometry(self):
+    def geometry(self) -> str:
         """ANSI, ISO, ERGO."""
         return self.meta["geometry"].upper()
 
     @geometry.setter
-    def geometry(self, value):
+    def geometry(self, value: str) -> None:
         """ANSI, ISO, ERGO."""
         shape = value.upper()
         if shape not in ["ANSI", "ISO", "ERGO"]:
@@ -374,17 +373,17 @@ class KeyboardLayout:
         self.meta["geometry"] = shape
 
     @property
-    def base(self):
+    def base(self) -> str:
         """Base + 1dk layers."""
         return self._get_geometry([0, Layer.ODK])
 
     @property
-    def full(self):
+    def full(self) -> str:
         """Base + AltGr layers."""
         return self._get_geometry([0, Layer.ALTGR])
 
     @property
-    def altgr(self):
+    def altgr(self) -> str:
         """AltGr layer only."""
         return self._get_geometry([Layer.ALTGR])
 
@@ -393,7 +392,7 @@ class KeyboardLayout:
     #
 
     @property
-    def keylayout(self):
+    def keylayout(self) -> str:
         """macOS driver"""
         out = load_tpl(self, ".keylayout")
         for i, layer in enumerate(osx_keymap(self)):
@@ -403,7 +402,7 @@ class KeyboardLayout:
         return out
 
     @property
-    def ahk(self):
+    def ahk(self) -> str:
         """Windows AHK driver"""
         out = load_tpl(self, ".ahk")
         out = substitute_lines(out, "LAYOUT", ahk_keymap(self))
@@ -412,7 +411,7 @@ class KeyboardLayout:
         return out
 
     @property
-    def klc(self):
+    def klc(self) -> str:
         """Windows driver (warning: requires CR/LF + UTF16LE encoding)"""
         out = load_tpl(self, ".klc")
         out = substitute_lines(out, "LAYOUT", klc_keymap(self))
@@ -422,14 +421,14 @@ class KeyboardLayout:
         return out
 
     @property
-    def xkb(self):  # will not work with Wayland
+    def xkb(self) -> str:  # will not work with Wayland
         """GNU/Linux driver (standalone / user-space)"""
         out = load_tpl(self, ".xkb")
         out = substitute_lines(out, "LAYOUT", xkb_keymap(self, xkbcomp=True))
         return out
 
     @property
-    def xkb_patch(self):
+    def xkb_patch(self) -> str:
         """GNU/Linux driver (xkb patch, system or user-space)"""
         out = load_tpl(self, ".xkb_patch")
         out = substitute_lines(out, "LAYOUT", xkb_keymap(self, xkbcomp=False))
@@ -440,7 +439,7 @@ class KeyboardLayout:
     #
 
     @property
-    def json(self):
+    def json(self) -> Dict:
         """JSON layout descriptor"""
         return {
             "name": self.meta["name"],
@@ -456,11 +455,11 @@ class KeyboardLayout:
     #
 
     @property
-    def svg(self):
+    def svg(self) -> etree.ElementTree:
         """SVG drawing"""
         # Parse SVG data
-        filepath = os.path.join(os.path.dirname(__file__), "tpl", "x-keyboard.svg")
-        svg = etree.parse(filepath, etree.XMLParser(remove_blank_text=True))
+        filepath = Path(__file__).parent / "tpl" / "x-keyboard.svg"
+        svg = etree.parse(str(filepath), etree.XMLParser(remove_blank_text=True))
         ns = {"svg": "http://www.w3.org/2000/svg"}
 
         # Get Layout data

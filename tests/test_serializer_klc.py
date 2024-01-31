@@ -1,12 +1,13 @@
-import os
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
 from kalamine.template import klc_deadkeys, klc_dk_index, klc_keymap
 
+from .util import get_layout_path
+
 
 def load_layout(filename):
-    return KeyboardLayout(os.path.join(".", "layouts", filename + ".toml"))
+    return KeyboardLayout(get_layout_path() / (filename + ".toml"))
 
 
 def split(multiline_str):

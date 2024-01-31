@@ -15,17 +15,17 @@ KEY_CODES = load_data("key_codes.yaml")
 XKB_KEY_SYM = load_data("key_sym.yaml")
 
 
-def hex_ord(char):
+def hex_ord(char: str) -> str:
     return hex(ord(char))[2:].zfill(4)
 
 
-def xml_proof(char):
+def xml_proof(char: str) -> str:
     if char not in '<&"\u0020\u00a0\u202f>':
         return char
     return f"&#x{hex_ord(char)};"
 
 
-def xml_proof_id(symbol):
+def xml_proof_id(symbol: str) -> str:
     return symbol[2:-1] if symbol.startswith("&#x") else symbol
 
 
@@ -36,7 +36,7 @@ def xml_proof_id(symbol):
 #
 
 
-def xkb_keymap(layout, xkbcomp=False):
+def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
     """Linux layout."""
 
     show_description = True
@@ -108,7 +108,7 @@ def xkb_keymap(layout, xkbcomp=False):
 # FWIW, PKL and EPKL still rely on AHK 1.1, too.
 
 
-def ahk_keymap(layout, altgr=False):
+def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
     """AHK layout, main and AltGr layers."""
 
     prefixes = [" ", "+", "", "", " <^>!", "<^>!+"]
@@ -169,7 +169,7 @@ def ahk_keymap(layout, altgr=False):
     return output
 
 
-def ahk_shortcuts(layout):
+def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
     """AHK layout, shortcuts."""
 
     prefixes = [" ^", "^+"]
@@ -212,7 +212,7 @@ def ahk_shortcuts(layout):
 #
 
 
-def klc_keymap(layout):
+def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, main part."""
 
     supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -283,7 +283,7 @@ def klc_keymap(layout):
     return output
 
 
-def klc_deadkeys(layout):
+def klc_deadkeys(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, dead keys."""
 
     output = []
@@ -312,7 +312,7 @@ def klc_deadkeys(layout):
     return output[:-1]
 
 
-def klc_dk_index(layout):
+def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, dead key index."""
 
     output = []
@@ -322,7 +322,7 @@ def klc_dk_index(layout):
     return output
 
 
-def klc_1dk(layout):
+def klc_1dk(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, 1dk."""
 
     output = []
@@ -358,7 +358,7 @@ def klc_1dk(layout):
 #
 
 
-def osx_keymap(layout):
+def osx_keymap(layout: "KeyboardLayout") -> List[str]:
     """macOS layout, main part."""
 
     ret_str = []
@@ -410,7 +410,7 @@ def osx_keymap(layout):
     return ret_str
 
 
-def osx_actions(layout):
+def osx_actions(layout: "KeyboardLayout") -> List[str]:
     """macOS layout, dead key actions."""
 
     ret_actions = []
@@ -487,7 +487,7 @@ def osx_actions(layout):
     return ret_actions
 
 
-def osx_terminators(layout):
+def osx_terminators(layout: "KeyboardLayout") -> List[str]:
     """macOS layout, dead key terminators."""
 
     ret_terminators = []
@@ -544,25 +544,25 @@ def web_deadkeys(layout: "KeyboardLayout") -> Dict[str, Dict[str, str]]:
     deadkeys = {}
     if layout.has_1dk:  # ensure 1dk is first in the dead key dictionary
         deadkeys[ODK_ID] = {}
-    for id, dk in layout.dead_keys.items():
-        deadkeys[id] = {}
-        deadkeys[id][id] = dk["alt_self"]
-        deadkeys[id]["\u0020"] = dk["alt_space"]
-        deadkeys[id]["\u00a0"] = dk["alt_space"]
-        deadkeys[id]["\u202f"] = dk["alt_space"]
-        if id == ODK_ID:
+    for index, dk in layout.dead_keys.items():
+        deadkeys[index] = {}
+        deadkeys[index][index] = dk["alt_self"]
+        deadkeys[index]["\u0020"] = dk["alt_space"]
+        deadkeys[index]["\u00a0"] = dk["alt_space"]
+        deadkeys[index]["\u202f"] = dk["alt_space"]
+        if index == ODK_ID:
             for key_name in LAYER_KEYS:
                 if key_name.startswith("-"):
                     continue
                 for i in [Layer.ODK_SHIFT, Layer.ODK]:
                     if key_name in layout.layers[i]:
-                        deadkeys[id][
+                        deadkeys[index][
                             layout.layers[i - Layer.ODK][key_name]
                         ] = layout.layers[i][key_name]
         else:
             base = dk["base"]
             alt = dk["alt"]
-            for i in range(len(base)):
-                deadkeys[id][base[i]] = alt[i]
+            for i, unknown_element in enumerate(base):
+                deadkeys[index][unknown_element] = alt[i]
 
     return deadkeys
