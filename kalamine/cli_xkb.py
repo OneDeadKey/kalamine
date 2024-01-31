@@ -3,6 +3,8 @@ import os
 import platform
 import sys
 import tempfile
+from pathlib import Path
+from typing import List
 
 import click
 
@@ -17,8 +19,10 @@ def cli():
 
 
 @cli.command()
-@click.argument("input", nargs=1, type=click.Path(exists=True))
-def apply(input):
+@click.argument(
+    "filepath", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+def apply(filepath: Path):
     """Apply a Kalamine layout."""
 
     if WAYLAND:
@@ -26,20 +30,19 @@ def apply(input):
             "You appear to be running Wayland, which does not support this operation."
         )
 
-    layout = KeyboardLayout(input)
+    layout = KeyboardLayout(filepath)
     with tempfile.NamedTemporaryFile(
         mode="w+", suffix=".xkb", encoding="utf-8"
     ) as temp_file:
-        try:
-            temp_file.write(layout.xkb)
-            os.system(f"xkbcomp -w0 {temp_file.name} $DISPLAY")
-        finally:
-            temp_file.close()
+        temp_file.write(layout.xkb)
+        os.system(f"xkbcomp -w0 {temp_file.name} $DISPLAY")
 
 
 @cli.command()
-@click.argument("layouts", nargs=-1, type=click.Path(exists=True))
-def install(layouts):
+@click.argument(
+    "layouts", nargs=-1, type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+def install(layouts: List[Path]):
     """Install a list of Kalamine layouts."""
 
     if not layouts:
@@ -84,7 +87,7 @@ def install(layouts):
 
 @cli.command()
 @click.argument("mask")  # [locale]/[name]
-def remove(mask):
+def remove(mask: str):
     """Remove a list of Kalamine layouts."""
 
     def xkb_remove(root=False):
@@ -102,17 +105,17 @@ def remove(mask):
         xkb_remove()
 
 
-@cli.command()
+@cli.command(name="list")
+@click.option("-a", "--all", "all_flag", is_flag=True)
 @click.argument("mask", default="*")
-@click.option("--all", "-a", is_flag=True)
-def list(mask, all):
+def list_command(mask, all_flag):
     """List installed Kalamine layouts."""
 
     for root in [True, False]:
         filtered = {}
 
         xkb = XKBManager(root=root)
-        layouts = xkb.list_all(mask) if all else xkb.list(mask)
+        layouts = xkb.list_all(mask) if all_flag else xkb.list(mask)
         for locale, variants in sorted(layouts.items()):
             for name, desc in sorted(variants.items()):
                 filtered[f"{locale}/{name}"] = desc
@@ -120,7 +123,12 @@ def list(mask, all):
         if mask == "*" and root and xkb.has_custom_symbols():
             filtered["custom"] = ""
 
-        if bool(filtered):
+        if filtered:
             print(xkb.path)
-            for id, desc in filtered.items():
-                print(f"    {id:<24} {desc}")
+            for key, value in filtered.items():
+                print(f"    {key:<24} {value}")
+
+
+if __name__ == "__main__":
+    cli()
+    cli()

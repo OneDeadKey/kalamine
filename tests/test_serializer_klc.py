@@ -1,9 +1,9 @@
-import os
-from enum import Enum
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
 from kalamine.template import klc_deadkeys, klc_dk_index, klc_keymap
+
+from .util import get_layout_path
 
 
 def split(multiline_str):
@@ -11,8 +11,8 @@ def split(multiline_str):
 
 
 LAYOUTS = {}
-for id in ["ansi", "intl", "prog"]:
-    LAYOUTS[id] = KeyboardLayout(os.path.join(".", "layouts", id + ".toml"))
+for filename in ["ansi", "intl", "prog"]:
+    LAYOUTS[filename] = KeyboardLayout(get_layout_path() / (filename + ".toml"))
 
 
 def test_ansi_keymap():
