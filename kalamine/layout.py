@@ -3,7 +3,6 @@ import datetime
 import os
 import re
 import sys
-from typing import Any
 
 import tomli
 import yaml

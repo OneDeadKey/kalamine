@@ -445,9 +445,7 @@ def osx_actions(layout):
             for k in DK_INDEX:
                 if k in layout.dead_keys:
                     if key in layout.dead_keys[k]:
-                        actions.append(
-                            (DK_INDEX[k]["name"], layout.dead_keys[k][key])
-                        )
+                        actions.append((DK_INDEX[k]["name"], layout.dead_keys[k][key]))
             if actions:
                 append_actions(xml_proof(key), actions)
 
