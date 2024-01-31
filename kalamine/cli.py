@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import json
 import os
-import shutil
 from importlib import metadata
 from pathlib import Path
 
