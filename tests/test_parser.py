@@ -16,7 +16,6 @@ def test_ansi():
     assert not layout.has_altgr
     assert not layout.has_1dk
     assert "**" not in layout.dead_keys
-    assert "**" not in layout.new_dead_keys
 
 
 def test_prog():  # AltGr + dead keys
@@ -30,11 +29,8 @@ def test_prog():  # AltGr + dead keys
     assert layout.has_altgr
     assert not layout.has_1dk
     assert "**" not in layout.dead_keys
-    assert "**" not in layout.new_dead_keys
-    assert len(layout.dead_keys["*`"]["base"]) == 16
-    assert len(layout.dead_keys["*~"]["base"]) == 19
-    assert len(layout.new_dead_keys["*`"]) == 18
-    assert len(layout.new_dead_keys["*~"]) == 21
+    assert len(layout.dead_keys["*`"]) == 18
+    assert len(layout.dead_keys["*~"]) == 21
 
 
 def test_intl():  # 1dk + dead keys
@@ -47,39 +43,31 @@ def test_intl():  # 1dk + dead keys
     assert layout.has_1dk
     assert "**" in layout.dead_keys
 
-    assert layout.dead_keys["**"]["base"] == "euioac.EUIOAC"
-    assert layout.dead_keys["**"]["alt"] == "éúíóáç…ÉÚÍÓÁÇ"
-    assert layout.dead_keys["**"]["alt_self"] == "´"
-    assert len(layout.dead_keys["*`"]["base"]) == 16
-    assert len(layout.dead_keys["*~"]["base"]) == 19
-
-    assert len(layout.new_dead_keys) == 5
-    assert "**" in layout.new_dead_keys
-    assert "*`" in layout.new_dead_keys
-    assert "*^" in layout.new_dead_keys
-    assert "*¨" in layout.new_dead_keys
-    assert "*~" in layout.new_dead_keys
-    assert len(layout.new_dead_keys["**"]) == 15
-    assert len(layout.new_dead_keys["*`"]) == 18
-    assert len(layout.new_dead_keys["*^"]) == 43
-    assert len(layout.new_dead_keys["*¨"]) == 21
-    assert len(layout.new_dead_keys["*~"]) == 21
+    assert len(layout.dead_keys) == 5
+    assert "**" in layout.dead_keys
+    assert "*`" in layout.dead_keys
+    assert "*^" in layout.dead_keys
+    assert "*¨" in layout.dead_keys
+    assert "*~" in layout.dead_keys
+    assert len(layout.dead_keys["**"]) == 15
+    assert len(layout.dead_keys["*`"]) == 18
+    assert len(layout.dead_keys["*^"]) == 43
+    assert len(layout.dead_keys["*¨"]) == 21
+    assert len(layout.dead_keys["*~"]) == 21
 
     # ensure the 1dk parser does not accumulate values from a previous run
     layout = load_layout("intl")
-    assert layout.dead_keys["**"]["base"] == "euioac.EUIOAC"
-    assert layout.dead_keys["**"]["alt"] == "éúíóáç…ÉÚÍÓÁÇ"
-    assert len(layout.new_dead_keys["*`"]) == 18
-    assert len(layout.new_dead_keys["*~"]) == 21
+    assert len(layout.dead_keys["*`"]) == 18
+    assert len(layout.dead_keys["*~"]) == 21
 
-    assert len(layout.new_dead_keys) == 5
-    assert "**" in layout.new_dead_keys
-    assert "*`" in layout.new_dead_keys
-    assert "*^" in layout.new_dead_keys
-    assert "*¨" in layout.new_dead_keys
-    assert "*~" in layout.new_dead_keys
-    assert len(layout.new_dead_keys["**"]) == 15
-    assert len(layout.new_dead_keys["*`"]) == 18
-    assert len(layout.new_dead_keys["*^"]) == 43
-    assert len(layout.new_dead_keys["*¨"]) == 21
-    assert len(layout.new_dead_keys["*~"]) == 21
+    assert len(layout.dead_keys) == 5
+    assert "**" in layout.dead_keys
+    assert "*`" in layout.dead_keys
+    assert "*^" in layout.dead_keys
+    assert "*¨" in layout.dead_keys
+    assert "*~" in layout.dead_keys
+    assert len(layout.dead_keys["**"]) == 15
+    assert len(layout.dead_keys["*`"]) == 18
+    assert len(layout.dead_keys["*^"]) == 43
+    assert len(layout.dead_keys["*¨"]) == 21
+    assert len(layout.dead_keys["*~"]) == 21

@@ -144,11 +144,8 @@ class KeyboardLayout:
 
         # initialize a blank layout
         self.layers = [{}, {}, {}, {}, {}, {}]
-        self.new_dead_keys = {}  # dictionary subset of DEAD_KEYS
         self.dk_set = set()
-        self.new_dk_index = []  # ordered keys of the above dictionary
         self.dead_keys = {}  # dictionary subset of DEAD_KEYS
-        self.dk_index = []  # ordered keys of the above dictionary
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
@@ -196,9 +193,6 @@ class KeyboardLayout:
                 self.has_altgr = True
                 self._parse_template(text_to_lines(cfg["altgr"]), rows, Layer.ALTGR)
 
-        # self.has_1dk = ODK_ID in self.new_dead_keys
-        # print(self.dk_set)
-
         # space bar
         spc = SPACEBAR.copy()
         if "spacebar" in cfg:
@@ -215,66 +209,10 @@ class KeyboardLayout:
             self.layers[Layer.ALTGR]["spce"] = spc["altgr"]
             self.layers[Layer.ALTGR_SHIFT]["spce"] = spc["altgr_shift"]
 
-        self._old_parse_dead_keys(spc)
         self._parse_dead_keys(spc)
-        # print(self.new_dead_keys)
-
-    def _old_parse_dead_keys(self, spc):
-        """Build a deadkey dict."""
-
-        # active dead keys: self.dk_index
-        for dk in DEAD_KEYS:
-            if dk["char"] in self.dead_keys:
-                self.dk_index.append(dk["char"])
-
-        # remove unused characters in self.dead_keys[].{base,alt}
-        def layer_has_char(char, layer_index):
-            for id in self.layers[layer_index]:
-                if self.layers[layer_index][id] == char:
-                    return True
-            return False
-
-        for dk_id in self.dead_keys:
-            base = self.dead_keys[dk_id]["base"]
-            alt = self.dead_keys[dk_id]["alt"]
-            used_base = ""
-            used_alt = ""
-            for i in range(len(base)):
-                if layer_has_char(base[i], Layer.BASE) or layer_has_char(
-                    base[i], Layer.SHIFT
-                ):
-                    used_base += base[i]
-                    used_alt += alt[i]
-            self.dead_keys[dk_id]["base"] = used_base
-            self.dead_keys[dk_id]["alt"] = used_alt
-
-        # 1dk behavior
-        if ODK_ID in self.dead_keys:
-            self.has_1dk = True
-            odk = self.dead_keys[ODK_ID]
-
-            # alt_self (double-press), alt_space (1dk+space)
-            odk["alt_space"] = spc["1dk"]  # spc["1dk"]
-            for key in self.layers[Layer.BASE]:
-                if self.layers[Layer.BASE][key] == ODK_ID:
-                    odk["alt_self"] = self.layers[Layer.ODK][key]
-                    break
-
-            # copy the 2nd and 3rd layers to the dead key
-            for i in [Layer.BASE, Layer.SHIFT]:
-                for name, alt_char in self.layers[i + Layer.ODK].items():
-                    base_char = self.layers[i][name]
-                    if name != "spce" and base_char != ODK_ID:
-                        odk["base"] += base_char
-                        odk["alt"] += alt_char
 
     def _parse_dead_keys(self, spc):
         """Build a deadkey dict."""
-
-        # # active dead keys: self.dk_index
-        # for dk in DEAD_KEYS:
-        #     if dk["char"] in self.dk_set:
-        #         self.dk_index.append(dk["char"])
 
         def layout_has_char(char):
             all_layers = [Layer.BASE, Layer.SHIFT]
@@ -292,14 +230,14 @@ class KeyboardLayout:
             if layout_has_char(space):
                 all_spaces.append(space)
 
-        self.new_dead_keys = {}
+        self.dead_keys = {}
         for dk in DEAD_KEYS:
             id = dk["char"]
             if id not in self.dk_set:
                 continue
 
-            self.new_dead_keys[id] = {}
-            deadkey = self.new_dead_keys[id]
+            self.dead_keys[id] = {}
+            deadkey = self.dead_keys[id]
             deadkey[id] = dk["alt_self"]
 
             if id == ODK_ID:
@@ -358,13 +296,8 @@ class KeyboardLayout:
                 if shift_key != " ":
                     self.layers[layer_number + 1][key] = shift_key
 
-                # XXX building a deadkey_index would be enough
                 for dk in DEAD_KEYS:
-                    if base_key == dk["char"]:
-                        self.dead_keys[base_key] = dk.copy()
-                        self.dk_set.add(dk["char"])
-                    if shift_key == dk["char"]:
-                        self.dead_keys[shift_key] = dk.copy()
+                    if base_key == dk["char"] or shift_key == dk["char"]:
                         self.dk_set.add(dk["char"])
 
                 i += 6
