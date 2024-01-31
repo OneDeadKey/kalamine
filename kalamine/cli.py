@@ -64,21 +64,23 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
 
     # Windows driver
     with file_creation_context(".klc") as klc_path:
-        klc_path.write_text(layout.klc, encoding="utf-16le", newline="\r\n")
+        with klc_path.open("w", encoding="utf-16le", newline="\r\n") as file:
+            file.write(layout.klc)
 
     # macOS driver
     with file_creation_context(".keylayout") as osx_path:
-        osx_path.write_text(layout.keylayout, encoding="utf-8", newline="\n")
+        with osx_path.open("w", encoding="utf-8", newline="\n") as file:
+            file.write(layout.keylayout)
 
     # Linux driver, user-space
     with file_creation_context(".xkb") as xkb_path:
-        xkb_path.write_text(layout.xkb, encoding="utf-8", newline="\n")
+        with xkb_path.open("w", encoding="utf-8", newline="\n") as file:
+            file.write(layout.xkb)
 
     # Linux driver, root
     with file_creation_context(".xkb_custom") as xkb_custom_path:
-        xkb_custom_path.write_text(
-            layout.xkb_patch, "w", encoding="utf-8", newline="\n"
-        )
+        with xkb_custom_path.open("w", encoding="utf-8", newline="\n") as file:
+            file.write(layout.xkb_patch)
 
     # JSON data
     with file_creation_context(".json") as json_path:
@@ -98,7 +100,7 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
 @click.option(
     "--out",
     default="all",
-    type=click.Path(path_type=Path),
+    type=click.Path(),
     help="Keyboard drivers to generate.",
 )
 def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]):
@@ -109,8 +111,11 @@ def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]):
 
         # default: build all in the `dist` subdirectory
         if out == "all":
-            make_all(layout, "dist")
+            make_all(layout, Path(__file__).parent.parent / "dist")
             continue
+
+        # Transform out into Path.
+        out = Path(out)
 
         # quick output: reuse the input name and change the file extension
         if out in ["keylayout", "klc", "xkb", "xkb_custom", "svg"]:
@@ -125,20 +130,24 @@ def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]):
                 file.write(layout.ahk)
 
         elif output_file.suffix == ".klc":
-            output_file.write_text(layout.klc, "w", encoding="utf-16le", newline="\r\n")
+            with output_file.open("w", encoding="utf-16le", newline="\r\n") as file:
+                file.write(layout.klc)
 
         elif output_file.suffix == ".keylayout":
-            output_file.write_text(
-                layout.keylayout, "w", encoding="utf-8", newline="\n"
-            )
+            with output_file.open(
+                "w", encoding="utf-8", newline="\n"
+            ) as file:
+                file.write(layout.keylayout)
 
         elif output_file.suffix == ".xkb":
-            output_file.write_text(layout.xkb, "w", encoding="utf-8", newline="\n")
+            with output_file.open("w", encoding="utf-8", newline="\n") as file:
+                file.write(layout.xkb)
 
         elif output_file.suffix == ".xkb_custom":
-            output_file.write_text(
-                layout.xkb_patch, "w", encoding="utf-8", newline="\n"
-            )
+            with output_file.open(
+                 "w", encoding="utf-8", newline="\n"
+            ) as file:
+                file.write(layout.xkb_patch)
 
         elif output_file.suffix == ".json":
             pretty_json(layout, output_file)
@@ -151,7 +160,7 @@ def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]):
             return
 
         # successfully converted, display file name
-        click.echo("... " + output_file)
+        click.echo(f"... {output_file}")
 
 
 TOML_HEADER = """# kalamine keyboard layout descriptor
