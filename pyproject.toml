@@ -41,7 +41,7 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/fabi1cazenave/kalamine"
+Homepage = "https://github.com/OneDeadKey/kalamine"
 
 [project.scripts]
 kalamine = "kalamine.cli:cli"
