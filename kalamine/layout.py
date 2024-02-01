@@ -209,7 +209,7 @@ class KeyboardLayout:
     def _parse_dead_keys(self, spc):
         """Build a deadkey dict."""
 
-        def (char: str) -> bool:
+        def layout_has_char(char: str) -> bool:
             all_layers = [Layer.BASE, Layer.SHIFT]
             if self.has_altgr:
                 all_layers += [Layer.ALTGR, Layer.ALTGR_SHIFT]
