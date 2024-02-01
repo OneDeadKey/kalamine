@@ -2,10 +2,15 @@
 import json
 from typing import TYPE_CHECKING, Dict, List
 
-from .utils import LAYER_KEYS, ODK_ID, Layer, load_data
+from .utils import DEAD_KEYS, LAYER_KEYS, ODK_ID, Layer, load_data
 
 if TYPE_CHECKING:
     from .layout import KeyboardLayout
+
+DK_INDEX = {}
+for dk in DEAD_KEYS:
+    DK_INDEX[dk["char"]] = dk
+
 
 ###
 # Helpers
@@ -56,19 +61,18 @@ def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
         description = " //"
         for layer in layout.layers:
             if key_name in layer:
-                symbol = layer[key_name]
-                desc = symbol
-                if symbol in layout.dead_keys:
-                    dk = layout.dead_keys[symbol]
-                    desc = dk["alt_self"]
-                    if dk["char"] == ODK_ID:
-                        symbol = odk_symbol
-                    else:
-                        symbol = "dead_" + dk["name"]
-                elif symbol in XKB_KEY_SYM and len(XKB_KEY_SYM[symbol]) <= max_length:
-                    symbol = XKB_KEY_SYM[symbol]
+                keysym = layer[key_name]
+                desc = keysym
+                # dead key?
+                if keysym in DK_INDEX:
+                    name = DK_INDEX[keysym]["name"]
+                    desc = layout.dead_keys[keysym][keysym]
+                    symbol = odk_symbol if keysym == ODK_ID else f"dead_{name}"
+                # regular key: use a keysym if possible, utf-8 otherwise
+                elif keysym in XKB_KEY_SYM and len(XKB_KEY_SYM[keysym]) <= max_length:
+                    symbol = XKB_KEY_SYM[keysym]
                 else:
-                    symbol = "U" + hex_ord(symbol).upper()
+                    symbol = f"U{hex_ord(keysym).upper()}"
             else:
                 desc = " "
                 symbol = "VoidSymbol"
@@ -122,13 +126,12 @@ def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
 
     def ahk_actions(symbol):
         actions = {}
-        for key in layout.dead_keys:
-            dk = layout.dead_keys[key]
-            dk_id = ahk_escape(dk["char"])
+        for key, dk in layout.dead_keys.items():
+            dk_id = ahk_escape(key)
             if symbol == "spce":
-                actions[dk_id] = ahk_escape(dk["alt_space"])
-            elif symbol in dk["base"]:
-                actions[dk_id] = ahk_escape(dk["alt"][dk["base"].index(symbol)])
+                actions[dk_id] = ahk_escape(dk[" "])
+            elif symbol in dk:
+                actions[dk_id] = ahk_escape(dk[symbol])
         return actions
 
     output = []
@@ -153,7 +156,7 @@ def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
             sym = ahk_escape(symbol)
 
             if symbol in layout.dead_keys:
-                actions = {sym: layout.dead_keys[symbol]["alt_self"]}
+                actions = {sym: layout.dead_keys[symbol][symbol]}
             elif key_name == "spce":
                 actions = ahk_actions(key_name)
             else:
@@ -236,7 +239,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbol = layer[key_name]
                 desc = symbol
                 if symbol in layout.dead_keys:
-                    desc = layout.dead_keys[symbol]["alt_space"]
+                    desc = layout.dead_keys[symbol][" "]
                     symbol = hex_ord(desc) + "@"
                 else:
                     if i == Layer.BASE:
@@ -288,23 +291,28 @@ def klc_deadkeys(layout: "KeyboardLayout") -> List[str]:
 
     output = []
 
-    def append_line(base, alt):
-        output.append(f"{hex_ord(base)}\t{hex_ord(alt)}\t// {base} -> {alt}")
-
-    for k in layout.dk_index:
+    for k in DK_INDEX:
+        if k not in layout.dead_keys:
+            continue
         dk = layout.dead_keys[k]
 
-        output.append("// DEADKEY: " + dk["name"].upper() + " //{{{")
-        output.append("DEADKEY\t" + hex_ord(dk["alt_space"]))
+        output.append(f"// DEADKEY: {DK_INDEX[k]['name'].upper()} //" + "{{{")
+        output.append(f"DEADKEY\t{hex_ord(dk[' '])}")
 
-        if k == ODK_ID:
-            output.extend(klc_1dk(layout))
-        else:
-            for i in range(len(dk["base"])):
-                append_line(dk["base"][i], dk["alt"][i])
+        for base, alt in dk.items():
+            if base == k:
+                continue
 
-        append_line("\u00a0", dk["alt_space"])
-        append_line("\u0020", dk["alt_space"])
+            if base in layout.dead_keys:
+                base = layout.dead_keys[base][" "]
+
+            if alt in layout.dead_keys:
+                alt = layout.dead_keys[alt][" "]
+                ext = hex_ord(alt) + "@"
+            else:
+                ext = hex_ord(alt)
+
+            output.append(f"{hex_ord(base)}\t{ext}\t// {base} -> {alt}")
 
         output.append("//}}}")
         output.append("")
@@ -316,39 +324,11 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, dead key index."""
 
     output = []
-    for k in layout.dk_index:
+    for k in DK_INDEX:
+        if k not in layout.dead_keys:
+            continue
         dk = layout.dead_keys[k]
-        output.append(f"{hex_ord(dk['alt_space'])}\t\"{dk['name'].upper()}\"")
-    return output
-
-
-def klc_1dk(layout: "KeyboardLayout") -> List[str]:
-    """Windows layout, 1dk."""
-
-    output = []
-    for i in [Layer.BASE, Layer.SHIFT]:
-        base_layer = layout.layers[i]
-        ext_layer = layout.layers[i + Layer.ODK]
-
-        for key_name in LAYER_KEYS:
-            if key_name.startswith("- Space") or key_name == "spce":
-                continue
-
-            if key_name in ext_layer:
-                base = base_layer[key_name]
-                if base in layout.dead_keys:
-                    base = layout.dead_keys[base]["alt_space"]
-                ext = ext_layer[key_name]
-                if ext in layout.dead_keys:
-                    ext = layout.dead_keys[ext]["alt_space"]
-                    odk = hex_ord(ext) + "@"
-                else:
-                    odk = hex_ord(ext)
-
-                output.append(
-                    "\t".join([hex_ord(base), odk, "// " + base + " -> " + ext])
-                )
-
+        output.append(f"{hex_ord(dk[' '])}\t\"{DK_INDEX[k]['name'].upper()}\"")
     return output
 
 
@@ -372,7 +352,7 @@ def osx_keymap(layout: "KeyboardLayout") -> List[str]:
             if letter in "\u0020\u00a0\u202f":  # space
                 return True
             for k in layout.dead_keys:
-                if letter in layout.dead_keys[k]["base"]:
+                if letter in layout.dead_keys[k]:
                     return True
             return False
 
@@ -393,7 +373,7 @@ def osx_keymap(layout: "KeyboardLayout") -> List[str]:
             if key_name in layer:
                 key = layer[key_name]
                 if key in layout.dead_keys:
-                    symbol = "dead_" + layout.dead_keys[key]["name"]
+                    symbol = f"dead_{DK_INDEX[key]['name']}"
                     final_key = False
                 else:
                     symbol = xml_proof(key.upper() if caps else key)
@@ -418,7 +398,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
     def when(state, action):
         state_attr = f'state="{state}"'.ljust(18)
         if action in layout.dead_keys:
-            action_attr = f"next=\"{layout.dead_keys[action]['name']}\""
+            action_attr = f"next=\"{DK_INDEX[action]['name']}\""
         elif action.startswith("dead_"):
             action_attr = f'next="{action[5:]}"'
         else:
@@ -434,12 +414,12 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
 
     # dead key definitions
     for key in layout.dead_keys:
-        name = layout.dead_keys[key]["name"]
-        term = layout.dead_keys[key]["alt_self"]
+        name = DK_INDEX[key]["name"]
+        term = layout.dead_keys[key][key]
         ret_actions.append(f'<action id="dead_{name}">')
         ret_actions.append(f'  <when state="none" next="{name}" />')
         if name == "1dk" and term in layout.dead_keys:
-            nested_dk = layout.dead_keys[term]["name"]
+            nested_dk = DK_INDEX[term]["name"]
             ret_actions.append(f'  <when state="1dk" next="{nested_dk}" />')
         ret_actions.append("</action>")
         continue
@@ -462,24 +442,18 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
                 continue
 
             actions = []
-            for k in layout.dk_index:
-                dk = layout.dead_keys[k]
-                if k == ODK_ID:
-                    if key_name in layout.layers[i + Layer.ODK]:
-                        alt = layout.layers[i + Layer.ODK][key_name]
-                        actions.append((dk["name"], alt))
-                else:
-                    if key in dk["base"]:
-                        idx = dk["base"].index(key)
-                        actions.append((dk["name"], dk["alt"][idx]))
+            for k in DK_INDEX:
+                if k in layout.dead_keys:
+                    if key in layout.dead_keys[k]:
+                        actions.append((DK_INDEX[k]["name"], layout.dead_keys[k][key]))
             if actions:
                 append_actions(xml_proof(key), actions)
 
     # spacebar actions
     actions = []
-    for k in layout.dk_index:
-        dk = layout.dead_keys[k]
-        actions.append((dk["name"], dk["alt_space"]))
+    for k in DK_INDEX:
+        if k in layout.dead_keys:
+            actions.append((DK_INDEX[k]["name"], layout.dead_keys[k][" "]))
     append_actions("&#x0020;", actions)  # space
     append_actions("&#x00a0;", actions)  # no-break space
     append_actions("&#x202f;", actions)  # fine no-break space
@@ -491,11 +465,14 @@ def osx_terminators(layout: "KeyboardLayout") -> List[str]:
     """macOS layout, dead key terminators."""
 
     ret_terminators = []
-    for key in layout.dk_index:
-        name = layout.dead_keys[key]["name"]
-        term = layout.dead_keys[key]["alt_self"]
+    for key in DK_INDEX:
+        if key not in layout.dead_keys:
+            continue
+        dk = layout.dead_keys[key]
+        name = DK_INDEX[key]["name"]
+        term = dk[key]
         if name == "1dk" and term in layout.dead_keys:
-            term = layout.dead_keys[key]["alt_space"]
+            term = dk[" "]
         state = f'state="{name}"'.ljust(18)
         output = f'output="{xml_proof(term)}"'
         ret_terminators.append(f"<when {state} {output} />")
@@ -541,28 +518,4 @@ def web_deadkeys(layout: "KeyboardLayout") -> Dict[str, Dict[str, str]]:
         A dict whose keys are deadkeys and values are key mapping.
     """
 
-    deadkeys = {}
-    if layout.has_1dk:  # ensure 1dk is first in the dead key dictionary
-        deadkeys[ODK_ID] = {}
-    for index, dk in layout.dead_keys.items():
-        deadkeys[index] = {}
-        deadkeys[index][index] = dk["alt_self"]
-        deadkeys[index]["\u0020"] = dk["alt_space"]
-        deadkeys[index]["\u00a0"] = dk["alt_space"]
-        deadkeys[index]["\u202f"] = dk["alt_space"]
-        if index == ODK_ID:
-            for key_name in LAYER_KEYS:
-                if key_name.startswith("-"):
-                    continue
-                for i in [Layer.ODK_SHIFT, Layer.ODK]:
-                    if key_name in layout.layers[i]:
-                        deadkeys[index][
-                            layout.layers[i - Layer.ODK][key_name]
-                        ] = layout.layers[i][key_name]
-        else:
-            base = dk["base"]
-            alt = dk["alt"]
-            for i, unknown_element in enumerate(base):
-                deadkeys[index][unknown_element] = alt[i]
-
-    return deadkeys
+    return layout.dead_keys

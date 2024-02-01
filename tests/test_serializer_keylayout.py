@@ -531,17 +531,17 @@ def test_intl():
     actions = osx_actions(layout)
     assert actions == split(
         """
+        <action id="dead_1dk">
+          <when state="none" next="1dk" />
+        </action>
         <action id="dead_grave">
           <when state="none" next="grave" />
-        </action>
-        <action id="dead_tilde">
-          <when state="none" next="tilde" />
         </action>
         <action id="dead_circumflex">
           <when state="none" next="circumflex" />
         </action>
-        <action id="dead_1dk">
-          <when state="none" next="1dk" />
+        <action id="dead_tilde">
+          <when state="none" next="tilde" />
         </action>
         <action id="dead_diaeresis">
           <when state="none" next="diaeresis" />
@@ -1200,14 +1200,14 @@ def test_prog():
         <action id="dead_grave">
           <when state="none" next="grave" />
         </action>
-        <action id="dead_tilde">
-          <when state="none" next="tilde" />
+        <action id="dead_acute">
+          <when state="none" next="acute" />
         </action>
         <action id="dead_circumflex">
           <when state="none" next="circumflex" />
         </action>
-        <action id="dead_acute">
-          <when state="none" next="acute" />
+        <action id="dead_tilde">
+          <when state="none" next="tilde" />
         </action>
         <action id="dead_diaeresis">
           <when state="none" next="diaeresis" />

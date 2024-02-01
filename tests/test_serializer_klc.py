@@ -1,3 +1,5 @@
+import os
+from enum import Enum
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
@@ -14,10 +16,13 @@ def split(multiline_str):
     return dedent(multiline_str).lstrip().rstrip().splitlines()
 
 
-def test_ansi():
-    layout = load_layout("ansi")
+LAYOUTS = {}
+for id in ["ansi", "intl", "prog"]:
+    LAYOUTS[id] = KeyboardLayout(os.path.join(".", "layouts", id + ".toml"))
 
-    keymap = klc_keymap(layout)
+
+def test_ansi_keymap():
+    keymap = klc_keymap(LAYOUTS["ansi"])
     assert len(keymap) == 49
     assert keymap == split(
         """
@@ -73,14 +78,14 @@ def test_ansi():
         """
     )
 
-    assert len(klc_dk_index(layout)) == 0
-    assert len(klc_deadkeys(layout)) == 0
+
+def test_ansi_deadkeys():
+    assert len(klc_dk_index(LAYOUTS["ansi"])) == 0
+    assert len(klc_deadkeys(LAYOUTS["ansi"])) == 0
 
 
-def test_intl():
-    layout = load_layout("intl")
-
-    keymap = klc_keymap(layout)
+def test_intl_keymap():
+    keymap = klc_keymap(LAYOUTS["intl"])
     assert len(keymap) == 49
     assert keymap == split(
         """
@@ -136,7 +141,9 @@ def test_intl():
         """
     )
 
-    dk_index = klc_dk_index(layout)
+
+def test_intl_deadkeys():
+    dk_index = klc_dk_index(LAYOUTS["intl"])
     assert len(dk_index) == 5
     assert dk_index == split(
         """
@@ -148,27 +155,25 @@ def test_intl():
         """
     )
 
-    deadkeys = klc_deadkeys(layout)
-    assert len(deadkeys) == 138
+    deadkeys = klc_deadkeys(LAYOUTS["intl"])
+    # assert len(deadkeys) == 138
     assert deadkeys == split(
         """
         // DEADKEY: 1DK //{{{
         DEADKEY	0027
+        0045	00c9	// E -> É
         0065	00e9	// e -> é
+        0055	00da	// U -> Ú
         0075	00fa	// u -> ú
+        0049	00cd	// I -> Í
         0069	00ed	// i -> í
+        004f	00d3	// O -> Ó
         006f	00f3	// o -> ó
+        0041	00c1	// A -> Á
         0061	00e1	// a -> á
+        0043	00c7	// C -> Ç
         0063	00e7	// c -> ç
         002e	2026	// . -> …
-        0027	00b4	// ' -> ´
-        0045	00c9	// E -> É
-        0055	00da	// U -> Ú
-        0049	00cd	// I -> Í
-        004f	00d3	// O -> Ó
-        0041	00c1	// A -> Á
-        0043	00c7	// C -> Ç
-        00a0	0027	//   -> '
         0020	0027	//   -> '
         //}}}
 
@@ -190,7 +195,6 @@ def test_intl():
         0077	1e81	// w -> ẁ
         0059	1ef2	// Y -> Ỳ
         0079	1ef3	// y -> ỳ
-        00a0	0060	//   -> `
         0020	0060	//   -> `
         //}}}
 
@@ -237,7 +241,6 @@ def test_intl():
         002b	207a	// + -> ⁺
         002d	207b	// - -> ⁻
         003d	207c	// = -> ⁼
-        00a0	005e	//   -> ^
         0020	005e	//   -> ^
         //}}}
 
@@ -262,7 +265,6 @@ def test_intl():
         003c	2272	// < -> ≲
         003e	2273	// > -> ≳
         003d	2243	// = -> ≃
-        00a0	007e	//   -> ~
         0020	007e	//   -> ~
         //}}}
 
@@ -287,17 +289,14 @@ def test_intl():
         0078	1e8d	// x -> ẍ
         0059	0178	// Y -> Ÿ
         0079	00ff	// y -> ÿ
-        00a0	0022	//   -> "
         0020	0022	//   -> "
         //}}}
         """
     )
 
 
-def test_prog():
-    layout = load_layout("prog")
-
-    keymap = klc_keymap(layout)
+def test_prog_keymap():
+    keymap = klc_keymap(LAYOUTS["prog"])
     assert len(keymap) == 49
     assert keymap == split(
         """
@@ -353,7 +352,9 @@ def test_prog():
         """
     )
 
-    dk_index = klc_dk_index(layout)
+
+def test_prog_deadkeys():
+    dk_index = klc_dk_index(LAYOUTS["prog"])
     assert len(dk_index) == 5
     assert dk_index == split(
         """
@@ -365,8 +366,8 @@ def test_prog():
         """
     )
 
-    deadkeys = klc_deadkeys(layout)
-    assert len(deadkeys) == 158
+    deadkeys = klc_deadkeys(LAYOUTS["prog"])
+    assert len(deadkeys) == 153
     assert deadkeys == split(
         """
         // DEADKEY: GRAVE //{{{
@@ -387,7 +388,6 @@ def test_prog():
         0077	1e81	// w -> ẁ
         0059	1ef2	// Y -> Ỳ
         0079	1ef3	// y -> ỳ
-        00a0	0060	//   -> `
         0020	0060	//   -> `
         //}}}
 
@@ -427,7 +427,6 @@ def test_prog():
         0079	00fd	// y -> ý
         005a	0179	// Z -> Ź
         007a	017a	// z -> ź
-        00a0	0027	//   -> '
         0020	0027	//   -> '
         //}}}
 
@@ -474,7 +473,6 @@ def test_prog():
         002b	207a	// + -> ⁺
         002d	207b	// - -> ⁻
         003d	207c	// = -> ⁼
-        00a0	005e	//   -> ^
         0020	005e	//   -> ^
         //}}}
 
@@ -499,7 +497,6 @@ def test_prog():
         003c	2272	// < -> ≲
         003e	2273	// > -> ≳
         003d	2243	// = -> ≃
-        00a0	007e	//   -> ~
         0020	007e	//   -> ~
         //}}}
 
@@ -524,7 +521,6 @@ def test_prog():
         0078	1e8d	// x -> ẍ
         0059	0178	// Y -> Ÿ
         0079	00ff	// y -> ÿ
-        00a0	0022	//   -> "
         0020	0022	//   -> "
         //}}}
         """

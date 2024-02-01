@@ -72,7 +72,7 @@ class XKBManager:
             filepath = self._rootdir / "rules" / filename
             if not filepath.exists():
                 continue
-            tree = etree.parse(filepath, etree.XMLParser(remove_blank_text=True))
+            tree = etree.parse(str(filepath), etree.XMLParser(remove_blank_text=True))
             for variant in tree.xpath("//variant[@type]"):
                 variant.attrib.pop("type")
 
@@ -94,7 +94,7 @@ class XKBManager:
             filepath = self._rootdir / "rules" / filename
             if not filepath.exists():
                 continue
-            tree = etree.parse(filepath)
+            tree = etree.parse(str(filepath))
             if bool(tree.xpath(f'//layout/configItem/name[text()="custom"]')):
                 return True
 

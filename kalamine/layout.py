@@ -24,7 +24,8 @@ from .template import (
     web_keymap,
     xkb_keymap,
 )
-from .utils import DEAD_KEYS, ODK_ID, Layer, lines_to_text, load_data, text_to_lines
+from .utils import DEAD_KEYS, LAYER_KEYS, ODK_ID, Layer, lines_to_text, load_data, text_to_lines
+
 
 ###
 # Helpers
@@ -52,6 +53,7 @@ def upper_key(letter: str) -> str:
     }
     if letter in custom_alpha:
         return custom_alpha[letter]
+
     if letter.upper() != letter.lower():
         return letter.upper()
 
@@ -137,8 +139,8 @@ class KeyboardLayout:
 
         # initialize a blank layout
         self.layers = [{}, {}, {}, {}, {}, {}]
+        self.dk_set = set()
         self.dead_keys = {}  # dictionary subset of DEAD_KEYS
-        self.dk_index = []  # ordered keys of the above dictionary
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
@@ -193,67 +195,73 @@ class KeyboardLayout:
                 spc[k] = cfg["spacebar"][k]
         self.layers[Layer.BASE]["spce"] = " "
         self.layers[Layer.SHIFT]["spce"] = spc["shift"]
-        self.layers[Layer.ODK]["spce"] = spc["1dk"]
-        self.layers[Layer.ODK_SHIFT]["spce"] = (
-            spc["shift_1dk"] if "shift_1dk" in spc else spc["1dk"]
-        )
+        if True or self.has_1dk:  # XXX self.has_1dk is not defined yet
+            self.layers[Layer.ODK]["spce"] = spc["1dk"]
+            self.layers[Layer.ODK_SHIFT]["spce"] = (
+                spc["shift_1dk"] if "shift_1dk" in spc else spc["1dk"]
+            )
         if self.has_altgr:
             self.layers[Layer.ALTGR]["spce"] = spc["altgr"]
             self.layers[Layer.ALTGR_SHIFT]["spce"] = spc["altgr_shift"]
 
-        # active dead keys: self.dk_index
+        self._parse_dead_keys(spc)
+
+    def _parse_dead_keys(self, spc):
+        """Build a deadkey dict."""
+
+        def (char: str) -> bool:
+            all_layers = [Layer.BASE, Layer.SHIFT]
+            if self.has_altgr:
+                all_layers += [Layer.ALTGR, Layer.ALTGR_SHIFT]
+
+            for layer_index in all_layers:
+                for id in self.layers[layer_index]:
+                    if self.layers[layer_index][id] == char:
+                        return True
+            return False
+
+        all_spaces = []
+        for space in ["\u0020", "\u00a0", "\u202f"]:
+            if layout_has_char(space):
+                all_spaces.append(space)
+
+        self.dead_keys = {}
         for dk in DEAD_KEYS:
-            if dk["char"] in self.dead_keys:
-                self.dk_index.append(dk["char"])
+            id = dk["char"]
+            if id not in self.dk_set:
+                continue
 
-        # remove unused characters in self.dead_keys[].{base,alt}
-        def layer_has_char(char: str, layer_index: int) -> bool:
-            return any(
-                self.layers[layer_index][layer_id] == char
-                for layer_id in self.layers[layer_index]
-            )
+            self.dead_keys[id] = {}
+            deadkey = self.dead_keys[id]
+            deadkey[id] = dk["alt_self"]
 
-        for dk_dict in self.dead_keys.values():
-            base = dk_dict["base"]
-            alt = dk_dict["alt"]
-            used_base = ""
-            used_alt = ""
-            for i, unknown_element in enumerate(base):
-                if layer_has_char(unknown_element, Layer.BASE) or layer_has_char(
-                    unknown_element, Layer.SHIFT
-                ):
-                    used_base += unknown_element
-                    used_alt += alt[i]
-            dk_dict["base"] = used_base
-            dk_dict["alt"] = used_alt
+            if id == ODK_ID:
+                self.has_1dk = True
+                for key_name in LAYER_KEYS:
+                    if key_name.startswith("-"):
+                        continue
+                    for i in [Layer.ODK_SHIFT, Layer.ODK]:
+                        if key_name in self.layers[i]:
+                            deadkey[self.layers[i - Layer.ODK][key_name]] = self.layers[
+                                i
+                            ][key_name]
+                for space in all_spaces:
+                    deadkey[space] = spc["1dk"]
 
-        # 1dk behavior
-        if ODK_ID in self.dead_keys:
-            self.has_1dk = True
-            odk = self.dead_keys[ODK_ID]
-            # alt_self (double-press), alt_space (1dk+space)
-            odk["alt_space"] = spc["1dk"]
-            for key in self.layers[Layer.BASE]:
-                if self.layers[Layer.BASE][key] == ODK_ID:
-                    odk["alt_self"] = self.layers[Layer.ODK][key]
-                    break
-            # copy the 2nd and 3rd layers to the dead key
-            for i in [Layer.BASE, Layer.SHIFT]:
-                for name, alt_char in self.layers[i + Layer.ODK].items():
-                    base_char = self.layers[i][name]
-                    if name != "spce" and base_char != ODK_ID:
-                        odk["base"] += base_char
-                        odk["alt"] += alt_char
+            else:
+                base = dk["base"]
+                alt = dk["alt"]
+                for i in range(len(base)):
+                    if layout_has_char(base[i]):
+                        deadkey[base[i]] = alt[i]
+                for space in all_spaces:
+                    deadkey[space] = dk["alt_space"]
 
     def _parse_template(self, template: str, rows: List[str], layer_number: Layer):
         """Extract a keyboard layer from a template."""
 
-        if layer_number == Layer.BASE:
-            col_offset = 0
-        else:  # AltGr or 1dk
-            col_offset = 2
-
         j = 0
+        col_offset = 0 if layer_number == Layer.BASE else 2
         for row in rows:
             i = row["offset"] + col_offset
             keys = row["keys"]
@@ -265,12 +273,18 @@ class KeyboardLayout:
                 base_key = ("*" if base[i - 1] == "*" else "") + base[i]
                 shift_key = ("*" if shift[i - 1] == "*" else "") + shift[i]
 
-                if layer_number == Layer.BASE and base_key == " ":  # 'shift' prevails
-                    base_key = shift_key.lower()
-                if layer_number != Layer.BASE and shift_key == " ":
-                    shift_key = upper_key(base_key)
-                    # if shift_key == " ":
-                    #     shift_key = base_key.upper()
+                # in the BASE layer, if the base character is undefined, shift prevails
+                if base_key == " ":
+                    if layer_number == Layer.BASE:
+                        base_key = shift_key.lower()
+
+                # in other layers, if the shift character is undefined, base prevails
+                elif shift_key == " ":
+                    if layer_number == Layer.ALTGR:
+                        shift_key = upper_key(base_key)
+                    elif layer_number == Layer.ODK:
+                        shift_key = upper_key(base_key)
+                        # shift_key = base_key.upper()
 
                 if base_key != " ":
                     self.layers[layer_number + 0][key] = base_key
@@ -278,13 +292,10 @@ class KeyboardLayout:
                     self.layers[layer_number + 1][key] = shift_key
 
                 for dk in DEAD_KEYS:
-                    if base_key == dk["char"]:
-                        self.dead_keys[base_key] = dk.copy()
-                    if shift_key == dk["char"]:
-                        self.dead_keys[shift_key] = dk.copy()
+                    if base_key == dk["char"] or shift_key == dk["char"]:
+                        self.dk_set.add(dk["char"])
 
                 i += 6
-
             j += 1
 
     ###
