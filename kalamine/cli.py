@@ -111,7 +111,7 @@ def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]):
 
         # default: build all in the `dist` subdirectory
         if out == "all":
-            make_all(layout, "dist")
+            make_all(layout, Path("dist"))
             continue
 
         # Transform out into Path.
