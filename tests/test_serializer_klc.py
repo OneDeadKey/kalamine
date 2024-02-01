@@ -8,17 +8,13 @@ from kalamine.template import klc_deadkeys, klc_dk_index, klc_keymap
 from .util import get_layout_path
 
 
-def load_layout(filename):
-    return KeyboardLayout(get_layout_path() / (filename + ".toml"))
-
-
 def split(multiline_str):
     return dedent(multiline_str).lstrip().rstrip().splitlines()
 
 
 LAYOUTS = {}
-for id in ["ansi", "intl", "prog"]:
-    LAYOUTS[id] = KeyboardLayout(os.path.join(".", "layouts", id + ".toml"))
+for filename in ["ansi", "intl", "prog"]:
+    LAYOUTS[filename] = KeyboardLayout(get_layout_path() / (filename + ".toml"))
 
 
 def test_ansi_keymap():
