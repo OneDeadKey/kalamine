@@ -4,20 +4,22 @@ import os
 import threading
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from pathlib import Path
 
+import click
 from livereload import Server
 
 from .layout import KeyboardLayout
 
 
-def keyboard_server(file_path):
+def keyboard_server(file_path: Path) -> None:
     kb_layout = KeyboardLayout(file_path)
 
     host_name = "localhost"
     webserver_port = 1664
     lr_server_port = 5500
 
-    def main_page(layout):
+    def main_page(layout: KeyboardLayout) -> str:
         return f"""
             <!DOCTYPE html>
             <html xmlns="http://www.w3.org/1999/xhtml">
@@ -112,4 +114,4 @@ def keyboard_server(file_path):
     webserver.shutdown()
     webserver.server_close()
     thread.join()
-    print("Server stopped.")
+    click.echo("Server stopped.")

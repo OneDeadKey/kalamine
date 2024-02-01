@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 import os
 from enum import IntEnum
+from pathlib import Path
+from typing import Dict, List
 
 import yaml
 
 
-def lines_to_text(lines, indent=""):
+def lines_to_text(lines: List[str], indent: str = ""):
     out = ""
     for line in lines:
         if len(line):
@@ -14,21 +16,18 @@ def lines_to_text(lines, indent=""):
     return out[:-1]
 
 
-def text_to_lines(text):
+def text_to_lines(text: str) -> List[str]:
     return text.split("\n")
 
 
-def open_local_file(file_name):
-    return open(os.path.join(os.path.dirname(__file__), file_name), encoding="utf-8")
-
-
-def load_data(filename):
-    return yaml.load(
-        open_local_file(os.path.join("data", filename)), Loader=yaml.SafeLoader
-    )
+def load_data(filename: str) -> Dict:
+    filepath = Path(__file__).parent / "data" / filename
+    return yaml.load(filepath.open(encoding="utf-8"), Loader=yaml.SafeLoader)
 
 
 class Layer(IntEnum):
+    """A layer designation."""
+
     BASE = 0
     SHIFT = 1
     ODK = 2
