@@ -131,4 +131,3 @@ def list_command(mask, all_flag):
 
 if __name__ == "__main__":
     cli()
-    cli()
