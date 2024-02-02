@@ -42,8 +42,17 @@ class Layer(IntEnum):
     ALTGR = 4
     ALTGR_SHIFT = 5
 
+    def next(self) -> 'Layer':
+        """The next layer in the layer ordering."""
+        return Layer(int(self)+1)
 
-DEAD_KEYS = load_data("dead_keys.yaml")
+    def necromance(self) -> 'Layer':
+        """Remove the effect of the dead key if any."""
+        if self == Layer.ODK:
+            return Layer.BASE
+        elif self == Layer.ODK_SHIFT:
+            return Layer.SHIFT
+        return self
 ODK_ID = "**"  # must match the value in dead_keys.yaml
 LAYER_KEYS = [
     "- Digits",

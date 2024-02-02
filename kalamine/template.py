@@ -436,7 +436,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
                 continue
 
             key = layout.layers[i][key_name]
-            if i and key == layout.layers[0][key_name]:
+            if i and key == layout.layers[Layer.BASE][key_name]:
                 continue
             if key in layout.dead_keys:
                 continue

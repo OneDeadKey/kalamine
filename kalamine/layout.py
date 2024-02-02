@@ -262,7 +262,7 @@ class KeyboardLayout:
                         continue
                     for i in [Layer.ODK_SHIFT, Layer.ODK]:
                         if key_name in self.layers[i]:
-                            deadkey[self.layers[i - Layer.ODK][key_name]] = self.layers[
+                            deadkey[self.layers[i.necromance()][key_name]] = self.layers[
                                 i
                             ][key_name]
                 for space in all_spaces:
@@ -308,9 +308,9 @@ class KeyboardLayout:
                         # shift_key = base_key.upper()
 
                 if base_key != " ":
-                    self.layers[layer_number + 0][key] = base_key
+                    self.layers[layer_number][key] = base_key
                 if shift_key != " ":
-                    self.layers[layer_number + 1][key] = shift_key
+                    self.layers[layer_number.next()][key] = shift_key
 
                 for dk in DEAD_KEYS:
                     if base_key == dk["char"] or shift_key == dk["char"]:
@@ -349,8 +349,8 @@ class KeyboardLayout:
                     base_key = self.layers[layer_number][key]
 
                 shift_key = " "
-                if key in self.layers[layer_number + 1]:
-                    shift_key = self.layers[layer_number + 1][key]
+                if key in self.layers[layer_number.next()]:
+                    shift_key = self.layers[layer_number.next()][key]
 
                 dead_base = len(base_key) == 2 and base_key[0] == "*"
                 dead_shift = len(shift_key) == 2 and shift_key[0] == "*"
@@ -407,12 +407,12 @@ class KeyboardLayout:
     @property
     def base(self) -> str:
         """Base + 1dk layers."""
-        return self._get_geometry([0, Layer.ODK])
+        return self._get_geometry([Layer.BASE, Layer.ODK])
 
     @property
     def full(self) -> str:
         """Base + AltGr layers."""
-        return self._get_geometry([0, Layer.ALTGR])
+        return self._get_geometry([Layer.BASE, Layer.ALTGR])
 
     @property
     def altgr(self) -> str:
