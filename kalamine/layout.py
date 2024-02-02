@@ -4,6 +4,7 @@ import os
 import re
 import sys
 from pathlib import Path
+from typing import Dict, List, Union, Optional, TypeVar, Type, Set
 from dataclasses import dataclass
 
 import click
@@ -100,8 +101,8 @@ def load_descriptor(file_path: Path) -> Dict:
         with file_path.open(encoding="utf-8") as file:
             return yaml.load(file, Loader=yaml.SafeLoader)
 
-    with file_path.open(mode="rb") as file:
-        return tomli.load(file)
+    with file_path.open(mode="rb") as dfile:
+        return tomli.load(dfile)
 
 
 ###
@@ -158,9 +159,9 @@ class KeyboardLayout:
         """Import a keyboard layout to instanciate the object."""
 
         # initialize a blank layout
-        self.layers = [{}, {}, {}, {}, {}, {}]
-        self.dk_set = set()
-        self.dead_keys = {}  # dictionary subset of DEAD_KEYS
+        self.layers: Dict[Layer, Dict[str, str]] = {layer: {} for layer in Layer}
+        self.dk_set: Set[str] = set()
+        self.dead_keys: Dict[str, Dict[str, str]] = {}  # dictionary subset of DEAD_KEYS
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
@@ -380,10 +381,9 @@ class KeyboardLayout:
 
         return template
 
-    def _get_geometry(self, layers: Union[List[Layer], None] = None) -> str:
+    def _get_geometry(self, layers: Optional[List[Layer]] = None) -> List[str]:
         """`geometry` view of the requested layers."""
-        if layers is None:
-            layers = [Layer.BASE]
+        layers = layers or [Layer.BASE]
 
         rows = GEOMETRY[self.geometry].rows
         template = GEOMETRY[self.geometry].template.split("\n")[:-1]
@@ -405,17 +405,17 @@ class KeyboardLayout:
         self.meta["geometry"] = shape
 
     @property
-    def base(self) -> str:
+    def base(self) -> List[str]:
         """Base + 1dk layers."""
         return self._get_geometry([Layer.BASE, Layer.ODK])
 
     @property
-    def full(self) -> str:
+    def full(self) -> List[str]:
         """Base + AltGr layers."""
         return self._get_geometry([Layer.BASE, Layer.ALTGR])
 
     @property
-    def altgr(self) -> str:
+    def altgr(self) -> List[str]:
         """AltGr layer only."""
         return self._get_geometry([Layer.ALTGR])
 

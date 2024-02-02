@@ -49,7 +49,7 @@ def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
     odk_symbol = "ISO_Level5_Latch" if eight_level else "ISO_Level3_Latch"
     max_length = 16  # `ISO_Level3_Latch` should be the longest symbol name
 
-    output = []
+    output: List[str] = []
     for key_name in LAYER_KEYS:
         if key_name.startswith("-"):  # separator
             if output:
@@ -59,7 +59,7 @@ def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
 
         symbols = []
         description = " //"
-        for layer in layout.layers:
+        for layer in layout.layers.values():
             if key_name in layer:
                 keysym = layer[key_name]
                 desc = keysym
@@ -338,7 +338,7 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
 #
 
 
-def osx_keymap(layout: "KeyboardLayout") -> List[str]:
+def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
     """macOS layout, main part."""
 
     ret_str = []
@@ -356,7 +356,7 @@ def osx_keymap(layout: "KeyboardLayout") -> List[str]:
                     return True
             return False
 
-        output = []
+        output: List[str] = []
         for key_name in LAYER_KEYS:
             if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
                 continue  # these two keys are not supported yet
