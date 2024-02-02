@@ -7,7 +7,13 @@ from typing import Dict, List
 import yaml
 
 
-def lines_to_text(lines: List[str], indent: str = ""):
+def lines_to_text(lines: List[str], indent: str = "") -> str:
+    """
+    From a list lines of string, produce a string concatenating the elements
+    of lines indented by prepending indent and followed by a new line.
+    Example: lines_to_text(["one", "two", "three"], "  ") returns
+    '  one\n  two\n  three'
+    """
     out = ""
     for line in lines:
         if len(line):
@@ -17,6 +23,7 @@ def lines_to_text(lines: List[str], indent: str = ""):
 
 
 def text_to_lines(text: str) -> List[str]:
+    """Split given text into lines"""
     return text.split("\n")
 
 
