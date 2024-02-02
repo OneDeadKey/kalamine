@@ -4,7 +4,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Union
+from dataclasses import dataclass
 
 import click
 import tomli
@@ -123,7 +123,27 @@ SPACEBAR = {
     "1dk_shift": "'",
 }
 
-GEOMETRY = load_data("geometry.yaml")
+@dataclass
+class RowDescr:
+    offset: int
+    keys: List[str]
+
+T = TypeVar('T', bound='GeometryDescr')
+
+@dataclass
+class GeometryDescr:
+    template: str
+    rows: List[RowDescr]
+
+    @classmethod
+    def from_dict(cls: Type[T], src: Dict) -> T:
+        return cls(template=src['template'],
+                   rows = [RowDescr(**row) for row in src['rows']])
+
+geometry_data = load_data( "geometry.yaml")
+
+GEOMETRY = {key: GeometryDescr.from_dict(val)
+            for key, val in geometry_data.items()}
 
 
 ###
@@ -174,7 +194,7 @@ class KeyboardLayout:
         self.meta["lastChange"] = datetime.date.today().isoformat()
 
         # keyboard layers: self.layers & self.dead_keys
-        rows = GEOMETRY[self.meta["geometry"]]["rows"]
+        rows = GEOMETRY[self.meta["geometry"]].rows
         if "full" in cfg:
             full = text_to_lines(cfg["full"])
             self._parse_template(full, rows, Layer.BASE)
@@ -257,14 +277,15 @@ class KeyboardLayout:
                 for space in all_spaces:
                     deadkey[space] = dk["alt_space"]
 
-    def _parse_template(self, template: str, rows: List[str], layer_number: Layer):
+    def _parse_template(self, template: List[str],
+                        rows: List[RowDescr], layer_number: Layer) -> None:
         """Extract a keyboard layer from a template."""
 
         j = 0
         col_offset = 0 if layer_number == Layer.BASE else 2
         for row in rows:
-            i = row["offset"] + col_offset
-            keys = row["keys"]
+            i = row.offset + col_offset
+            keys = row.keys
 
             base = list(template[2 + j * 3])
             shift = list(template[1 + j * 3])
@@ -303,8 +324,8 @@ class KeyboardLayout:
     #
 
     def _fill_template(
-        self, template: str, rows: List[str], layer_number: Layer
-    ) -> str:
+        self, template: List[str], rows: List[RowDescr], layer_number: Layer
+    ) -> List[str]:
         """Fill a template with a keyboard layer."""
 
         if layer_number == Layer.BASE:
@@ -316,8 +337,8 @@ class KeyboardLayout:
 
         j = 0
         for row in rows:
-            i = row["offset"] + col_offset
-            keys = row["keys"]
+            i = row.offset + col_offset
+            keys = row.keys
 
             base = list(template[2 + j * 3])
             shift = list(template[1 + j * 3])
@@ -364,8 +385,8 @@ class KeyboardLayout:
         if layers is None:
             layers = [Layer.BASE]
 
-        rows = GEOMETRY[self.geometry]["rows"]
-        template = GEOMETRY[self.geometry]["template"].split("\n")[:-1]
+        rows = GEOMETRY[self.geometry].rows
+        template = GEOMETRY[self.geometry].template.split("\n")[:-1]
         for i in layers:
             template = self._fill_template(template, rows, i)
         return template
