@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from dataclasses import dataclass
 import os
 from enum import IntEnum
 from pathlib import Path
@@ -53,6 +54,19 @@ class Layer(IntEnum):
         elif self == Layer.ODK_SHIFT:
             return Layer.SHIFT
         return self
+
+@dataclass
+class DeadKeyDescr:
+    char: str
+    name: str
+    base: str
+    alt: str
+    alt_space: str
+    alt_self: str
+
+
+DEAD_KEYS = [DeadKeyDescr(**data) for data in load_data( "dead_keys.yaml")]
+
 ODK_ID = "**"  # must match the value in dead_keys.yaml
 LAYER_KEYS = [
     "- Digits",

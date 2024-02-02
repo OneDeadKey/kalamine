@@ -247,13 +247,13 @@ class KeyboardLayout:
 
         self.dead_keys = {}
         for dk in DEAD_KEYS:
-            id = dk["char"]
+            id = dk.char
             if id not in self.dk_set:
                 continue
 
             self.dead_keys[id] = {}
             deadkey = self.dead_keys[id]
-            deadkey[id] = dk["alt_self"]
+            deadkey[id] = dk.alt_self
 
             if id == ODK_ID:
                 self.has_1dk = True
@@ -269,13 +269,13 @@ class KeyboardLayout:
                     deadkey[space] = spc["1dk"]
 
             else:
-                base = dk["base"]
-                alt = dk["alt"]
+                base = dk.base
+                alt = dk.alt
                 for i in range(len(base)):
                     if layout_has_char(base[i]):
                         deadkey[base[i]] = alt[i]
                 for space in all_spaces:
-                    deadkey[space] = dk["alt_space"]
+                    deadkey[space] = dk.alt_space
 
     def _parse_template(self, template: List[str],
                         rows: List[RowDescr], layer_number: Layer) -> None:
@@ -313,8 +313,8 @@ class KeyboardLayout:
                     self.layers[layer_number.next()][key] = shift_key
 
                 for dk in DEAD_KEYS:
-                    if base_key == dk["char"] or shift_key == dk["char"]:
-                        self.dk_set.add(dk["char"])
+                    if base_key == dk.char or shift_key == dk.char:
+                        self.dk_set.add(dk.char)
 
                 i += 6
             j += 1
