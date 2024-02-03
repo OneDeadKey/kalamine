@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from dataclasses import dataclass
 import os
 from enum import IntEnum
 from pathlib import Path
@@ -7,7 +8,13 @@ from typing import Dict, List
 import yaml
 
 
-def lines_to_text(lines: List[str], indent: str = ""):
+def lines_to_text(lines: List[str], indent: str = "") -> str:
+    """
+    From a list lines of string, produce a string concatenating the elements
+    of lines indented by prepending indent and followed by a new line.
+    Example: lines_to_text(["one", "two", "three"], "  ") returns
+    '  one\n  two\n  three'
+    """
     out = ""
     for line in lines:
         if len(line):
@@ -17,6 +24,7 @@ def lines_to_text(lines: List[str], indent: str = ""):
 
 
 def text_to_lines(text: str) -> List[str]:
+    """Split given text into lines"""
     return text.split("\n")
 
 
@@ -35,8 +43,30 @@ class Layer(IntEnum):
     ALTGR = 4
     ALTGR_SHIFT = 5
 
+    def next(self) -> 'Layer':
+        """The next layer in the layer ordering."""
+        return Layer(int(self)+1)
 
-DEAD_KEYS = load_data("dead_keys.yaml")
+    def necromance(self) -> 'Layer':
+        """Remove the effect of the dead key if any."""
+        if self == Layer.ODK:
+            return Layer.BASE
+        elif self == Layer.ODK_SHIFT:
+            return Layer.SHIFT
+        return self
+
+@dataclass
+class DeadKeyDescr:
+    char: str
+    name: str
+    base: str
+    alt: str
+    alt_space: str
+    alt_self: str
+
+
+DEAD_KEYS = [DeadKeyDescr(**data) for data in load_data( "dead_keys.yaml")]
+
 ODK_ID = "**"  # must match the value in dead_keys.yaml
 LAYER_KEYS = [
     "- Digits",

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 DK_INDEX = {}
 for dk in DEAD_KEYS:
-    DK_INDEX[dk["char"]] = dk
+    DK_INDEX[dk.char] = dk
 
 
 ###
@@ -49,7 +49,7 @@ def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
     odk_symbol = "ISO_Level5_Latch" if eight_level else "ISO_Level3_Latch"
     max_length = 16  # `ISO_Level3_Latch` should be the longest symbol name
 
-    output = []
+    output: List[str] = []
     for key_name in LAYER_KEYS:
         if key_name.startswith("-"):  # separator
             if output:
@@ -59,13 +59,13 @@ def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
 
         symbols = []
         description = " //"
-        for layer in layout.layers:
+        for layer in layout.layers.values():
             if key_name in layer:
                 keysym = layer[key_name]
                 desc = keysym
                 # dead key?
                 if keysym in DK_INDEX:
-                    name = DK_INDEX[keysym]["name"]
+                    name = DK_INDEX[keysym].name
                     desc = layout.dead_keys[keysym][keysym]
                     symbol = odk_symbol if keysym == ODK_ID else f"dead_{name}"
                 # regular key: use a keysym if possible, utf-8 otherwise
@@ -296,7 +296,7 @@ def klc_deadkeys(layout: "KeyboardLayout") -> List[str]:
             continue
         dk = layout.dead_keys[k]
 
-        output.append(f"// DEADKEY: {DK_INDEX[k]['name'].upper()} //" + "{{{")
+        output.append(f"// DEADKEY: {DK_INDEX[k].name.upper()} //" + "{{{")
         output.append(f"DEADKEY\t{hex_ord(dk[' '])}")
 
         for base, alt in dk.items():
@@ -328,7 +328,7 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
         if k not in layout.dead_keys:
             continue
         dk = layout.dead_keys[k]
-        output.append(f"{hex_ord(dk[' '])}\t\"{DK_INDEX[k]['name'].upper()}\"")
+        output.append(f"{hex_ord(dk[' '])}\t\"{DK_INDEX[k].name.upper()}\"")
     return output
 
 
@@ -338,7 +338,7 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
 #
 
 
-def osx_keymap(layout: "KeyboardLayout") -> List[str]:
+def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
     """macOS layout, main part."""
 
     ret_str = []
@@ -356,7 +356,7 @@ def osx_keymap(layout: "KeyboardLayout") -> List[str]:
                     return True
             return False
 
-        output = []
+        output: List[str] = []
         for key_name in LAYER_KEYS:
             if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
                 continue  # these two keys are not supported yet
@@ -373,7 +373,7 @@ def osx_keymap(layout: "KeyboardLayout") -> List[str]:
             if key_name in layer:
                 key = layer[key_name]
                 if key in layout.dead_keys:
-                    symbol = f"dead_{DK_INDEX[key]['name']}"
+                    symbol = f"dead_{DK_INDEX[key].name}"
                     final_key = False
                 else:
                     symbol = xml_proof(key.upper() if caps else key)
@@ -398,7 +398,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
     def when(state, action):
         state_attr = f'state="{state}"'.ljust(18)
         if action in layout.dead_keys:
-            action_attr = f"next=\"{DK_INDEX[action]['name']}\""
+            action_attr = f"next=\"{DK_INDEX[action].name}\""
         elif action.startswith("dead_"):
             action_attr = f'next="{action[5:]}"'
         else:
@@ -414,12 +414,12 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
 
     # dead key definitions
     for key in layout.dead_keys:
-        name = DK_INDEX[key]["name"]
+        name = DK_INDEX[key].name
         term = layout.dead_keys[key][key]
         ret_actions.append(f'<action id="dead_{name}">')
         ret_actions.append(f'  <when state="none" next="{name}" />')
         if name == "1dk" and term in layout.dead_keys:
-            nested_dk = DK_INDEX[term]["name"]
+            nested_dk = DK_INDEX[term].name
             ret_actions.append(f'  <when state="1dk" next="{nested_dk}" />')
         ret_actions.append("</action>")
         continue
@@ -436,7 +436,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
                 continue
 
             key = layout.layers[i][key_name]
-            if i and key == layout.layers[0][key_name]:
+            if i and key == layout.layers[Layer.BASE][key_name]:
                 continue
             if key in layout.dead_keys:
                 continue
@@ -445,7 +445,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
             for k in DK_INDEX:
                 if k in layout.dead_keys:
                     if key in layout.dead_keys[k]:
-                        actions.append((DK_INDEX[k]["name"], layout.dead_keys[k][key]))
+                        actions.append((DK_INDEX[k].name, layout.dead_keys[k][key]))
             if actions:
                 append_actions(xml_proof(key), actions)
 
@@ -453,7 +453,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
     actions = []
     for k in DK_INDEX:
         if k in layout.dead_keys:
-            actions.append((DK_INDEX[k]["name"], layout.dead_keys[k][" "]))
+            actions.append((DK_INDEX[k].name, layout.dead_keys[k][" "]))
     append_actions("&#x0020;", actions)  # space
     append_actions("&#x00a0;", actions)  # no-break space
     append_actions("&#x202f;", actions)  # fine no-break space
@@ -469,7 +469,7 @@ def osx_terminators(layout: "KeyboardLayout") -> List[str]:
         if key not in layout.dead_keys:
             continue
         dk = layout.dead_keys[key]
-        name = DK_INDEX[key]["name"]
+        name = DK_INDEX[key].name
         term = dk[key]
         if name == "1dk" and term in layout.dead_keys:
             term = dk[" "]

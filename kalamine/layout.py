@@ -4,7 +4,8 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional, TypeVar, Type, Set
+from dataclasses import dataclass
 
 import click
 import tomli
@@ -100,8 +101,8 @@ def load_descriptor(file_path: Path) -> Dict:
         with file_path.open(encoding="utf-8") as file:
             return yaml.load(file, Loader=yaml.SafeLoader)
 
-    with file_path.open(mode="rb") as file:
-        return tomli.load(file)
+    with file_path.open(mode="rb") as dfile:
+        return tomli.load(dfile)
 
 
 ###
@@ -123,7 +124,27 @@ SPACEBAR = {
     "1dk_shift": "'",
 }
 
-GEOMETRY = load_data("geometry.yaml")
+@dataclass
+class RowDescr:
+    offset: int
+    keys: List[str]
+
+T = TypeVar('T', bound='GeometryDescr')
+
+@dataclass
+class GeometryDescr:
+    template: str
+    rows: List[RowDescr]
+
+    @classmethod
+    def from_dict(cls: Type[T], src: Dict) -> T:
+        return cls(template=src['template'],
+                   rows = [RowDescr(**row) for row in src['rows']])
+
+geometry_data = load_data( "geometry.yaml")
+
+GEOMETRY = {key: GeometryDescr.from_dict(val)
+            for key, val in geometry_data.items()}
 
 
 ###
@@ -138,9 +159,9 @@ class KeyboardLayout:
         """Import a keyboard layout to instanciate the object."""
 
         # initialize a blank layout
-        self.layers = [{}, {}, {}, {}, {}, {}]
-        self.dk_set = set()
-        self.dead_keys = {}  # dictionary subset of DEAD_KEYS
+        self.layers: Dict[Layer, Dict[str, str]] = {layer: {} for layer in Layer}
+        self.dk_set: Set[str] = set()
+        self.dead_keys: Dict[str, Dict[str, str]] = {}  # dictionary subset of DEAD_KEYS
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
@@ -174,7 +195,7 @@ class KeyboardLayout:
         self.meta["lastChange"] = datetime.date.today().isoformat()
 
         # keyboard layers: self.layers & self.dead_keys
-        rows = GEOMETRY[self.meta["geometry"]]["rows"]
+        rows = GEOMETRY[self.meta["geometry"]].rows
         if "full" in cfg:
             full = text_to_lines(cfg["full"])
             self._parse_template(full, rows, Layer.BASE)
@@ -227,13 +248,13 @@ class KeyboardLayout:
 
         self.dead_keys = {}
         for dk in DEAD_KEYS:
-            id = dk["char"]
+            id = dk.char
             if id not in self.dk_set:
                 continue
 
             self.dead_keys[id] = {}
             deadkey = self.dead_keys[id]
-            deadkey[id] = dk["alt_self"]
+            deadkey[id] = dk.alt_self
 
             if id == ODK_ID:
                 self.has_1dk = True
@@ -242,29 +263,30 @@ class KeyboardLayout:
                         continue
                     for i in [Layer.ODK_SHIFT, Layer.ODK]:
                         if key_name in self.layers[i]:
-                            deadkey[self.layers[i - Layer.ODK][key_name]] = self.layers[
+                            deadkey[self.layers[i.necromance()][key_name]] = self.layers[
                                 i
                             ][key_name]
                 for space in all_spaces:
                     deadkey[space] = spc["1dk"]
 
             else:
-                base = dk["base"]
-                alt = dk["alt"]
+                base = dk.base
+                alt = dk.alt
                 for i in range(len(base)):
                     if layout_has_char(base[i]):
                         deadkey[base[i]] = alt[i]
                 for space in all_spaces:
-                    deadkey[space] = dk["alt_space"]
+                    deadkey[space] = dk.alt_space
 
-    def _parse_template(self, template: str, rows: List[str], layer_number: Layer):
+    def _parse_template(self, template: List[str],
+                        rows: List[RowDescr], layer_number: Layer) -> None:
         """Extract a keyboard layer from a template."""
 
         j = 0
         col_offset = 0 if layer_number == Layer.BASE else 2
         for row in rows:
-            i = row["offset"] + col_offset
-            keys = row["keys"]
+            i = row.offset + col_offset
+            keys = row.keys
 
             base = list(template[2 + j * 3])
             shift = list(template[1 + j * 3])
@@ -287,13 +309,13 @@ class KeyboardLayout:
                         # shift_key = base_key.upper()
 
                 if base_key != " ":
-                    self.layers[layer_number + 0][key] = base_key
+                    self.layers[layer_number][key] = base_key
                 if shift_key != " ":
-                    self.layers[layer_number + 1][key] = shift_key
+                    self.layers[layer_number.next()][key] = shift_key
 
                 for dk in DEAD_KEYS:
-                    if base_key == dk["char"] or shift_key == dk["char"]:
-                        self.dk_set.add(dk["char"])
+                    if base_key == dk.char or shift_key == dk.char:
+                        self.dk_set.add(dk.char)
 
                 i += 6
             j += 1
@@ -303,8 +325,8 @@ class KeyboardLayout:
     #
 
     def _fill_template(
-        self, template: str, rows: List[str], layer_number: Layer
-    ) -> str:
+        self, template: List[str], rows: List[RowDescr], layer_number: Layer
+    ) -> List[str]:
         """Fill a template with a keyboard layer."""
 
         if layer_number == Layer.BASE:
@@ -316,8 +338,8 @@ class KeyboardLayout:
 
         j = 0
         for row in rows:
-            i = row["offset"] + col_offset
-            keys = row["keys"]
+            i = row.offset + col_offset
+            keys = row.keys
 
             base = list(template[2 + j * 3])
             shift = list(template[1 + j * 3])
@@ -328,8 +350,8 @@ class KeyboardLayout:
                     base_key = self.layers[layer_number][key]
 
                 shift_key = " "
-                if key in self.layers[layer_number + 1]:
-                    shift_key = self.layers[layer_number + 1][key]
+                if key in self.layers[layer_number.next()]:
+                    shift_key = self.layers[layer_number.next()][key]
 
                 dead_base = len(base_key) == 2 and base_key[0] == "*"
                 dead_shift = len(shift_key) == 2 and shift_key[0] == "*"
@@ -359,13 +381,12 @@ class KeyboardLayout:
 
         return template
 
-    def _get_geometry(self, layers: Union[List[Layer], None] = None) -> str:
+    def _get_geometry(self, layers: Optional[List[Layer]] = None) -> List[str]:
         """`geometry` view of the requested layers."""
-        if layers is None:
-            layers = [Layer.BASE]
+        layers = layers or [Layer.BASE]
 
-        rows = GEOMETRY[self.geometry]["rows"]
-        template = GEOMETRY[self.geometry]["template"].split("\n")[:-1]
+        rows = GEOMETRY[self.geometry].rows
+        template = GEOMETRY[self.geometry].template.split("\n")[:-1]
         for i in layers:
             template = self._fill_template(template, rows, i)
         return template
@@ -384,17 +405,17 @@ class KeyboardLayout:
         self.meta["geometry"] = shape
 
     @property
-    def base(self) -> str:
+    def base(self) -> List[str]:
         """Base + 1dk layers."""
-        return self._get_geometry([0, Layer.ODK])
+        return self._get_geometry([Layer.BASE, Layer.ODK])
 
     @property
-    def full(self) -> str:
+    def full(self) -> List[str]:
         """Base + AltGr layers."""
-        return self._get_geometry([0, Layer.ALTGR])
+        return self._get_geometry([Layer.BASE, Layer.ALTGR])
 
     @property
-    def altgr(self) -> str:
+    def altgr(self) -> List[str]:
         """AltGr layer only."""
         return self._get_geometry([Layer.ALTGR])
 
