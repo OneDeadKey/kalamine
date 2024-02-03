@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import click
 import tomli
 import yaml
-from lxml import etree
+from lxml import etree # type: ignore
 
 from .template import (
     ahk_keymap,

@@ -4,11 +4,13 @@ import traceback
 from os import environ
 from pathlib import Path
 from textwrap import dedent
-from typing import Dict, ItemsView, Union
+from typing import Dict, ItemsView, Optional, List
+from typing_extensions import TypeAlias
 
 import click
-from lxml import etree
-from lxml.builder import E
+from lxml import etree # type: ignore
+from lxml.etree import _Element # type: ignore
+from lxml.builder import E # type: ignore
 
 from .layout import KeyboardLayout
 
@@ -32,17 +34,21 @@ XKB_ROOT = Path(environ.get("XKB_CONFIG_ROOT") or "/usr/share/X11/xkb/")
 
 WAYLAND = wayland_running()
 
+LayoutName = str
+LocaleName = str
+Variant = Dict[LayoutName, Optional[KeyboardLayout]]
+Index = Dict[LocaleName, Variant]
 
 class XKBManager:
     """Wrapper to list/add/remove keyboard drivers to XKB."""
 
-    def __init__(self, root=False) -> None:
+    def __init__(self, root: bool = False) -> None:
         self._as_root = root
         self._rootdir = XKB_ROOT if root else XKB_HOME
-        self._index = {}
+        self._index: Index = {}
 
     @property
-    def index(self) -> ItemsView:
+    def index(self) -> ItemsView[LocaleName, Variant]:
         return self._index.items()
 
     @property
@@ -56,17 +62,17 @@ class XKBManager:
             self._index[locale] = {}
         self._index[locale][variant] = layout
 
-    def remove(self, locale, variant):
+    def remove(self, locale: str, variant: str) -> None:
         if locale not in self._index:
             self._index[locale] = {}
         self._index[locale][variant] = None
 
-    def update(self):
+    def update(self) -> None:
         update_rules(self._rootdir, self._index)  # XKB/rules/{base,evdev}.xml
         update_symbols(self._rootdir, self._index)  # XKB/symbols/{locales}
         self._index = {}
 
-    def clean(self):
+    def clean(self) -> None:
         """Drop the obsolete 'type' attributes Kalamine used to add."""
         for filename in ["base.xml", "evdev.xml"]:
             filepath = self._rootdir / "rules" / filename
@@ -76,14 +82,14 @@ class XKBManager:
             for variant in tree.xpath("//variant[@type]"):
                 variant.attrib.pop("type")
 
-    def list(self, mask: str = ""):
+    def list(self, mask: str = "") -> Index:
         layouts = list_rules(self._rootdir, mask)
         return list_symbols(self._rootdir, layouts)
 
-    def list_all(self, mask: str = ""):
+    def list_all(self, mask: str = "") -> Index:
         return list_rules(self._rootdir, mask)
 
-    def has_custom_symbols(self) -> str:
+    def has_custom_symbols(self) -> bool:
         """Check if there is a usable xkb/symbols/custom file."""
 
         custom_path = self._rootdir / "symbols" / "custom"
@@ -95,12 +101,12 @@ class XKBManager:
             if not filepath.exists():
                 continue
             tree = etree.parse(str(filepath))
-            if bool(tree.xpath(f'//layout/configItem/name[text()="custom"]')):
+            if tree.xpath(f'//layout/configItem/name[text()="custom"]'):
                 return True
 
         return False
 
-    def ensure_xkb_config_is_ready(self):
+    def ensure_xkb_config_is_ready(self) -> None:
         """Ensure there is an XKB configuration in user-space."""
         # See xkblayout.py for a more extensive version of this feature:
         # https://gitlab.freedesktop.org/whot/xkblayout
@@ -214,7 +220,7 @@ def get_symbol_mark(name: str) -> Dict[str, str]:
     }
 
 
-def is_new_symbol_mark(line: str) -> Union[str, None]:
+def is_new_symbol_mark(line: str) -> Optional[str]:
     if not line.endswith("::BEGIN\n"):
         return None
 
@@ -224,7 +230,7 @@ def is_new_symbol_mark(line: str) -> Union[str, None]:
     return "lafayette"  # line.startswith("// LAFAYETTE::"):  # obsolete marker
 
 
-def update_symbols_locale(path: Path, named_layouts: Dict) -> None:
+def update_symbols_locale(path: Path, named_layouts: Variant) -> None:
     """Update Kalamine layouts in an xkb/symbols file."""
 
     text = ""
@@ -274,7 +280,7 @@ def update_symbols_locale(path: Path, named_layouts: Dict) -> None:
         symbols.close()
 
 
-def update_symbols(xkb_root: Path, kb_index: Dict) -> None:
+def update_symbols(xkb_root: Path, kb_index: Index) -> None:
     """Update Kalamine layouts in all xkb/symbols files."""
 
     for locale, named_layouts in kb_index.items():
@@ -292,10 +298,10 @@ def update_symbols(xkb_root: Path, kb_index: Dict) -> None:
             exit_FileNotWritable(exc, path)
 
 
-def list_symbols(xkb_root: Path, kb_index: Dict) -> Dict:
+def list_symbols(xkb_root: Path, kb_index: Index) -> Index:
     """Filter input layouts: only keep the ones defined with Kalamine."""
 
-    filtered_index = {}
+    filtered_index: Index = {}
     for locale, variants in sorted(kb_index.items()):
         path = xkb_root / "symbols" / locale
         if not path.exists():
@@ -304,6 +310,8 @@ def list_symbols(xkb_root: Path, kb_index: Dict) -> Dict:
         with open(path, "r", encoding="utf-8") as symbols:
             for line in symbols:
                 name = is_new_symbol_mark(line)
+                if name is None:
+                    continue
                 if name in variants.keys():
                     if locale not in filtered_index:
                         filtered_index[locale] = {}
@@ -316,8 +324,7 @@ def list_symbols(xkb_root: Path, kb_index: Dict) -> Dict:
 # Helpers: XKB/rules
 #
 
-
-def get_rules_locale(tree: etree.ElementTree, locale: Dict) -> str:
+def get_rules_locale(tree: etree.ElementTree, locale: LocaleName) -> _Element:
     query = f'//layout/configItem/name[text()="{locale}"]/../..'
     result = tree.xpath(query)
     if len(result) != 1:
@@ -327,19 +334,19 @@ def get_rules_locale(tree: etree.ElementTree, locale: Dict) -> str:
     return tree.xpath(query)[0]
 
 
-def remove_rules_variant(variant_list, name: str) -> None:
+def remove_rules_variant(variant_list: _Element, name: str) -> None:
     query = f'variant/configItem/name[text()="{name}"]/../..'
     for variant in variant_list.xpath(query):
         variant.getparent().remove(variant)
 
 
-def add_rules_variant(variant_list, name, description):
+def add_rules_variant(variant_list: _Element, name: str, description: str) -> None:
     variant_list.append(
         E.variant(E.configItem(E.name(name), E.description(description)))
     )
 
 
-def update_rules(xkb_root: Path, kb_index: Dict) -> None:
+def update_rules(xkb_root: Path, kb_index: Index) -> None:
     """Update references in XKB/rules/{base,evdev}.xml."""
 
     for filename in ["base.xml", "evdev.xml"]:
@@ -369,7 +376,7 @@ def update_rules(xkb_root: Path, kb_index: Dict) -> None:
             exit_FileNotWritable(exc, filepath)
 
 
-def list_rules(xkb_root: Path, mask: str = "*") -> Dict:
+def list_rules(xkb_root: Path, mask: str = "*") -> Index:
     """List all matching XKB layouts."""
 
     if mask in ("", "*"):
@@ -383,7 +390,7 @@ def list_rules(xkb_root: Path, mask: str = "*") -> Dict:
             locale_mask = mask
             variant_mask = "*"
 
-    kb_index = {}
+    kb_index: Index = {}
     for filename in ["base.xml", "evdev.xml"]:
         filepath = xkb_root / "rules" / filename
         if not filepath.exists():
@@ -408,7 +415,7 @@ def list_rules(xkb_root: Path, mask: str = "*") -> Dict:
 #
 
 
-def exit_FileNotWritable(exception, path):
+def exit_FileNotWritable(exception: Exception, path: Path) -> None:
     if isinstance(exception, PermissionError):  # noqa: F821
         raise exception
     if isinstance(exception, IOError):
