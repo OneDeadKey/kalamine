@@ -3,7 +3,7 @@ import json
 from contextlib import contextmanager
 from importlib import metadata
 from pathlib import Path
-from typing import List, Literal, Union
+from typing import List, Literal, Union, Iterator
 
 import click
 
@@ -47,7 +47,7 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     """
 
     @contextmanager
-    def file_creation_context(ext: str = "") -> Path:
+    def file_creation_context(ext: str = "") -> Iterator[Path]:
         """Generate an output file path for extension EXT, return it and finally echo info."""
         path = output_dir_path / (layout.meta["fileName"] + ext)
         yield path
@@ -103,7 +103,7 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     type=click.Path(),
     help="Keyboard drivers to generate.",
 )
-def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]):
+def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]) -> None:
     """Convert TOML/YAML descriptions into OS-specific keyboard drivers."""
 
     for input_file in layout_descriptors:
@@ -114,14 +114,11 @@ def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]):
             make_all(layout, Path("dist"))
             continue
 
-        # Transform out into Path.
-        out = Path(out)
-
         # quick output: reuse the input name and change the file extension
         if out in ["keylayout", "klc", "xkb", "xkb_custom", "svg"]:
-            output_file = input_file.with_suffix("." + out)
+            output_file = input_file.with_suffix(f".{out}")
         else:
-            output_file = out
+            output_file = Path(out)
 
         # detailed output
         if output_file.suffix == ".ahk":
@@ -186,7 +183,7 @@ TOML_FOOTER = """
 @click.option("--geometry", default="ISO", help="Specify keyboard geometry.")
 @click.option("--altgr/--no-altgr", default=False, help="Set an AltGr layer.")
 @click.option("--1dk/--no-1dk", "odk", default=False, help="Set a custom dead key.")
-def create(output_file: Path, geometry: str, altgr: bool, odk: bool):
+def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     """Create a new TOML layout description."""
     base_dir_path = Path(__file__).resolve(strict=True).parent.parent
 
@@ -226,8 +223,8 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool):
         content += "\n\n"
         content += "\n# "
         content += "\n# ".join(topic.rstrip().split("\n"))
-
-    output_file.write_text(content, "w", encoding="utf-8", newline="\n")
+    with open(output_file, "w", encoding="utf-8", newline="\n") as file:
+        file.write(content)
     click.echo(f"... {output_file}")
 
 
