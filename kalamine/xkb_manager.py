@@ -4,8 +4,7 @@ import traceback
 from os import environ
 from pathlib import Path
 from textwrap import dedent
-from typing import Dict, ItemsView, Optional, List
-from typing_extensions import TypeAlias
+from typing import Dict, ItemsView, Optional
 
 import click
 from lxml import etree # type: ignore
