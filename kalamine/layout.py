@@ -227,7 +227,7 @@ class KeyboardLayout:
 
         self._parse_dead_keys(spc)
 
-    def _parse_dead_keys(self, spc):
+    def _parse_dead_keys(self, spc: Dict[str, str]) -> None:
         """Build a deadkey dict."""
 
         def layout_has_char(char: str) -> bool:
@@ -241,7 +241,7 @@ class KeyboardLayout:
                         return True
             return False
 
-        all_spaces = []
+        all_spaces: List[str] = []
         for space in ["\u0020", "\u00a0", "\u202f"]:
             if layout_has_char(space):
                 all_spaces.append(space)
@@ -261,10 +261,10 @@ class KeyboardLayout:
                 for key_name in LAYER_KEYS:
                     if key_name.startswith("-"):
                         continue
-                    for i in [Layer.ODK_SHIFT, Layer.ODK]:
-                        if key_name in self.layers[i]:
-                            deadkey[self.layers[i.necromance()][key_name]] = self.layers[
-                                i
+                    for layer in [Layer.ODK_SHIFT, Layer.ODK]:
+                        if key_name in self.layers[layer]:
+                            deadkey[self.layers[layer.necromance()][key_name]] = self.layers[
+                                layer
                             ][key_name]
                 for space in all_spaces:
                     deadkey[space] = spc["1dk"]
