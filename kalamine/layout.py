@@ -477,6 +477,17 @@ class KeyboardLayout:
         keymap = web_keymap(self)
         deadkeys = web_deadkeys(self)
         # breakpoint()
+
+        def print_char(location, char :str):
+            if char not in deadkeys:
+                location.text = char
+            else:
+                location.text = "★" if char == "**" else char[-1] # only last char for deadkeys
+                # Apply special class for deadkeys
+                location.set(
+                    "class", location.get("class") + " deadKey diacritic"
+                )
+
         # Fill-in with layout
         for name, chars in keymap.items():
             for key in svg.xpath(f'//svg:g[@id="{name}"]', namespaces=ns):
@@ -490,14 +501,7 @@ class KeyboardLayout:
                     for location in key.xpath(
                         f"svg:g/svg:text[@class='level{level_num}']", namespaces=ns
                     ):
-                        if char not in deadkeys:
-                            location.text = char
-                        else:
-                            location.text = "★" if char == "**" else char[-1] # only last char for deadkeys
-                            # Apply special class for deadkeys
-                            location.set(
-                                "class", location.get("class") + " deadKey diacritic"
-                            )
+                        print_char(location, char)
 
                 # Print 5-6 levels (1dk deadkeys)
                 if deadkeys and (main_deadkey := deadkeys.get("**")):
@@ -514,6 +518,6 @@ class KeyboardLayout:
                                 f"svg:g/svg:text[@class='level{level_num} dk']",
                                 namespaces=ns,
                             ):
-                                location.text = dead_char
+                                print_char(location, dead_char)
 
         return svg
