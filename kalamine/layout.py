@@ -486,13 +486,14 @@ class KeyboardLayout:
                         # Do not print letters twice (lower and upper)
                         continue
 
+
                     for location in key.xpath(
                         f"svg:g/svg:text[@class='level{level_num}']", namespaces=ns
                     ):
                         if char not in deadkeys:
                             location.text = char
                         else:
-                            location.text = "★" if char == "**" else char[1:]
+                            location.text = "★" if char == "**" else char[-1] # only last char for deadkeys
                             # Apply special class for deadkeys
                             location.set(
                                 "class", location.get("class") + " deadKey diacritic"
@@ -501,7 +502,14 @@ class KeyboardLayout:
                 # Print 5-6 levels (1dk deadkeys)
                 if deadkeys and (main_deadkey := deadkeys.get("**")):
                     for level_num, char in enumerate(chars[:2], start=5):
-                        if dead_char := main_deadkey.get(char):
+                        dead_char = main_deadkey.get(char)
+                        if level_num == 6:
+                            if dead_char_previous := main_deadkey.get(chars[0]):
+                                if upper_key(dead_char_previous) == dead_char:
+                                    # Do not print letters twice (lower and upper)
+                                    continue
+
+                        if dead_char:
                             for location in key.xpath(
                                 f"svg:g/svg:text[@class='level{level_num} dk']",
                                 namespaces=ns,
