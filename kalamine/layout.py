@@ -478,22 +478,22 @@ class KeyboardLayout:
         deadkeys = web_deadkeys(self)
         # breakpoint()
 
-        def print_char(location, char :str):
+        def set_key_label(label_element, char :str):
             if char not in deadkeys:
-                location.text = char
+                label_element.text = char
             else:
-                location.text = "★" if char == "**" else char[-1] # only last char for deadkeys
+                label_element.text = "★" if char == "**" else char[-1] # only last char for deadkeys
                 # Apply special class for deadkeys
-                location.set(
-                    "class", location.get("class") + " deadKey diacritic"
+                label_element.set(
+                    "class", label_element.get("class") + " deadKey diacritic"
                 )
 
         # Fill-in with layout
         for name, chars in keymap.items():
             for key in svg.xpath(f'//svg:g[@id="{name}"]', namespaces=ns):
                 # Print 1-4 level chars
-                for level_num, char in enumerate(chars, start=1):
-                    if chars[0] == chars[1].lower() and level_num == 1:
+                for level_num, char in enumerate(chars, start=Layer.BASE):
+                    if level_num == Layer.BASE and chars[0] == chars[1].lower():
                         # Do not print letters twice (lower and upper)
                         continue
 
@@ -501,16 +501,16 @@ class KeyboardLayout:
                     for location in key.xpath(
                         f"svg:g/svg:text[@class='level{level_num}']", namespaces=ns
                     ):
-                        print_char(location, char)
+                        set_key_label(location, char)
 
                 # Print 5-6 levels (1dk deadkeys)
                 if deadkeys and (main_deadkey := deadkeys.get("**")):
-                    for level_num, char in enumerate(chars[:2], start=5):
+                    for level_num, char in enumerate(chars[:2], start=Layer.ODK):
                         dead_char = main_deadkey.get(char)
-                        if level_num == 6:
+                        if level_num == Layer.ODK_SHIFT:
+                            # Do not print letters twice (lower and upper)
                             if dead_char_previous := main_deadkey.get(chars[0]):
                                 if upper_key(dead_char_previous) == dead_char:
-                                    # Do not print letters twice (lower and upper)
                                     continue
 
                         if dead_char:
@@ -518,6 +518,6 @@ class KeyboardLayout:
                                 f"svg:g/svg:text[@class='level{level_num} dk']",
                                 namespaces=ns,
                             ):
-                                print_char(location, dead_char)
+                                set_key_label(location, dead_char)
 
         return svg
