@@ -4,12 +4,12 @@ import platform
 import sys
 import tempfile
 from pathlib import Path
-from typing import List, Dict, Union, Optional
+from typing import Dict, List, Optional, Union
 
 import click
 
 from .layout import KeyboardLayout
-from .xkb_manager import WAYLAND, XKBManager, Index
+from .xkb_manager import WAYLAND, Index, XKBManager
 
 
 @click.group()
@@ -90,7 +90,7 @@ def install(layouts: List[Path]) -> None:
 def remove(mask: str) -> None:
     """Remove a list of Kalamine layouts."""
 
-    def xkb_remove(root:bool = False) -> None:
+    def xkb_remove(root: bool = False) -> None:
         xkb = XKBManager(root=root)
         xkb.clean()
         for locale, variants in xkb.list(mask).items():
@@ -112,7 +112,9 @@ def list_command(mask: str, all_flag: bool) -> None:
     """List installed Kalamine layouts."""
 
     for root in [True, False]:
-        filtered: Dict[str, Union[Optional[KeyboardLayout], str]] = {} # Very weird type...
+        filtered: Dict[str, Union[Optional[KeyboardLayout], str]] = (
+            {}
+        )  # Very weird type...
 
         xkb = XKBManager(root=root)
         layouts = xkb.list_all(mask) if all_flag else xkb.list(mask)

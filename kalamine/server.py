@@ -7,9 +7,10 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 
 import click
-from livereload import Server # type: ignore
+from livereload import Server  # type: ignore
 
 from .layout import KeyboardLayout
+
 
 def keyboard_server(file_path: Path) -> None:
     kb_layout = KeyboardLayout(file_path)
@@ -59,14 +60,16 @@ def keyboard_server(file_path: Path) -> None:
         """
 
     class LayoutHandler(SimpleHTTPRequestHandler):
-        def __init__(self, *args, **kwargs) -> None: # type: ignore
-            kwargs['directory'] = str(Path(__file__).parent / "www")
+        def __init__(self, *args, **kwargs) -> None:  # type: ignore
+            kwargs["directory"] = str(Path(__file__).parent / "www")
             super().__init__(*args, **kwargs)
 
         def do_GET(self) -> None:
             self.send_response(200)
 
-            def send(page: str, content:str = "text/plain", charset:str = "utf-8") -> None:
+            def send(
+                page: str, content: str = "text/plain", charset: str = "utf-8"
+            ) -> None:
                 self.send_header("Content-type", f"{content}; charset={charset}")
                 self.end_headers()
                 self.wfile.write(bytes(page, charset))

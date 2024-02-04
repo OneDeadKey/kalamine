@@ -7,9 +7,9 @@ from textwrap import dedent
 from typing import Dict, ItemsView, Optional
 
 import click
-from lxml import etree # type: ignore
-from lxml.etree import _Element # type: ignore
-from lxml.builder import E # type: ignore
+from lxml import etree  # type: ignore
+from lxml.builder import E  # type: ignore
+from lxml.etree import _Element  # type: ignore
 
 from .layout import KeyboardLayout
 
@@ -37,6 +37,7 @@ LayoutName = str
 LocaleName = str
 Variant = Dict[LayoutName, Optional[KeyboardLayout]]
 Index = Dict[LocaleName, Variant]
+
 
 class XKBManager:
     """Wrapper to list/add/remove keyboard drivers to XKB."""
@@ -322,6 +323,7 @@ def list_symbols(xkb_root: Path, kb_index: Index) -> Index:
 ###############################################################################
 # Helpers: XKB/rules
 #
+
 
 def get_rules_locale(tree: etree.ElementTree, locale: LocaleName) -> _Element:
     query = f'//layout/configItem/name[text()="{locale}"]/../..'

@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 import datetime
-import os
 import re
 import sys
-from pathlib import Path
-from typing import Dict, List, Union, Optional, TypeVar, Type, Set
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Type, TypeVar
 
 import click
 import tomli
 import yaml
-from lxml import etree # type: ignore
+from lxml import etree  # type: ignore
 
 from .template import (
     ahk_keymap,
@@ -25,20 +24,24 @@ from .template import (
     web_keymap,
     xkb_keymap,
 )
-from .utils import DEAD_KEYS, LAYER_KEYS, ODK_ID, Layer, lines_to_text, load_data, text_to_lines
-
+from .utils import (
+    DEAD_KEYS,
+    LAYER_KEYS,
+    ODK_ID,
+    Layer,
+    lines_to_text,
+    load_data,
+    text_to_lines,
+)
 
 ###
 # Helpers
 #
 
 
-def upper_key(letter: str) -> str:
+def upper_key(letter: str, blank_if_obvious: bool = True) -> str:
     """This is used for presentation purposes: in a key, the upper character
     becomes blank if it's an obvious uppercase version of the base character."""
-
-    if len(letter) != 1:  # dead key?
-        return " "
 
     custom_alpha = {
         "\u00df": "\u1e9e",  # ß ẞ
@@ -55,11 +58,11 @@ def upper_key(letter: str) -> str:
     if letter in custom_alpha:
         return custom_alpha[letter]
 
-    if letter.upper() != letter.lower():
+    if len(letter) == 1 and letter.upper() != letter.lower():
         return letter.upper()
 
-    # the upper character is obvious and doesn't have to be described
-    return " "
+    # dead key or non-letter character
+    return " " if blank_if_obvious else letter
 
 
 def substitute_lines(text: str, variable: str, lines: List[str]) -> str:
@@ -124,12 +127,15 @@ SPACEBAR = {
     "1dk_shift": "'",
 }
 
+
 @dataclass
 class RowDescr:
     offset: int
     keys: List[str]
 
-T = TypeVar('T', bound='GeometryDescr')
+
+T = TypeVar("T", bound="GeometryDescr")
+
 
 @dataclass
 class GeometryDescr:
@@ -138,13 +144,14 @@ class GeometryDescr:
 
     @classmethod
     def from_dict(cls: Type[T], src: Dict) -> T:
-        return cls(template=src['template'],
-                   rows = [RowDescr(**row) for row in src['rows']])
+        return cls(
+            template=src["template"], rows=[RowDescr(**row) for row in src["rows"]]
+        )
 
-geometry_data = load_data( "geometry.yaml")
 
-GEOMETRY = {key: GeometryDescr.from_dict(val)
-            for key, val in geometry_data.items()}
+geometry_data = load_data("geometry.yaml")
+
+GEOMETRY = {key: GeometryDescr.from_dict(val) for key, val in geometry_data.items()}
 
 
 ###
@@ -263,9 +270,9 @@ class KeyboardLayout:
                         continue
                     for layer in [Layer.ODK_SHIFT, Layer.ODK]:
                         if key_name in self.layers[layer]:
-                            deadkey[self.layers[layer.necromance()][key_name]] = self.layers[
-                                layer
-                            ][key_name]
+                            deadkey[self.layers[layer.necromance()][key_name]] = (
+                                self.layers[layer][key_name]
+                            )
                 for space in all_spaces:
                     deadkey[space] = spc["1dk"]
 
@@ -278,8 +285,9 @@ class KeyboardLayout:
                 for space in all_spaces:
                     deadkey[space] = dk.alt_space
 
-    def _parse_template(self, template: List[str],
-                        rows: List[RowDescr], layer_number: Layer) -> None:
+    def _parse_template(
+        self, template: List[str], rows: List[RowDescr], layer_number: Layer
+    ) -> None:
         """Extract a keyboard layer from a template."""
 
         j = 0
@@ -306,7 +314,7 @@ class KeyboardLayout:
                         shift_key = upper_key(base_key)
                     elif layer_number == Layer.ODK:
                         shift_key = upper_key(base_key)
-                        # shift_key = base_key.upper()
+                        # shift_key = upper_key(base_key, blank_if_obvious=False)
 
                 if base_key != " ":
                     self.layers[layer_number][key] = base_key
@@ -489,6 +497,7 @@ class KeyboardLayout:
     @property
     def svg(self) -> etree.ElementTree:
         """SVG drawing"""
+
         # Parse SVG data
         filepath = Path(__file__).parent / "tpl" / "x-keyboard.svg"
         svg = etree.parse(str(filepath), etree.XMLParser(remove_blank_text=True))
@@ -498,35 +507,45 @@ class KeyboardLayout:
         keymap = web_keymap(self)
         deadkeys = web_deadkeys(self)
         # breakpoint()
+
+        def set_key_label(label_element, char: str):
+            if char not in deadkeys:
+                label_element.text = char
+            else:  # only last char for deadkeys
+                label_element.text = "★" if char == "**" else char[-1]
+                label_element.set(  # Apply special class for deadkeys
+                    "class", label_element.get("class") + " deadKey diacritic"
+                )
+
         # Fill-in with layout
         for name, chars in keymap.items():
             for key in svg.xpath(f'//svg:g[@id="{name}"]', namespaces=ns):
                 # Print 1-4 level chars
                 for level_num, char in enumerate(chars, start=1):
-                    if chars[0] == chars[1].lower() and level_num == 1:
-                        # Do not print letters twice (lower and upper)
+                    # Do not print the same label twice (lower and upper)
+                    if level_num == 1 and chars[0] == chars[1].lower():
                         continue
 
                     for location in key.xpath(
                         f"svg:g/svg:text[@class='level{level_num}']", namespaces=ns
                     ):
-                        if char not in deadkeys:
-                            location.text = char
-                        else:
-                            location.text = "★" if char == "**" else char[1:]
-                            # Apply special class for deadkeys
-                            location.set(
-                                "class", location.get("class") + " deadKey diacritic"
-                            )
+                        set_key_label(location, char)
 
                 # Print 5-6 levels (1dk deadkeys)
                 if deadkeys and (main_deadkey := deadkeys.get("**")):
                     for level_num, char in enumerate(chars[:2], start=5):
-                        if dead_char := main_deadkey.get(char):
+                        dead_char = main_deadkey.get(char)
+                        if level_num == Layer.ODK_SHIFT:
+                            # Do not print the same label twice (lower and upper)
+                            if dead_char_previous := main_deadkey.get(chars[0]):
+                                if upper_key(dead_char_previous) == dead_char:
+                                    continue
+
+                        if dead_char:
                             for location in key.xpath(
                                 f"svg:g/svg:text[@class='level{level_num} dk']",
                                 namespaces=ns,
                             ):
-                                location.text = dead_char
+                                set_key_label(location, dead_char)
 
         return svg

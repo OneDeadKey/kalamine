@@ -398,7 +398,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
     def when(state: str, action: str) -> str:
         state_attr = f'state="{state}"'.ljust(18)
         if action in layout.dead_keys:
-            action_attr = f"next=\"{DK_INDEX[action].name}\""
+            action_attr = f'next="{DK_INDEX[action].name}"'
         elif action.startswith("dead_"):
             action_attr = f'next="{action[5:]}"'
         else:

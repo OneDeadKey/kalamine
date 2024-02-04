@@ -3,7 +3,7 @@ import json
 from contextlib import contextmanager
 from importlib import metadata
 from pathlib import Path
-from typing import List, Literal, Union, Iterator
+from typing import Iterator, List, Literal, Union
 
 import click
 
@@ -12,8 +12,7 @@ from .server import keyboard_server
 
 
 @click.group()
-def cli() -> None:
-    ...
+def cli() -> None: ...
 
 
 def pretty_json(layout: KeyboardLayout, output_path: Path) -> None:
@@ -131,9 +130,7 @@ def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]) -> No
                 file.write(layout.klc)
 
         elif output_file.suffix == ".keylayout":
-            with output_file.open(
-                "w", encoding="utf-8", newline="\n"
-            ) as file:
+            with output_file.open("w", encoding="utf-8", newline="\n") as file:
                 file.write(layout.keylayout)
 
         elif output_file.suffix == ".xkb":
@@ -141,9 +138,7 @@ def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]]) -> No
                 file.write(layout.xkb)
 
         elif output_file.suffix == ".xkb_custom":
-            with output_file.open(
-                 "w", encoding="utf-8", newline="\n"
-            ) as file:
+            with output_file.open("w", encoding="utf-8", newline="\n") as file:
                 file.write(layout.xkb_patch)
 
         elif output_file.suffix == ".json":
