@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 from enum import IntEnum
 from pathlib import Path
 from typing import Dict, List
@@ -43,17 +43,18 @@ class Layer(IntEnum):
     ALTGR = 4
     ALTGR_SHIFT = 5
 
-    def next(self) -> 'Layer':
+    def next(self) -> "Layer":
         """The next layer in the layer ordering."""
-        return Layer(int(self)+1)
+        return Layer(int(self) + 1)
 
-    def necromance(self) -> 'Layer':
+    def necromance(self) -> "Layer":
         """Remove the effect of the dead key if any."""
         if self == Layer.ODK:
             return Layer.BASE
         elif self == Layer.ODK_SHIFT:
             return Layer.SHIFT
         return self
+
 
 @dataclass
 class DeadKeyDescr:
@@ -65,7 +66,7 @@ class DeadKeyDescr:
     alt_self: str
 
 
-DEAD_KEYS = [DeadKeyDescr(**data) for data in load_data( "dead_keys.yaml")]
+DEAD_KEYS = [DeadKeyDescr(**data) for data in load_data("dead_keys.yaml")]
 
 ODK_ID = "**"  # must match the value in dead_keys.yaml
 LAYER_KEYS = [
