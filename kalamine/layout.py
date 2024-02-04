@@ -24,8 +24,15 @@ from .template import (
     web_keymap,
     xkb_keymap,
 )
-from .utils import DEAD_KEYS, LAYER_KEYS, ODK_ID, Layer, lines_to_text, load_data, text_to_lines
-
+from .utils import (
+    DEAD_KEYS,
+    LAYER_KEYS,
+    ODK_ID,
+    Layer,
+    lines_to_text,
+    load_data,
+    text_to_lines,
+)
 
 ###
 # Helpers
@@ -478,11 +485,13 @@ class KeyboardLayout:
         deadkeys = web_deadkeys(self)
         # breakpoint()
 
-        def set_key_label(label_element, char :str):
+        def set_key_label(label_element, char: str):
             if char not in deadkeys:
                 label_element.text = char
             else:
-                label_element.text = "★" if char == "**" else char[-1] # only last char for deadkeys
+                label_element.text = (
+                    "★" if char == "**" else char[-1]
+                )  # only last char for deadkeys
                 # Apply special class for deadkeys
                 label_element.set(
                     "class", label_element.get("class") + " deadKey diacritic"
@@ -496,7 +505,6 @@ class KeyboardLayout:
                     if level_num == Layer.BASE and chars[0] == chars[1].lower():
                         # Do not print letters twice (lower and upper)
                         continue
-
 
                     for location in key.xpath(
                         f"svg:g/svg:text[@class='level{level_num}']", namespaces=ns
