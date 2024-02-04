@@ -315,6 +315,10 @@
     /* Translate level5 upward if mixed */
     .mixed .level5 {transform: translate(0px, -22.8px);}
 
+    /* Adding Base class option to display Alpha + dk layers */
+    .base .level3, .base .level4 { display: none;}
+    .base .level5  { opacity: 0.5; display: block;}
+
     @media (prefers-color-scheme: dark) {
       rect, path { stroke: #777; fill: #444; }
       .specialKey, .specialKey rect, .specialKey path { fill: #333; }
