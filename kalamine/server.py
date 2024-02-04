@@ -7,10 +7,9 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 
 import click
-from livereload import Server
+from livereload import Server # type: ignore
 
 from .layout import KeyboardLayout
-
 
 def keyboard_server(file_path: Path) -> None:
     kb_layout = KeyboardLayout(file_path)
@@ -60,22 +59,21 @@ def keyboard_server(file_path: Path) -> None:
         """
 
     class LayoutHandler(SimpleHTTPRequestHandler):
-        def __init__(self, *args, **kwargs):
-            dir_path = os.path.dirname(os.path.realpath(__file__))
-            www_path = os.path.join(dir_path, "www")
-            super().__init__(*args, directory=www_path, **kwargs)
+        def __init__(self, *args, **kwargs) -> None: # type: ignore
+            kwargs['directory'] = str(Path(__file__).parent / "www")
+            super().__init__(*args, **kwargs)
 
-        def do_GET(self):
+        def do_GET(self) -> None:
             self.send_response(200)
 
-            def send(page, content="text/plain", charset="utf-8"):
+            def send(page: str, content:str = "text/plain", charset:str = "utf-8") -> None:
                 self.send_header("Content-type", f"{content}; charset={charset}")
                 self.end_headers()
                 self.wfile.write(bytes(page, charset))
                 # self.wfile.write(page.encode(charset))
 
             # XXX always reloads the layout on the root page, never in sub pages
-            global kb_layout
+            nonlocal kb_layout
             if self.path == "/json":
                 send(json.dumps(kb_layout.json), content="application/json")
             elif self.path == "/keylayout":

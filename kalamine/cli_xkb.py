@@ -4,16 +4,16 @@ import platform
 import sys
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import List, Dict, Union, Optional
 
 import click
 
 from .layout import KeyboardLayout
-from .xkb_manager import WAYLAND, XKBManager
+from .xkb_manager import WAYLAND, XKBManager, Index
 
 
 @click.group()
-def cli():
+def cli() -> None:
     if platform.system() != "Linux":
         sys.exit("This command is only compatible with GNU/Linux, sorry.")
 
@@ -22,7 +22,7 @@ def cli():
 @click.argument(
     "filepath", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
-def apply(filepath: Path):
+def apply(filepath: Path) -> None:
     """Apply a Kalamine layout."""
 
     if WAYLAND:
@@ -42,7 +42,7 @@ def apply(filepath: Path):
 @click.argument(
     "layouts", nargs=-1, type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
-def install(layouts: List[Path]):
+def install(layouts: List[Path]) -> None:
     """Install a list of Kalamine layouts."""
 
     if not layouts:
@@ -55,7 +55,7 @@ def install(layouts: List[Path]):
         kb_layouts.append(layout)
         kb_locales.add(layout.meta["locale"])
 
-    def xkb_install(xkb):
+    def xkb_install(xkb: XKBManager) -> Index:
         for layout in kb_layouts:
             xkb.add(layout)
         index = xkb.index  # gets erased with xkb.update()
@@ -63,14 +63,14 @@ def install(layouts: List[Path]):
         xkb.update()
         print()
         print("Successfully installed.")
-        return index
+        return dict(index)
 
     # EAFP (Easier to Ask Forgiveness than Permission)
     try:
         xkb_root = XKBManager(root=True)
         xkb_index = xkb_install(xkb_root)
         print(f"On XOrg, you can try the layout{'s' if len(layouts) > 1 else ''} with:")
-        for locale, variants in xkb_index:
+        for locale, variants in xkb_index.items():
             for name in variants.keys():
                 print(f"    setxkbmap {locale} -variant {name}")
         print()
@@ -87,10 +87,10 @@ def install(layouts: List[Path]):
 
 @cli.command()
 @click.argument("mask")  # [locale]/[name]
-def remove(mask: str):
+def remove(mask: str) -> None:
     """Remove a list of Kalamine layouts."""
 
-    def xkb_remove(root=False):
+    def xkb_remove(root:bool = False) -> None:
         xkb = XKBManager(root=root)
         xkb.clean()
         for locale, variants in xkb.list(mask).items():
@@ -108,11 +108,11 @@ def remove(mask: str):
 @cli.command(name="list")
 @click.option("-a", "--all", "all_flag", is_flag=True)
 @click.argument("mask", default="*")
-def list_command(mask, all_flag):
+def list_command(mask: str, all_flag: bool) -> None:
     """List installed Kalamine layouts."""
 
     for root in [True, False]:
-        filtered = {}
+        filtered: Dict[str, Union[Optional[KeyboardLayout], str]] = {} # Very weird type...
 
         xkb = XKBManager(root=root)
         layouts = xkb.list_all(mask) if all_flag else xkb.list(mask)

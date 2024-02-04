@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import json
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, List, Tuple
 
 from .utils import DEAD_KEYS, LAYER_KEYS, ODK_ID, Layer, load_data
 
@@ -119,12 +119,12 @@ def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
     specials = " \u00a0\u202f‘’'\"^`~"
     esc_all = True  # set to False to ease the debug (more readable AHK script)
 
-    def ahk_escape(key):
+    def ahk_escape(key: str) -> str:
         if len(key) == 1:
             return f"U+{ord(key):04x}" if esc_all or key in specials else key
         return f"{key}`" if key.endswith("`") else key  # deadkey identifier
 
-    def ahk_actions(symbol):
+    def ahk_actions(symbol: str) -> Dict[str, str]:
         actions = {}
         for key, dk in layout.dead_keys.items():
             dk_id = ahk_escape(key)
@@ -348,7 +348,7 @@ def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
         ]
         caps = index == 2
 
-        def has_dead_keys(letter):
+        def has_dead_keys(letter: str) -> bool:
             if letter in "\u0020\u00a0\u202f":  # space
                 return True
             for k in layout.dead_keys:
@@ -395,7 +395,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
 
     ret_actions = []
 
-    def when(state, action):
+    def when(state: str, action: str) -> str:
         state_attr = f'state="{state}"'.ljust(18)
         if action in layout.dead_keys:
             action_attr = f"next=\"{DK_INDEX[action].name}\""
@@ -405,7 +405,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
             action_attr = f'output="{xml_proof(action)}"'
         return f"  <when {state_attr} {action_attr} />"
 
-    def append_actions(symbol, actions):
+    def append_actions(symbol: str, actions: List[Tuple[str, str]]) -> None:
         ret_actions.append(f'<action id="{xml_proof_id(symbol)}">')
         ret_actions.append(when("none", symbol))
         for state, out in actions:
@@ -441,7 +441,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
             if key in layout.dead_keys:
                 continue
 
-            actions = []
+            actions: List[Tuple[str, str]] = []
             for k in DK_INDEX:
                 if k in layout.dead_keys:
                     if key in layout.dead_keys[k]:
