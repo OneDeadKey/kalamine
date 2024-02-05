@@ -121,7 +121,7 @@ def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
 
     def ahk_escape(key: str) -> str:
         if len(key) == 1:
-            return f"U+{ord(key):04x}" if esc_all or key in specials else key
+            return f"U+{ord(key):04x}" if (esc_all or key in specials) else key
         return f"{key}`" if key.endswith("`") else key  # deadkey identifier
 
     def ahk_actions(symbol: str) -> Dict[str, str]:
