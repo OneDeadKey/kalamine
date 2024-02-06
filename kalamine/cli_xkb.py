@@ -22,7 +22,11 @@ def cli() -> None:
 @click.argument(
     "filepath", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
-def apply(filepath: Path) -> None:
+@click.option(
+    "--angle-mod/--no-angle-mod",
+    default=False,
+    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))")
+def apply(filepath: Path, angle_mod: bool) -> None:
     """Apply a Kalamine layout."""
 
     if WAYLAND:
@@ -30,7 +34,7 @@ def apply(filepath: Path) -> None:
             "You appear to be running Wayland, which does not support this operation."
         )
 
-    layout = KeyboardLayout(filepath)
+    layout = KeyboardLayout(filepath, angle_mod)
     with tempfile.NamedTemporaryFile(
         mode="w+", suffix=".xkb", encoding="utf-8"
     ) as temp_file:
@@ -42,7 +46,11 @@ def apply(filepath: Path) -> None:
 @click.argument(
     "layouts", nargs=-1, type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
-def install(layouts: List[Path]) -> None:
+@click.option(
+    "--angle-mod/--no-angle-mod",
+    default=False,
+    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))")
+def install(layouts: List[Path], angle_mod: bool) -> None:
     """Install a list of Kalamine layouts."""
 
     if not layouts:
@@ -51,7 +59,7 @@ def install(layouts: List[Path]) -> None:
     kb_locales = set()
     kb_layouts = []
     for file in layouts:
-        layout = KeyboardLayout(file)
+        layout = KeyboardLayout(file, angle_mod)
         kb_layouts.append(layout)
         kb_locales.add(layout.meta["locale"])
 
