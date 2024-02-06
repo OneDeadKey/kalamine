@@ -18,9 +18,9 @@ def test_ansi():
     assert "**" not in layout.dead_keys
 
     # ensure angle mod is NOT applied
-    layout = load_layout("intl")
-    assert layout.layers[0]["ab05"] == "b"
-    assert layout.layers[1]["ab05"] == "B"
+    layout = load_layout("ansi", angle_mod=True)
+    assert layout.layers[0]["ab01"] == "z"
+    assert layout.layers[1]["ab01"] == "Z"
 
 
 def test_prog():  # AltGr + dead keys
