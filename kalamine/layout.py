@@ -208,15 +208,14 @@ class KeyboardLayout:
         # Adding Angle Mod support
         if self.is_angle_mod:
             not_compatible_with_angle_mod = True
-            for row in rows:
-                if row.keys[0] == "lsgt":
-                    not_compatible_with_angle_mod = False
-                    row.keys[:6] = [row.keys[5]] + row.keys[
-                        :5
-                    ]  # ['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04']
+            angle_mod_row = rows[3]
+            if angle_mod_row.keys[0] == "lsgt":
+                not_compatible_with_angle_mod = False
+                # should be ['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04'] in angle mod
+                angle_mod_row.keys[:6] = [angle_mod_row.keys[5]] + angle_mod_row.keys[:5] 
             if not_compatible_with_angle_mod:
                 click.echo(
-                    "Geometry do not support angle-mod, ignoring angle-mod argument"
+                    "Warning: Geometry do not support angle-mod ; ignoring the --angle-mod argument"
                 )
 
         if "full" in cfg:
