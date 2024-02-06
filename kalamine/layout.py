@@ -212,7 +212,9 @@ class KeyboardLayout:
             if angle_mod_row.keys[0] == "lsgt":
                 not_compatible_with_angle_mod = False
                 # should be ['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04'] in angle mod
-                angle_mod_row.keys[:6] = [angle_mod_row.keys[5]] + angle_mod_row.keys[:5] 
+                angle_mod_row.keys[:6] = [angle_mod_row.keys[5]] + angle_mod_row.keys[
+                    :5
+                ]
             if not_compatible_with_angle_mod:
                 click.echo(
                     "Warning: Geometry do not support angle-mod ; ignoring the --angle-mod argument"

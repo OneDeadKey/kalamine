@@ -17,6 +17,11 @@ def test_ansi():
     assert not layout.has_1dk
     assert "**" not in layout.dead_keys
 
+    # ensure angle mod is NOT applied
+    layout = load_layout("intl")
+    assert layout.layers[0]["ab05"] == "b"
+    assert layout.layers[1]["ab05"] == "B"
+
 
 def test_prog():  # AltGr + dead keys
     layout = load_layout("prog")
@@ -71,3 +76,10 @@ def test_intl():  # 1dk + dead keys
     assert len(layout.dead_keys["*^"]) == 43
     assert len(layout.dead_keys["*¨"]) == 21
     assert len(layout.dead_keys["*~"]) == 21
+
+    # ensure angle mod is working correctly
+    layout = load_layout("intl")
+    assert layout.layers[0]["ab05"] == "z"
+    assert layout.layers[1]["ab05"] == "Z"
+    assert layout.layers[0]["lsgt"] == "x"
+    assert layout.layers[1]["lsgt"] == "X"
