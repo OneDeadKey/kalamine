@@ -162,7 +162,7 @@ GEOMETRY = {key: GeometryDescr.from_dict(val) for key, val in geometry_data.item
 class KeyboardLayout:
     """Lafayette-style keyboard layout: base + 1dk + altgr layers."""
 
-    def __init__(self, filepath: Path) -> None:
+    def __init__(self, filepath: Path, angle_mod: bool = False) -> None:
         """Import a keyboard layout to instanciate the object."""
 
         # initialize a blank layout
@@ -172,6 +172,7 @@ class KeyboardLayout:
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
+        self.is_angle_mod = angle_mod
 
         # load the YAML data (and its ancessor, if any)
         try:
@@ -203,6 +204,17 @@ class KeyboardLayout:
 
         # keyboard layers: self.layers & self.dead_keys
         rows = GEOMETRY[self.meta["geometry"]].rows
+
+        # Adding Angle Mod support
+        if self.is_angle_mod:
+            not_compatible_with_angle_mod = True
+            for row in rows:
+                if row.keys[0] == 'lsgt':
+                    not_compatible_with_angle_mod = False
+                    row.keys[:6] = [row.keys[5]] + row.keys[:5] #['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04']
+            if not_compatible_with_angle_mod:
+                click.echo("Geometry do not support angle-mod, ignoring angle-mod argument")
+        
         if "full" in cfg:
             full = text_to_lines(cfg["full"])
             self._parse_template(full, rows, Layer.BASE)
