@@ -105,8 +105,11 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
 @click.option(
     "--angle-mod/--no-angle-mod",
     default=False,
-    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))")
-def make(layout_descriptors: List[Path], out: Union[Path, Literal["all"]], angle_mod: bool) -> None:
+    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
+)
+def make(
+    layout_descriptors: List[Path], out: Union[Path, Literal["all"]], angle_mod: bool
+) -> None:
     """Convert TOML/YAML descriptions into OS-specific keyboard drivers."""
 
     for input_file in layout_descriptors:

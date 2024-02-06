@@ -25,7 +25,8 @@ def cli() -> None:
 @click.option(
     "--angle-mod/--no-angle-mod",
     default=False,
-    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))")
+    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
+)
 def apply(filepath: Path, angle_mod: bool) -> None:
     """Apply a Kalamine layout."""
 
@@ -49,7 +50,8 @@ def apply(filepath: Path, angle_mod: bool) -> None:
 @click.option(
     "--angle-mod/--no-angle-mod",
     default=False,
-    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))")
+    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
+)
 def install(layouts: List[Path], angle_mod: bool) -> None:
     """Install a list of Kalamine layouts."""
 

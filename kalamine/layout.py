@@ -209,12 +209,16 @@ class KeyboardLayout:
         if self.is_angle_mod:
             not_compatible_with_angle_mod = True
             for row in rows:
-                if row.keys[0] == 'lsgt':
+                if row.keys[0] == "lsgt":
                     not_compatible_with_angle_mod = False
-                    row.keys[:6] = [row.keys[5]] + row.keys[:5] #['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04']
+                    row.keys[:6] = [row.keys[5]] + row.keys[
+                        :5
+                    ]  # ['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04']
             if not_compatible_with_angle_mod:
-                click.echo("Geometry do not support angle-mod, ignoring angle-mod argument")
-        
+                click.echo(
+                    "Geometry do not support angle-mod, ignoring angle-mod argument"
+                )
+
         if "full" in cfg:
             full = text_to_lines(cfg["full"])
             self._parse_template(full, rows, Layer.BASE)
