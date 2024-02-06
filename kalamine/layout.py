@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import copy
 import datetime
 import re
 import sys
@@ -172,7 +173,6 @@ class KeyboardLayout:
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
-        self.is_angle_mod = angle_mod
 
         # load the YAML data (and its ancessor, if any)
         try:
@@ -203,21 +203,17 @@ class KeyboardLayout:
         self.meta["lastChange"] = datetime.date.today().isoformat()
 
         # keyboard layers: self.layers & self.dead_keys
-        rows = GEOMETRY[self.meta["geometry"]].rows
+        rows = copy.deepcopy(GEOMETRY[self.meta["geometry"]].rows)
 
-        # Adding Angle Mod support
-        if self.is_angle_mod:
-            not_compatible_with_angle_mod = True
-            angle_mod_row = rows[3]
-            if angle_mod_row.keys[0] == "lsgt":
-                not_compatible_with_angle_mod = False
-                # should be ['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04'] in angle mod
-                angle_mod_row.keys[:6] = [angle_mod_row.keys[5]] + angle_mod_row.keys[
-                    :5
-                ]
-            if not_compatible_with_angle_mod:
+        # Angle Mod permutation
+        if angle_mod:
+            last_row = rows[3]
+            if last_row.keys[0] == "lsgt":
+                # should bevome ['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04']
+                last_row.keys[:6] = [last_row.keys[5]] + last_row.keys[:5]
+            else:
                 click.echo(
-                    "Warning: Geometry do not support angle-mod ; ignoring the --angle-mod argument"
+                    "Warning: geometry does not support angle-mod; ignoring the --angle-mod argument"
                 )
 
         if "full" in cfg:

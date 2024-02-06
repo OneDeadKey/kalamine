@@ -78,7 +78,7 @@ def test_intl():  # 1dk + dead keys
     assert len(layout.dead_keys["*~"]) == 21
 
     # ensure angle mod is working correctly
-    layout = load_layout("intl", angle_mod = True)
+    layout = load_layout("intl", angle_mod=True)
     assert layout.layers[0]["lsgt"] == "z"
     assert layout.layers[1]["lsgt"] == "Z"
     assert layout.layers[0]["ab01"] == "x"
