@@ -3,8 +3,8 @@ from kalamine import KeyboardLayout
 from .util import get_layout_path
 
 
-def load_layout(filename):
-    return KeyboardLayout(get_layout_path() / (filename + ".toml"))
+def load_layout(filename, angle_mod=False):
+    return KeyboardLayout(get_layout_path() / (filename + ".toml"), angle_mod)
 
 
 def test_ansi():
@@ -16,6 +16,11 @@ def test_ansi():
     assert not layout.has_altgr
     assert not layout.has_1dk
     assert "**" not in layout.dead_keys
+
+    # ensure angle mod is NOT applied
+    layout = load_layout("ansi", angle_mod=True)
+    assert layout.layers[0]["ab01"] == "z"
+    assert layout.layers[1]["ab01"] == "Z"
 
 
 def test_prog():  # AltGr + dead keys
@@ -71,3 +76,10 @@ def test_intl():  # 1dk + dead keys
     assert len(layout.dead_keys["*^"]) == 43
     assert len(layout.dead_keys["*¨"]) == 21
     assert len(layout.dead_keys["*~"]) == 21
+
+    # ensure angle mod is working correctly
+    layout = load_layout("intl", angle_mod=True)
+    assert layout.layers[0]["lsgt"] == "z"
+    assert layout.layers[1]["lsgt"] == "Z"
+    assert layout.layers[0]["ab01"] == "x"
+    assert layout.layers[1]["ab01"] == "X"

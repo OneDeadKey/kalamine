@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import copy
 import datetime
 import re
 import sys
@@ -162,7 +163,7 @@ GEOMETRY = {key: GeometryDescr.from_dict(val) for key, val in geometry_data.item
 class KeyboardLayout:
     """Lafayette-style keyboard layout: base + 1dk + altgr layers."""
 
-    def __init__(self, filepath: Path) -> None:
+    def __init__(self, filepath: Path, angle_mod: bool = False) -> None:
         """Import a keyboard layout to instanciate the object."""
 
         # initialize a blank layout
@@ -202,7 +203,19 @@ class KeyboardLayout:
         self.meta["lastChange"] = datetime.date.today().isoformat()
 
         # keyboard layers: self.layers & self.dead_keys
-        rows = GEOMETRY[self.meta["geometry"]].rows
+        rows = copy.deepcopy(GEOMETRY[self.meta["geometry"]].rows)
+
+        # Angle Mod permutation
+        if angle_mod:
+            last_row = rows[3]
+            if last_row.keys[0] == "lsgt":
+                # should bevome ['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04']
+                last_row.keys[:6] = [last_row.keys[5]] + last_row.keys[:5]
+            else:
+                click.echo(
+                    "Warning: geometry does not support angle-mod; ignoring the --angle-mod argument"
+                )
+
         if "full" in cfg:
             full = text_to_lines(cfg["full"])
             self._parse_template(full, rows, Layer.BASE)
