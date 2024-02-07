@@ -61,6 +61,14 @@ DoTerm(base:="") {
   global DeadKey
 
   term := SubStr(DeadKey, 2, 1)
+
+  CapsLockOn := GetKeyState("CapsLock", "T") 
+  
+  if %CapsLockOn% {
+    StringUpper, term, term
+    StringUpper, base, base
+  }
+  
   Send, {%term%}
   Send, {%base%}
   DeadKey := ""
@@ -74,6 +82,12 @@ DoAction(action:="") {
     DeadKey := ""
   }
   else if (StrLen(action) != 2) {
+    CapsLockOn := GetKeyState("CapsLock", "T") 
+  
+    if %CapsLockOn% {
+      StringUpper, action, action
+    }
+
     Send, {%action%}
     DeadKey := ""
   }
