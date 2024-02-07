@@ -57,10 +57,23 @@ SetTimer, ShowTrayTip, -1000  ; not working
 
 global DeadKey := ""
 
+UnicodeUpper(unicode:="") {
+  unicode := Chr("0x" SubStr(unicode, 3, 4))
+  StringUpper, unicode, unicode
+  return unicode
+}
+
 DoTerm(base:="") {
   global DeadKey
 
   term := SubStr(DeadKey, 2, 1)
+
+  CapsLockOn := GetKeyState("CapsLock", "T") 
+  if %CapsLockOn% {
+    term := UnicodeUpper(term)
+    base := UnicodeUpper(base)
+  }
+
   Send, {%term%}
   Send, {%base%}
   DeadKey := ""
@@ -74,6 +87,11 @@ DoAction(action:="") {
     DeadKey := ""
   }
   else if (StrLen(action) != 2) {
+    CapsLockOn := GetKeyState("CapsLock", "T") 
+    if %CapsLockOn% {
+      action := UnicodeUpper(action)
+    }
+    
     Send, {%action%}
     DeadKey := ""
   }
