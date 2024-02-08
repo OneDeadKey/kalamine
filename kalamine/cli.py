@@ -189,11 +189,9 @@ TOML_FOOTER = """
 @click.option("--1dk/--no-1dk", "odk", default=False, help="Set a custom dead key.")
 def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     """Create a new TOML layout description."""
-    # base_dir_path = Path(__file__).resolve(strict=True).parent.parent
 
     def get_layout(name: str) -> KeyboardLayout:
         """Return a layout of type NAME with constrained geometry."""
-
         descriptor = pkgutil.get_data(__package__, f"../layouts/{name}.toml")
         layout = KeyboardLayout(tomli.loads(descriptor.decode("utf-8")))
         layout.geometry = geometry
@@ -201,7 +199,6 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
 
     def keymap(layout_name, layout_layer, layer_name=""):
         """Return a multiline keymap ASCII art for the specified layout."""
-
         layer = "\n"
         layer += f"\n{layer_name or layout_layer} = '''"
         layer += "\n"
@@ -224,8 +221,6 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     # append user guide sections
     doc = pkgutil.get_data(__package__, "../docs/README.md").decode("utf-8")
     sections = doc.split("\n\n\n")
-    # with (base_dir_path / "docs" / "README.md").open() as f:
-    #     sections = "".join(f.readlines()).split("\n\n\n")
     for topic in sections[1:]:
         content += "\n\n"
         content += "\n# "
