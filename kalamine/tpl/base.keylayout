@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE keyboard SYSTEM "file://localhost/System/Library/DTDs/KeyboardLayout.dtd">
-<!-- ${description}
+<!-- ${KALAMINE}
+
   File          : ${fileName}.keylayout
   Project page  : ${url}
   Author        : ${author}
   Version       : ${version}
-  Last change   : ${lastChange}
   License       : ${license}
   Reference     : https://developer.apple.com/library/archive/technotes/tn2056/_index.html
+
+  ${description}
 
   Logical layer (Apple keycodes)
   ┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┲━━━━━━━━━━┓
