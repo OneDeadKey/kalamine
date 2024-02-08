@@ -58,7 +58,7 @@ Edit this layout with your preferred text editor:
 - the `user guide`_ is available at the end of the ``*.toml`` file
 - the layout can be rendered and emulated with ``kalamine watch`` (see next section)
 
-.. _`user guide`: https://github.com/fabi1cazenave/kalamine/tree/master/docs
+.. _`user guide`: https://github.com/OneDeadKey/kalamine/tree/master/docs
 
 Build your layout:
 

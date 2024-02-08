@@ -24,5 +24,4 @@ A qwerty-intl variant with an AltGr layer for dead diacritics and coding symbols
 
 ## See Also…
 
-- [“One Dead Key”](https://github.com/fabi1cazenave/1dk)
-- [Qwerty-Lafayette](https://github.com/fabi1cazenave/qwerty-lafayette)
+- [“One Dead Key”](https://github.com/OneDeadKey/1dk)

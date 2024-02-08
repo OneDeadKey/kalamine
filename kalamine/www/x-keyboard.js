@@ -182,7 +182,7 @@ const KEY_RADIUS = 5;  // 5px border radius
 
 /**
  * Deak Keys
- * defined in the Kalamine project: https://github.com/fabi1cazenave/kalamine
+ * defined in the Kalamine project: https://github.com/OneDeadKey/kalamine
  * identifiers -> symbols dictionary, for presentation purposes
  */
 

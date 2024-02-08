@@ -482,7 +482,7 @@ def osx_terminators(layout: "KeyboardLayout") -> List[str]:
 ###
 # Web: JSON
 # To be used with the <x-keyboard> web component.
-# https://github.com/fabi1cazenave/x-keyboard
+# https://github.com/OneDeadKey/x-keyboard
 #
 
 
