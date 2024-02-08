@@ -57,13 +57,17 @@ SetTimer, ShowTrayTip, -1000  ; not working
 
 global DeadKey := ""
 
-UnicodeUpperIfCapsLock(unicode:="") {
-  CapsLockOn := GetKeyState("CapsLock", "T") 
-  if %CapsLockOn% {
-    unicode := Chr("0x" SubStr(unicode, 3, 4))
+; Check CapsLock status, upper the char if needed and send the char
+SendChar(unicode) {
+  if % GetKeyState("CapsLock", "T") {
+    if (StrLen(unicode) == 6) {
+      ; we have something in the form of `U+NNNN `
+      ; Change it to 0xNNNN so it can be passed to `Chr` function
+      unicode := Chr("0x" SubStr(unicode, 3, 4))
+    }
     StringUpper, unicode, unicode
   }
-  return unicode
+  Send, {%unicode%}
 }
 
 DoTerm(base:="") {
@@ -71,10 +75,8 @@ DoTerm(base:="") {
 
   term := SubStr(DeadKey, 2, 1)
 
-  base := UnicodeUpperIfCapsLock(base)
-
   Send, {%term%}
-  Send, {%base%}
+  SendChar(base)
   DeadKey := ""
 }
 
@@ -86,9 +88,7 @@ DoAction(action:="") {
     DeadKey := ""
   }
   else if (StrLen(action) != 2) {
-    action := UnicodeUpperIfCapsLock(action)
-    
-    Send, {%action%}
+    SendChar(action)
     DeadKey := ""
   }
   else if (action == DeadKey) {
