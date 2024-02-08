@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import json
-import os
 import threading
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -9,11 +8,11 @@ from pathlib import Path
 import click
 from livereload import Server  # type: ignore
 
-from .layout import KeyboardLayout
+from .layout import KeyboardLayout, load_layout
 
 
 def keyboard_server(file_path: Path) -> None:
-    kb_layout = KeyboardLayout(file_path)
+    kb_layout = KeyboardLayout(load_layout(file_path))
 
     host_name = "localhost"
     webserver_port = 1664
