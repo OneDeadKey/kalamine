@@ -1,4 +1,0 @@
-include LICENSE
-include kalamine/data/*
-include kalamine/tpl/*
-include kalamine/www/*

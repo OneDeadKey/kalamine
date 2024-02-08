@@ -169,7 +169,7 @@ locale      = "us"             # locale/language id
 variant     = "custom"         # layout variant id
 author      = "nobody"         # author name
 description = "custom QWERTY layout"
-url         = "https://fabi1cazenave.github.com/kalamine"
+url         = "https://OneDeadKey.github.com/kalamine"
 version     = "0.0.1"
 geometry    = """
 
@@ -195,16 +195,13 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
         layout.geometry = geometry
         return layout
 
-    def keymap(layout_name: str, layout_layer: str, layer_name: str = "") -> str:
-        return """
-
-{} = '''
-{}
-'''
-""".format(
-            layer_name or layout_layer,
-            "\n".join(getattr(get_layout(layout_name), layout_layer)),
-        )
+    def keymap(layout_name, layout_layer, layer_name=""):
+        layer = "\n"
+        layer += f"\n{layer_name or layout_layer} = '''"
+        layer += "\n"
+        layer += "\n".join(getattr(get_layout(layout_name), layout_layer))
+        layer += "\n'''"
+        return layer
 
     content = f'{TOML_HEADER}"{geometry.upper()}"'
     if odk:
