@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import pkgutil
 from dataclasses import dataclass
 from enum import IntEnum
 from pathlib import Path
@@ -28,8 +29,8 @@ def text_to_lines(text: str) -> List[str]:
 
 
 def load_data(filename: str) -> Dict:
-    filepath = Path(__file__).parent / "data" / filename
-    return yaml.load(filepath.open(encoding="utf-8"), Loader=yaml.SafeLoader)
+    descriptor = pkgutil.get_data(__package__, f"data/{filename}.yaml")
+    return yaml.safe_load(descriptor.decode("utf-8"))
 
 
 class Layer(IntEnum):
@@ -65,7 +66,7 @@ class DeadKeyDescr:
     alt_self: str
 
 
-DEAD_KEYS = [DeadKeyDescr(**data) for data in load_data("dead_keys.yaml")]
+DEAD_KEYS = [DeadKeyDescr(**data) for data in load_data("dead_keys")]
 
 ODK_ID = "**"  # must match the value in dead_keys.yaml
 LAYER_KEYS = [

@@ -3,14 +3,14 @@ from textwrap import dedent
 from kalamine import KeyboardLayout
 from kalamine.template import ahk_keymap, ahk_shortcuts
 
-from .util import get_layout_path
+from .util import get_layout_dict
 
 
-def load_layout(filename) -> KeyboardLayout:
-    return KeyboardLayout(get_layout_path() / (filename + ".toml"))
+def load_layout(filename: str) -> KeyboardLayout:
+    return KeyboardLayout(get_layout_dict(filename))
 
 
-def split(multiline_str):
+def split(multiline_str: str):
     return dedent(multiline_str).lstrip().splitlines()
 
 

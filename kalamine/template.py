@@ -16,8 +16,8 @@ for dk in DEAD_KEYS:
 # Helpers
 #
 
-KEY_CODES = load_data("key_codes.yaml")
-XKB_KEY_SYM = load_data("key_sym.yaml")
+KEY_CODES = load_data("key_codes")
+XKB_KEY_SYM = load_data("key_sym")
 
 
 def hex_ord(char: str) -> str:
