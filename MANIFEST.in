@@ -1,6 +1,4 @@
 include LICENSE
-include docs/*
 include kalamine/data/*
 include kalamine/tpl/*
 include kalamine/www/*
-include layouts/*
