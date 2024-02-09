@@ -122,9 +122,9 @@ def list_command(mask: str, all_flag: bool) -> None:
     """List installed Kalamine layouts."""
 
     for root in [True, False]:
-        filtered: Dict[str, Union[Optional[KeyboardLayout], str]] = (
-            {}
-        )  # Very weird type...
+        filtered: Dict[
+            str, Union[Optional[KeyboardLayout], str]
+        ] = {}  # Very weird type...
 
         xkb = XKBManager(root=root)
         layouts = xkb.list_all(mask) if all_flag else xkb.list(mask)
