@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 import json
+import pkgutil
 from contextlib import contextmanager
 from importlib import metadata
 from pathlib import Path
 from typing import Iterator, List, Literal, Union
 
 import click
+import tomli
 
-from .layout import KeyboardLayout
+from .layout import KeyboardLayout, load_layout
 from .server import keyboard_server
 
 
@@ -113,7 +115,7 @@ def make(
     """Convert TOML/YAML descriptions into OS-specific keyboard drivers."""
 
     for input_file in layout_descriptors:
-        layout = KeyboardLayout(input_file, angle_mod)
+        layout = KeyboardLayout(load_layout(input_file), angle_mod)
 
         # default: build all in the `dist` subdirectory
         if out == "all":
@@ -187,15 +189,16 @@ TOML_FOOTER = """
 @click.option("--1dk/--no-1dk", "odk", default=False, help="Set a custom dead key.")
 def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     """Create a new TOML layout description."""
-    base_dir_path = Path(__file__).resolve(strict=True).parent.parent
 
     def get_layout(name: str) -> KeyboardLayout:
         """Return a layout of type NAME with constrained geometry."""
-        layout = KeyboardLayout(base_dir_path / "layouts" / f"{name}.toml")
+        descriptor = pkgutil.get_data(__package__, f"../layouts/{name}.toml")
+        layout = KeyboardLayout(tomli.loads(descriptor.decode("utf-8")))
         layout.geometry = geometry
         return layout
 
     def keymap(layout_name, layout_layer, layer_name=""):
+        """Return a multiline keymap ASCII art for the specified layout."""
         layer = "\n"
         layer += f"\n{layer_name or layout_layer} = '''"
         layer += "\n"
@@ -216,8 +219,8 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
         content += keymap("ansi", "base")
 
     # append user guide sections
-    with (base_dir_path / "docs" / "README.md").open() as f:
-        sections = "".join(f.readlines()).split("\n\n\n")
+    doc = pkgutil.get_data(__package__, "../docs/README.md").decode("utf-8")
+    sections = doc.split("\n\n\n")
     for topic in sections[1:]:
         content += "\n\n"
         content += "\n# "

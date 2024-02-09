@@ -1,8 +1,13 @@
 """Some util functions for tests."""
 
-from pathlib import Path
+import pkgutil
+from typing import Dict
+
+import tomli
 
 
-def get_layout_path() -> Path:
+def get_layout_dict(filename: str) -> Dict:
     """Return the layout directory path."""
-    return Path(__file__).parent.parent / "layouts"
+
+    descriptor = pkgutil.get_data(__package__, f"../layouts/{filename}.toml")
+    return tomli.loads(descriptor.decode("utf-8"))

@@ -1,10 +1,10 @@
 from kalamine import KeyboardLayout
 
-from .util import get_layout_path
+from .util import get_layout_dict
 
 
-def load_layout(filename, angle_mod=False):
-    return KeyboardLayout(get_layout_path() / (filename + ".toml"), angle_mod)
+def load_layout(filename: str, angle_mod: bool = False) -> KeyboardLayout:
+    return KeyboardLayout(get_layout_dict(filename), angle_mod)
 
 
 def test_ansi():

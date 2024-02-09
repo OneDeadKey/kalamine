@@ -1,10 +1,10 @@
-﻿//
+﻿// ${KALAMINE}
+//
 // File          : ${fileName}.klc
 // Encoding      : ${encoding=utf-8, with BOM}
 // Project page  : ${url}
 // Author        : ${author}
 // Version       : ${version}
-// Last change   : ${lastChange}
 // License       : ${license}
 //
 // ${description}

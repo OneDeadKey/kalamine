@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Union
 
 import click
 
-from .layout import KeyboardLayout
+from .layout import KeyboardLayout, load_layout
 from .xkb_manager import WAYLAND, Index, XKBManager
 
 
@@ -35,7 +35,7 @@ def apply(filepath: Path, angle_mod: bool) -> None:
             "You appear to be running Wayland, which does not support this operation."
         )
 
-    layout = KeyboardLayout(filepath, angle_mod)
+    layout = KeyboardLayout(load_layout(filepath), angle_mod)
     with tempfile.NamedTemporaryFile(
         mode="w+", suffix=".xkb", encoding="utf-8"
     ) as temp_file:

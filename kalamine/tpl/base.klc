@@ -1,17 +1,17 @@
-﻿//
+﻿// ${KALAMINE}
+//
 // File          : ${fileName}.klc
 // Encoding      : ${encoding=utf-8, with BOM}
 // Project page  : ${url}
 // Author        : ${author}
 // Version       : ${version}
-// Last change   : ${lastChange}
 // License       : ${license}
 //
 // ${description}
 //
 
 KBD	${name8}	"${name}"
-COPYRIGHT	"(c) 2010-2023 ${author}"
+COPYRIGHT	"(c) 2010-2024 ${author}"
 COMPANY	"${author}"
 LOCALENAME	"fr-FR"
 LOCALEID	"0000040c"
