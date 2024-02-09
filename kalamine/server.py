@@ -105,7 +105,7 @@ def keyboard_server(file_path: Path) -> None:
 
         # livereload
         lr_server = Server()
-        lr_server.watch(file_path)
+        lr_server.watch(str(file_path))
         lr_server.serve(host=host_name, port=lr_server_port)
 
     except KeyboardInterrupt:
