@@ -42,7 +42,8 @@ dev = [
     "isort",
     "ruff",
     "pytest",
-    "mypy"
+    "mypy",
+    "types-PyYAML"
 ]
 
 [project.urls]

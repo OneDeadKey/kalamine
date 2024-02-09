@@ -54,3 +54,11 @@ jobs:
           python -m kalamine.cli make layouts/*.toml
           python -m kalamine.cli create test.toml
           pytest
+      - name: Run black
+        run: black kalamine
+      - name: Run isort
+        run: isort kalamine
+      - name: Run ruff
+        run: ruff kalamine
+      - name: Run mypy
+        run: mypy kalamine
