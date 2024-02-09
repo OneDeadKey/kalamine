@@ -141,7 +141,6 @@ Basic developer info available in Kalamine’s `KLC documentation page`_.
 .. _`KLC documentation page`: https://github.com/OneDeadKey/kalamine/tree/master/docs/klc.md
 
 
-
 macOS: ``*.keylayout``
 ``````````````````````
 
