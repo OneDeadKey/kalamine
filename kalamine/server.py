@@ -88,7 +88,7 @@ def keyboard_server(file_path: Path) -> None:
             elif self.path == "/xkb_custom":
                 send(kb_layout.xkb_patch)
             elif self.path == "/":
-                kb_layout = KeyboardLayout(file_path)  # refresh
+                kb_layout = KeyboardLayout(load_layout(file_path))  # refresh
                 send(main_page(kb_layout), content="text/html")
             else:
                 return SimpleHTTPRequestHandler.do_GET(self)
