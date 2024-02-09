@@ -40,7 +40,9 @@ dependencies = [
 dev = [
     "black",
     "isort",
-    "pytest"
+    "ruff",
+    "pytest",
+    "mypy"
 ]
 
 [project.urls]
