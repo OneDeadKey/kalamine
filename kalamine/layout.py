@@ -136,31 +136,6 @@ def load_layout(layout_path: Path) -> Dict:
 #
 
 
-# fmt: off
-@dataclass
-class MetaDescr:
-    name:        str = "custom"
-    name8:       str = "custom"
-    variant:     str = "custom"
-    fileName:    str = "custom"
-    locale:      str = "us"
-    geometry:    str = "ISO"
-    description: str = ""
-    author:      str = "nobody"
-    license:     str = ""
-    version:     str = "0.0.1"
-
-
-@dataclass
-class SpacebarDescr:
-    shift:       str = " "
-    altgr:       str = " "
-    altgt_shift: str = " "
-    odk:         str = "'"
-    odk_shift:   str = "'"
-# fmt: on
-
-
 CONFIG = {
     "author": "nobody",
     "license": "WTFPL - Do What The Fuck You Want Public License",
@@ -210,8 +185,6 @@ GEOMETRY = {
 class KeyboardLayout:
     """Lafayette-style keyboard layout: base + 1dk + altgr layers."""
 
-    # self.meta = {key: MetaDescr.from_dict(val) for key, val in geometry_data.items()}
-
     def __init__(self, layout_data: Dict, angle_mod: bool = False) -> None:
         """Import a keyboard layout to instanciate the object."""
 
@@ -219,7 +192,6 @@ class KeyboardLayout:
         self.layers: Dict[Layer, Dict[str, str]] = {layer: {} for layer in Layer}
         self.dk_set: Set[str] = set()
         self.dead_keys: Dict[str, Dict[str, str]] = {}  # dictionary subset of DEAD_KEYS
-        # self.meta = Dict[str, str] = {} # default parameters, hardcoded
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
