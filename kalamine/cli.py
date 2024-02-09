@@ -14,7 +14,8 @@ from .server import keyboard_server
 
 
 @click.group()
-def cli() -> None: ...
+def cli() -> None:
+    ...
 
 
 def pretty_json(layout: KeyboardLayout, output_path: Path) -> None:

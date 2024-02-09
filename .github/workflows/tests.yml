@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     runs-on: ${{ matrix.os }}
 
@@ -54,3 +54,11 @@ jobs:
           python -m kalamine.cli make layouts/*.toml
           python -m kalamine.cli create test.toml
           pytest
+      - name: Run black
+        run: black kalamine
+      - name: Run isort
+        run: isort kalamine
+      - name: Run ruff
+        run: ruff kalamine
+      - name: Run mypy
+        run: mypy kalamine
