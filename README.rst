@@ -132,10 +132,14 @@ Windows (admin): ``*.klc``
 
 The keyboard layout appears in the language bar.
 
+Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11. KbdEdit works fine.
+
+Basic developer info available in Kalamine’s _`KLC documentation page`.
+
 .. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=102134
 .. _KbdEdit: http://www.kbdedit.com/
+.. _`KLC documentation page`: https://github.com/OneDeadKey/kalamine/tree/master/docs/klc.md
 
-Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11. KbdEdit works fine.
 
 
 macOS: ``*.keylayout``
