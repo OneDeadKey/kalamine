@@ -88,7 +88,7 @@ def keyboard_server(file_path: Path) -> None:
             elif self.path == "/xkb_custom":
                 send(kb_layout.xkb_patch)
             elif self.path == "/":
-                kb_layout = KeyboardLayout(file_path)  # refresh
+                kb_layout = KeyboardLayout(load_layout(file_path))  # refresh
                 send(main_page(kb_layout), content="text/html")
             else:
                 return SimpleHTTPRequestHandler.do_GET(self)
@@ -105,7 +105,7 @@ def keyboard_server(file_path: Path) -> None:
 
         # livereload
         lr_server = Server()
-        lr_server.watch(file_path)
+        lr_server.watch(str(file_path))
         lr_server.serve(host=host_name, port=lr_server_port)
 
     except KeyboardInterrupt:
