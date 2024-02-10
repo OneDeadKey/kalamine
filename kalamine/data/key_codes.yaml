@@ -1,5 +1,5 @@
-klc:
-  sc:
+klc: # more info on SC and VK: https://learn.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input
+  sc: # Scan codes. They are the code sent by the hardware
     spce: '39'
 
     # digits
@@ -61,7 +61,10 @@ klc:
     ab11: '28'  # XXX FIXME
     bksl: '2b'
     lsgt: '56'
-  vk:
+  vk: # Virtual keys
+    # the driver maps scan codes to VK which are in turn 
+    # translated by the layout to output a char.
+    # We don't put digits nor alpha chars as they are their own VK
     '2019': 'OEM_1' # 1dk
     '003b': 'OEM_1'
     '002f': 'OEM_2'
