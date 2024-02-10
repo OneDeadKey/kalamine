@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import os
 import platform
 import sys
@@ -61,7 +62,8 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
     kb_locales = set()
     kb_layouts = []
     for file in layouts:
-        layout = KeyboardLayout(file, angle_mod)
+        layout_file = load_layout(file)
+        layout = KeyboardLayout(layout_file, angle_mod)
         kb_layouts.append(layout)
         kb_locales.add(layout.meta["locale"])
 
@@ -122,10 +124,8 @@ def list_command(mask: str, all_flag: bool) -> None:
     """List installed Kalamine layouts."""
 
     for root in [True, False]:
-        filtered: Dict[
-            str, Union[Optional[KeyboardLayout], str]
-        ] = {}  # Very weird type...
-
+        # XXX this very weird type means we've done something silly here
+        filtered: Dict[str, Union[Optional[KeyboardLayout], str]] = {}
         xkb = XKBManager(root=root)
         layouts = xkb.list_all(mask) if all_flag else xkb.list(mask)
         for locale, variants in sorted(layouts.items()):

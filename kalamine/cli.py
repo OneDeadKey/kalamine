@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import json
 import pkgutil
 from contextlib import contextmanager
@@ -9,13 +10,13 @@ from typing import Iterator, List, Literal, Union
 import click
 import tomli
 
+from .help import TOML_FOOTER, TOML_HEADER, inline_guide, user_guide
 from .layout import KeyboardLayout, load_layout
 from .server import keyboard_server
 
 
 @click.group()
-def cli() -> None:
-    ...
+def cli() -> None: ...
 
 
 def pretty_json(layout: KeyboardLayout, output_path: Path) -> None:
@@ -165,23 +166,6 @@ def make(
         click.echo(f"... {output_file}")
 
 
-TOML_HEADER = """# kalamine keyboard layout descriptor
-name        = "qwerty-custom"  # full layout name, displayed in the keyboard settings
-name8       = "custom"         # short Windows filename: no spaces, no special chars
-locale      = "us"             # locale/language id
-variant     = "custom"         # layout variant id
-author      = "nobody"         # author name
-description = "custom QWERTY layout"
-url         = "https://OneDeadKey.github.com/kalamine"
-version     = "0.0.1"
-geometry    = """
-
-TOML_FOOTER = """
-[spacebar]
-1dk         = "'"  # apostrophe
-1dk_shift   = "'"  # apostrophe"""
-
-
 # TODO: Provide geometry choices
 @cli.command()
 @click.argument("output_file", nargs=1, type=click.Path(exists=False, path_type=Path))
@@ -194,7 +178,7 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     def get_layout(name: str) -> KeyboardLayout:
         """Return a layout of type NAME with constrained geometry."""
         descriptor = pkgutil.get_data(__package__, f"../layouts/{name}.toml")
-        layout = KeyboardLayout(tomli.loads(descriptor.decode("utf-8")))
+        layout = KeyboardLayout(tomli.loads(descriptor.decode("utf-8")))  # type: ignore
         layout.geometry = geometry
         return layout
 
@@ -220,14 +204,8 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
         content += keymap("ansi", "base")
 
     # append user guide sections
-    doc = pkgutil.get_data(__package__, "../docs/README.md").decode("utf-8")
-    sections = doc.split("\n\n\n")
-    for topic in sections[1:]:
-        content += "\n\n"
-        content += "\n# "
-        content += "\n# ".join(topic.rstrip().split("\n"))
     with open(output_file, "w", encoding="utf-8", newline="\n") as file:
-        file.write(content)
+        file.write(content + inline_guide())
     click.echo(f"... {output_file}")
 
 
@@ -236,6 +214,12 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
 def watch(filepath: Path) -> None:
     """Watch a TOML/YAML layout description and display it in a web server."""
     keyboard_server(filepath)
+
+
+@cli.command()
+def guide() -> None:
+    """Show user guide and exit."""
+    click.echo(user_guide())
 
 
 @cli.command()

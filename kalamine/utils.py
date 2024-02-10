@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
 import pkgutil
 from dataclasses import dataclass
 from enum import IntEnum
-from pathlib import Path
 from typing import Dict, List
 
 import yaml
@@ -30,6 +28,8 @@ def text_to_lines(text: str) -> List[str]:
 
 def load_data(filename: str) -> Dict:
     descriptor = pkgutil.get_data(__package__, f"data/{filename}.yaml")
+    if not descriptor:
+        return {}
     return yaml.safe_load(descriptor.decode("utf-8"))
 
 

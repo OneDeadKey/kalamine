@@ -2,8 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# XXX distributing this "layouts" directory is a terrible idea
 [tool.hatch.build.targets.sdist]
-include = [ "/docs", "/kalamine", "/layouts" ]
+include = [ "/kalamine", "/layouts" ]
 
 [project]
 name = "kalamine"
