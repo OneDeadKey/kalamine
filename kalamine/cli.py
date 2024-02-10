@@ -178,7 +178,7 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     def get_layout(name: str) -> KeyboardLayout:
         """Return a layout of type NAME with constrained geometry."""
         descriptor = pkgutil.get_data(__package__, f"../layouts/{name}.toml")
-        layout = KeyboardLayout(tomli.loads(descriptor.decode("utf-8")))
+        layout = KeyboardLayout(tomli.loads(descriptor.decode("utf-8")))  # type: ignore
         layout.geometry = geometry
         return layout
 
@@ -204,7 +204,7 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
         content += keymap("ansi", "base")
 
     # append user guide sections
-    doc = pkgutil.get_data(__package__, "../docs/README.md").decode("utf-8")
+    doc = pkgutil.get_data(__package__, "../docs/README.md").decode("utf-8")  # type: ignore
     sections = doc.split("\n\n\n")
     for topic in sections[1:]:
         content += "\n\n"

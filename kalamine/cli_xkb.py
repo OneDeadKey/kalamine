@@ -62,7 +62,8 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
     kb_locales = set()
     kb_layouts = []
     for file in layouts:
-        layout = KeyboardLayout(file, angle_mod)
+        layout_file = load_layout(file)
+        layout = KeyboardLayout(layout_file, angle_mod)
         kb_layouts.append(layout)
         kb_locales.add(layout.meta["locale"])
 

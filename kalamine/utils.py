@@ -28,6 +28,8 @@ def text_to_lines(text: str) -> List[str]:
 
 def load_data(filename: str) -> Dict:
     descriptor = pkgutil.get_data(__package__, f"data/{filename}.yaml")
+    if not descriptor:
+        return {}
     return yaml.safe_load(descriptor.decode("utf-8"))
 
 
