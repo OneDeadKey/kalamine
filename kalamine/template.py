@@ -144,7 +144,7 @@ def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
         if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
 
-        sc = f"SC{KEY_CODES['klc'][key_name][:2]}"
+        sc = f"SC{KEY_CODES['klc']['sc'][key_name]}"
         for i in (
             [Layer.ALTGR, Layer.ALTGR_SHIFT] if altgr else [Layer.BASE, Layer.SHIFT]
         ):
@@ -188,7 +188,7 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
         if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
 
-        sc = f"SC{KEY_CODES['klc'][key_name][:2]}"
+        sc = f"SC{KEY_CODES['klc']['sc'][key_name]}"
         for i in [Layer.BASE, Layer.SHIFT]:
             layer = layout.layers[i]
             if key_name not in layer:
@@ -252,11 +252,22 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbols.append("-1")
             description += " " + desc
 
+        if '@' in symbols[0]:
+            key = symbols[0][:-1]
+        else:
+            key = symbols[0]
+        
+        if key in KEY_CODES["klc"]["vk"]:
+            vk = KEY_CODES["klc"]["vk"][key]
+        else:
+            vk = symbols[0].upper()
+
         if layout.has_altgr:
             output.append(
                 "\t".join(
                     [
-                        KEY_CODES["klc"][key_name],  # scan code & virtual key
+                        KEY_CODES["klc"]["sc"][key_name],  # scan code
+                        vk, 
                         "1" if alpha else "0",  # affected by CapsLock?
                         symbols[0],
                         symbols[1],  # base layer
@@ -272,7 +283,8 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
             output.append(
                 "\t".join(
                     [
-                        KEY_CODES["klc"][key_name],  # scan code & virtual key
+                        KEY_CODES["klc"]["sc"][key_name],  # scan code
+                        vk, 
                         "1" if alpha else "0",  # affected by CapsLock?
                         symbols[0],
                         symbols[1],  # base layer
@@ -295,12 +307,12 @@ def klc_deadkeys(layout: "KeyboardLayout") -> List[str]:
         if k not in layout.dead_keys:
             continue
         dk = layout.dead_keys[k]
-
+        
         output.append(f"// DEADKEY: {DK_INDEX[k].name.upper()} //" + "{{{")
         output.append(f"DEADKEY\t{hex_ord(dk[' '])}")
 
         for base, alt in dk.items():
-            if base == k:
+            if base == k and alt in base:
                 continue
 
             if base in layout.dead_keys:
