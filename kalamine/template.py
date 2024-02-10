@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import json
 from typing import TYPE_CHECKING, Dict, List, Tuple
 

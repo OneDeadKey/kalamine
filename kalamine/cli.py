@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import json
 import pkgutil
 from contextlib import contextmanager
@@ -9,13 +10,13 @@ from typing import Iterator, List, Literal, Union
 import click
 import tomli
 
+from .help import MARKDOWN_HEADER, TOML_FOOTER, TOML_HEADER, core_guide
 from .layout import KeyboardLayout, load_layout
 from .server import keyboard_server
 
 
 @click.group()
-def cli() -> None:
-    ...
+def cli() -> None: ...
 
 
 def pretty_json(layout: KeyboardLayout, output_path: Path) -> None:
@@ -165,23 +166,6 @@ def make(
         click.echo(f"... {output_file}")
 
 
-TOML_HEADER = """# kalamine keyboard layout descriptor
-name        = "qwerty-custom"  # full layout name, displayed in the keyboard settings
-name8       = "custom"         # short Windows filename: no spaces, no special chars
-locale      = "us"             # locale/language id
-variant     = "custom"         # layout variant id
-author      = "nobody"         # author name
-description = "custom QWERTY layout"
-url         = "https://OneDeadKey.github.com/kalamine"
-version     = "0.0.1"
-geometry    = """
-
-TOML_FOOTER = """
-[spacebar]
-1dk         = "'"  # apostrophe
-1dk_shift   = "'"  # apostrophe"""
-
-
 # TODO: Provide geometry choices
 @cli.command()
 @click.argument("output_file", nargs=1, type=click.Path(exists=False, path_type=Path))
@@ -236,6 +220,12 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
 def watch(filepath: Path) -> None:
     """Watch a TOML/YAML layout description and display it in a web server."""
     keyboard_server(filepath)
+
+
+@cli.command()
+def guide() -> None:
+    """Show user guide and exit."""
+    click.echo(MARKDOWN_HEADER + "\n" + core_guide())
 
 
 @cli.command()

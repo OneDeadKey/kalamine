@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import copy
 import datetime
 import pkgutil
@@ -321,9 +320,9 @@ class KeyboardLayout:
                         continue
                     for layer in [Layer.ODK_SHIFT, Layer.ODK]:
                         if key_name in self.layers[layer]:
-                            deadkey[
-                                self.layers[layer.necromance()][key_name]
-                            ] = self.layers[layer][key_name]
+                            deadkey[self.layers[layer.necromance()][key_name]] = (
+                                self.layers[layer][key_name]
+                            )
                 for space in all_spaces:
                     deadkey[space] = spc["1dk"]
 

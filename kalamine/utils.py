@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
 import pkgutil
 from dataclasses import dataclass
 from enum import IntEnum
-from pathlib import Path
 from typing import Dict, List
 
 import yaml
