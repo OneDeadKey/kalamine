@@ -257,8 +257,15 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
         else:
             key = symbols[0]
         
+        sc = KEY_CODES["klc"]["sc"][key_name]
         if key in KEY_CODES["klc"]["vk"]:
-            vk = KEY_CODES["klc"]["vk"][key]
+            if layout.meta["geometry"] == "ISO" and sc == '56': # `\`
+                # manage the when ISO key (between shift and Z on ISO keyboards).
+                # We're assuming that its scancode is always 56
+                # https://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
+                vk = "OEM_102"
+            else:
+                vk = KEY_CODES["klc"]["vk"][key]
         else:
             vk = symbols[0].upper()
 
@@ -266,7 +273,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
             output.append(
                 "\t".join(
                     [
-                        KEY_CODES["klc"]["sc"][key_name],  # scan code
+                        sc,  # scan code
                         vk, 
                         "1" if alpha else "0",  # affected by CapsLock?
                         symbols[0],
@@ -283,7 +290,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
             output.append(
                 "\t".join(
                     [
-                        KEY_CODES["klc"]["sc"][key_name],  # scan code
+                        sc,  # scan code
                         vk, 
                         "1" if alpha else "0",  # affected by CapsLock?
                         symbols[0],

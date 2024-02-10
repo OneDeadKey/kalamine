@@ -155,6 +155,7 @@ def test_intl_deadkeys():
         """
         // DEADKEY: 1DK //{{{
         DEADKEY	0027
+        0027	00b4	// ' -> ´
         0045	00c9	// E -> É
         0065	00e9	// e -> é
         0055	00da	// U -> Ú

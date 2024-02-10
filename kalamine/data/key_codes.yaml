@@ -70,7 +70,6 @@ klc: # more info on SC and VK: https://learn.microsoft.com/en-us/windows/win32/i
     '002f': 'OEM_2'
     '0060': 'OEM_3'
     '005b': 'OEM_4'
-    '005c': 'OEM_5'
     '005d': 'OEM_6'
     '0027': 'OEM_7'
     '0023': 'OEM_8'
@@ -81,6 +80,8 @@ klc: # more info on SC and VK: https://learn.microsoft.com/en-us/windows/win32/i
     '0020': 'SPACE'
     '003c': 'OEM_102'
     '-1': 'OEM_102'
+    '005c': 'OEM_5' # `\` key, probably "\ |", and on ISO keyboard, it can  be in 2 location: right of the homerow, 
+                    # or between Shift and Z. For the latter case, the VK should be OEM_102
 
 osx:
   spce: 49
