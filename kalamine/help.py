@@ -1,4 +1,8 @@
+from typing import List
+
 from .utils import load_data
+
+SEPARATOR = "--------------------------------------------------------------------------------"
 
 MARKDOWN_HEADER = """Defining a Keyboard Layout
 ================================================================================
@@ -46,9 +50,7 @@ TOML_FOOTER = """
 
 
 def dead_key_table() -> str:
-    out = ""
-    out += "\n    id  XKB name          base -> accented chars"
-    out += "\n    ----------------------------------------------------------------------------"
+    out = f"\n    id  XKB name          base -> accented chars\n    {SEPARATOR[4:]}"
     for item in load_data("dead_keys"):
         if (item["char"]) != "**":
             out += f"\n    {item['char']}  {item['name']:<17} {item['base']}"
@@ -56,22 +58,35 @@ def dead_key_table() -> str:
     return out
 
 
-def core_guide() -> str:
-    out = ""
+def core_guide() -> List[str]:
+    sections: List[str] = []
+
     for title, content in load_data("user_guide").items():
-        out += f"\n{title.replace('_', ' ')}"
-        out += "\n--------------------------------------------------------------------------------"
+        out = f"\n{title.replace('_', ' ')}\n{SEPARATOR}"
 
-        if not isinstance(content, dict):
+        if isinstance(content, dict):
+            for subtitle, subcontent in content.items():
+                out += f"\n\n### {subtitle.replace('_', ' ')}"
+                out += f"\n\n{subcontent}"
+                if subtitle == "Standard_Dead_Keys":
+                    out += dead_key_table()
+        else:
             out += f"\n\n{content}"
-            continue
 
-        for subtitle, subcontent in content.items():
-            out += f"\n\n### {subtitle.replace('_', ' ')}"
-            out += f"\n\n{subcontent}"
-            if subtitle == "Standard_Dead_Keys":
-                out += dead_key_table()
+        sections.append(out)
 
-        out += "\n"
+    return sections
 
-    return out
+
+def user_guide() -> str:
+    return MARKDOWN_HEADER + "\n".join(core_guide())
+
+
+def inline_guide() -> str:
+    content: str = ""
+
+    for topic in core_guide():
+        content += f"\n\n\n# {SEPARATOR}"
+        content += "\n# ".join(topic.rstrip().split("\n"))
+
+    return content.replace(" \n", "\n")

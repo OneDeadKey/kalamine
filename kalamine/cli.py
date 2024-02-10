@@ -10,7 +10,7 @@ from typing import Iterator, List, Literal, Union
 import click
 import tomli
 
-from .help import MARKDOWN_HEADER, TOML_FOOTER, TOML_HEADER, core_guide
+from .help import TOML_FOOTER, TOML_HEADER, inline_guide, user_guide
 from .layout import KeyboardLayout, load_layout
 from .server import keyboard_server
 
@@ -204,14 +204,8 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
         content += keymap("ansi", "base")
 
     # append user guide sections
-    doc = pkgutil.get_data(__package__, "../docs/README.md").decode("utf-8")  # type: ignore
-    sections = doc.split("\n\n\n")
-    for topic in sections[1:]:
-        content += "\n\n"
-        content += "\n# "
-        content += "\n# ".join(topic.rstrip().split("\n"))
     with open(output_file, "w", encoding="utf-8", newline="\n") as file:
-        file.write(content)
+        file.write(content + inline_guide())
     click.echo(f"... {output_file}")
 
 
@@ -225,7 +219,7 @@ def watch(filepath: Path) -> None:
 @cli.command()
 def guide() -> None:
     """Show user guide and exit."""
-    click.echo(MARKDOWN_HEADER + "\n" + core_guide())
+    click.echo(user_guide())
 
 
 @cli.command()
