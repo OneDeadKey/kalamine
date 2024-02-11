@@ -8,7 +8,7 @@ from typing import Iterator, List, Literal, Union
 
 import click
 
-from .help import user_guide, create_layout
+from .help import create_layout, user_guide
 from .layout import KeyboardLayout, load_layout
 from .server import keyboard_server
 

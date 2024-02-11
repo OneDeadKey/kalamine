@@ -115,7 +115,7 @@ def user_guide() -> str:
     """Create a user guide with a sample layout description."""
 
     header = MARKDOWN_HEADER.replace(
-        "KALAMINE_LAYOUT", draw_layout(geometry="ANSI", altgr="true")
+        "KALAMINE_LAYOUT", draw_layout(geometry="ANSI", altgr=True)
     )
     return header + "\n" + "\n".join(core_guide())
 
