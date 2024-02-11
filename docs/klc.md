@@ -76,6 +76,7 @@ version ([KbdNeo2][12]). Kudos, folks!
 Links
 --------------------------------------------------------------------------------
 
+- https://learn.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input
 - [Michael Kaplan’s archives](https://archives.miloush.net/michkap/archive/) (author of MSKLC)
 - [GOTCHAS for keyboard developers using MSKLC](https://metacpan.org/pod/UI::KeyboardLayout#WINDOWS-GOTCHAS-for-keyboard-developers-using-MSKLC)
 - https://kbdlayout.info/features/deadkeys
