@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 
 import json
-import pkgutil
 from contextlib import contextmanager
 from importlib import metadata
 from pathlib import Path
 from typing import Iterator, List, Literal, Union
 
 import click
-import tomli
 
-from .help import TOML_FOOTER, TOML_HEADER, inline_guide, user_guide
+from .help import create_layout, user_guide
 from .layout import KeyboardLayout, load_layout
 from .server import keyboard_server
 
@@ -174,38 +172,7 @@ def make(
 @click.option("--1dk/--no-1dk", "odk", default=False, help="Set a custom dead key.")
 def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     """Create a new TOML layout description."""
-
-    def get_layout(name: str) -> KeyboardLayout:
-        """Return a layout of type NAME with constrained geometry."""
-        descriptor = pkgutil.get_data(__package__, f"../layouts/{name}.toml")
-        layout = KeyboardLayout(tomli.loads(descriptor.decode("utf-8")))  # type: ignore
-        layout.geometry = geometry
-        return layout
-
-    def keymap(layout_name, layout_layer, layer_name=""):
-        """Return a multiline keymap ASCII art for the specified layout."""
-        layer = "\n"
-        layer += f"\n{layer_name or layout_layer} = '''"
-        layer += "\n"
-        layer += "\n".join(getattr(get_layout(layout_name), layout_layer))
-        layer += "\n'''"
-        return layer
-
-    content = f'{TOML_HEADER}"{geometry.upper()}"'
-    if odk:
-        content += keymap("intl", "base")
-        if altgr:
-            content += keymap("prog", "altgr")
-        content += "\n"
-        content += TOML_FOOTER
-    elif altgr:
-        content += keymap("prog", "full")
-    else:
-        content += keymap("ansi", "base")
-
-    # append user guide sections
-    with open(output_file, "w", encoding="utf-8", newline="\n") as file:
-        file.write(content + inline_guide())
+    create_layout(output_file, geometry, altgr, odk)
     click.echo(f"... {output_file}")
 
 

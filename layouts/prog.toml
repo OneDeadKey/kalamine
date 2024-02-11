@@ -3,7 +3,7 @@ name8 = "q-prog"
 variant = "prog"
 locale = "us"
 description = "QWERTY-intl layout, developer variant"
-url = "http://OneDeadKey.github.com/kalamine/"
+url = "https://OneDeadKey.github.com/kalamine/"
 version = "0.6.0"
 geometry = "ANSI"
 

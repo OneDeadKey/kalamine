@@ -3,7 +3,7 @@ name8 = "q-intl"
 locale = "us"
 variant = "intl"
 description = "QWERTY layout, international variant"
-url = "http://OneDeadKey.github.com/kalamine/"
+url = "https://OneDeadKey.github.com/kalamine/"
 version = "1.0.0"
 geometry = "ISO"
 
