@@ -1,8 +1,15 @@
+import pkgutil
+from pathlib import Path
 from typing import List
 
+import yaml
+
+from .layout import KeyboardLayout
 from .utils import load_data
 
-SEPARATOR = "--------------------------------------------------------------------------------"
+SEPARATOR = (
+    "--------------------------------------------------------------------------------"
+)
 
 MARKDOWN_HEADER = """Defining a Keyboard Layout
 ================================================================================
@@ -10,26 +17,7 @@ MARKDOWN_HEADER = """Defining a Keyboard Layout
 Kalamine keyboard layouts are defined with TOML files including this kind of
 ASCII-art layer templates:
 
-```
-full = '''
-┌─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┬─────┲━━━━━━━━━━┓
-│ ~*~ │ !   │ @   │ #   │ $   │ %   │ ^   │ &   │ *   │ (   │ )   │ _   │ +   ┃          ┃
-│ `*` │ 1   │ 2   │ 3   │ 4   │ 5   │ 6*^ │ 7   │ 8   │ 9   │ 0   │ -   │ =   ┃ ⌫        ┃
-┢━━━━━┷━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┺━━┯━━━━━━━┩
-┃        ┃ Q   │ W   │ E   │ R   │ T   │ Y   │ U   │ I   │ O   │ P   │ {   │ }   │ |     │
-┃ ↹      ┃   @ │   < │   > │   $ │   % │   ^ │   & │   * │   ' │   ` │ [   │ ]   │ \\     │
-┣━━━━━━━━┻┱────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┬────┴┲━━━━┷━━━━━━━┪
-┃         ┃ A   │ S   │ D   │ F   │ G   │ H   │ J   │ K   │ L   │ :   │ "*¨ ┃            ┃
-┃ ⇬       ┃   { │   ( │   ) │   } │   = │   \\ │   + │   - │   / │ ; " │ '*´ ┃ ⏎          ┃
-┣━━━━━━━━━┻━━┱──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┬──┴──┲━━┻━━━━━━━━━━━━┫
-┃            ┃ Z   │ X   │ C   │ V   │ B   │ N   │ M   │ <   │ >   │ ?   ┃               ┃
-┃ ⇧          ┃   ~ │   [ │   ] │   _ │   # │   | │   ! │ , ; │ . : │ / ? ┃ ⇧             ┃
-┣━━━━━━━┳━━━━┻━━┳━━┷━━━━┱┴─────┴─────┴─────┴─────┴─────┴─┲━━━┷━━━┳━┷━━━━━╋━━━━━━━┳━━━━━━━┫
-┃       ┃       ┃       ┃                                ┃       ┃       ┃       ┃       ┃
-┃ Ctrl  ┃ super ┃ Alt   ┃ ␣                              ┃ AltGr ┃ super ┃ menu  ┃ Ctrl  ┃
-┗━━━━━━━┻━━━━━━━┻━━━━━━━┹────────────────────────────────┺━━━━━━━┻━━━━━━━┻━━━━━━━┻━━━━━━━┛
-'''
-```
+```KALAMINE_LAYOUT```
 """
 
 TOML_HEADER = """# kalamine keyboard layout descriptor
@@ -78,15 +66,71 @@ def core_guide() -> List[str]:
     return sections
 
 
+def draw_layout(geometry: str = "ISO", altgr: bool = False, odk: bool = False) -> str:
+    """Draw a ASCII art description of a default layout."""
+
+    pkg_file = pkgutil.get_data(__package__, "data/layout.yaml")
+    if pkg_file is None:
+        return ""
+
+    # load the descriptor bug only keep the leyers we need
+    descriptor = yaml.safe_load(pkg_file.decode("utf-8"))
+    if not altgr:
+        del descriptor["altgr"]
+    if not odk:
+        del descriptor["1dk"]
+        descriptor["base"] = descriptor.pop("alpha")
+    else:
+        del descriptor["alpha"]
+        descriptor["base"] = descriptor.pop("1dk")
+    descriptor["geometry"] = geometry.upper()
+
+    # make a lyaout, just to get the ASCII arts
+    layout = KeyboardLayout(descriptor)
+    layout.geometry = geometry
+
+    def keymap(layer_name: str) -> str:
+        layer = "\n".join(getattr(layout, layer_name))
+        return f"\n{layer_name} = '''\n{layer}\n'''\n"
+
+    content = ""
+    if odk:
+        content += keymap("base")
+        if altgr:
+            content += keymap("altgr")
+    elif altgr:
+        content += keymap("full")
+    else:
+        content += keymap("base")
+
+    return content
+
+
+###
+# Public API
+##
+
+
 def user_guide() -> str:
-    return MARKDOWN_HEADER + "\n".join(core_guide())
+    """Create a user guide with a sample layout description."""
+
+    header = MARKDOWN_HEADER.replace(
+        "KALAMINE_LAYOUT", draw_layout(geometry="ANSI", altgr="true")
+    )
+    return header + "\n" + "\n".join(core_guide())
 
 
-def inline_guide() -> str:
-    content: str = ""
+def create_layout(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
+    """Create a new TOML layout description."""
+
+    content = f'{TOML_HEADER}"{geometry.upper()}"\n'
+    content += draw_layout(geometry, altgr, odk)
+    if odk:
+        content += TOML_FOOTER
 
     for topic in core_guide():
         content += f"\n\n\n# {SEPARATOR}"
         content += "\n# ".join(topic.rstrip().split("\n"))
 
-    return content.replace(" \n", "\n")
+    with open(output_file, "w", encoding="utf-8", newline="\n") as file:
+        file.write(content.replace(" \n", "\n"))
