@@ -88,8 +88,15 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
         print()
 
     except PermissionError:
+        print(xkb_root.path)
         print("    Not writable: switching to user-space.")
         print()
+        if (not WAYLAND):
+            print("You appear to be running XOrg. You need sudo privileges to install keyboard layouts:")
+            for filepath in layouts:
+                print(f'    sudo env "PATH=$PATH" xkalamine install {filepath}')
+            sys.exit(1)
+
         xkb_home = XKBManager()
         xkb_home.ensure_xkb_config_is_ready()
         xkb_install(xkb_home)
@@ -114,6 +121,10 @@ def remove(mask: str) -> None:
     try:
         xkb_remove(root=True)
     except PermissionError:
+        if (not WAYLAND):
+            print("You appear to be running XOrg. You need sudo privileges to remove keyboard layouts:")
+            print(f'    sudo env "PATH=$PATH" xkalamine remove {mask}')
+            sys.exit(1)
         xkb_remove()
 
 
