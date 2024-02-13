@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import copy
 import datetime
 import pkgutil
@@ -93,7 +92,10 @@ def load_tpl(layout: "KeyboardLayout", ext: str) -> str:
         tpl = "full"
         if layout.has_1dk and ext.startswith(".xkb"):
             tpl = "full_1dk"
-    out = pkgutil.get_data(__package__, f"tpl/{tpl}{ext}").decode("utf-8")
+    bin = pkgutil.get_data(__package__, f"tpl/{tpl}{ext}")
+    if bin is None:
+        return ""
+    out = bin.decode("utf-8")
     out = substitute_lines(out, "GEOMETRY_base", layout.base)
     out = substitute_lines(out, "GEOMETRY_full", layout.full)
     out = substitute_lines(out, "GEOMETRY_altgr", layout.altgr)
@@ -119,7 +121,7 @@ def load_layout(layout_path: Path) -> Dict:
         if "name" not in cfg:
             cfg["name"] = layout_path.stem
         if "extends" in cfg:
-            parent_path = filepath.parent / cfg["extends"]
+            parent_path = layout_path.parent / cfg["extends"]
             ext = load_descriptor(parent_path)
             ext.update(cfg)
             cfg = ext

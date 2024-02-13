@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import sys
 import traceback
 from os import environ
@@ -101,7 +100,7 @@ class XKBManager:
             if not filepath.exists():
                 continue
             tree = etree.parse(str(filepath))
-            if tree.xpath(f'//layout/configItem/name[text()="custom"]'):
+            if tree.xpath('//layout/configItem/name[text()="custom"]'):
                 return True
 
         return False

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import os
 import platform
 import sys
@@ -61,7 +62,8 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
     kb_locales = set()
     kb_layouts = []
     for file in layouts:
-        layout = KeyboardLayout(file, angle_mod)
+        layout_file = load_layout(file)
+        layout = KeyboardLayout(layout_file, angle_mod)
         kb_layouts.append(layout)
         kb_locales.add(layout.meta["locale"])
 
@@ -86,8 +88,15 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
         print()
 
     except PermissionError:
+        print(xkb_root.path)
         print("    Not writable: switching to user-space.")
         print()
+        if (not WAYLAND):
+            print("You appear to be running XOrg. You need sudo privileges to install keyboard layouts:")
+            for filepath in layouts:
+                print(f'    sudo env "PATH=$PATH" xkalamine install {filepath}')
+            sys.exit(1)
+
         xkb_home = XKBManager()
         xkb_home.ensure_xkb_config_is_ready()
         xkb_install(xkb_home)
@@ -112,6 +121,10 @@ def remove(mask: str) -> None:
     try:
         xkb_remove(root=True)
     except PermissionError:
+        if (not WAYLAND):
+            print("You appear to be running XOrg. You need sudo privileges to remove keyboard layouts:")
+            print(f'    sudo env "PATH=$PATH" xkalamine remove {mask}')
+            sys.exit(1)
         xkb_remove()
 
 
@@ -122,10 +135,8 @@ def list_command(mask: str, all_flag: bool) -> None:
     """List installed Kalamine layouts."""
 
     for root in [True, False]:
-        filtered: Dict[str, Union[Optional[KeyboardLayout], str]] = (
-            {}
-        )  # Very weird type...
-
+        # XXX this very weird type means we've done something silly here
+        filtered: Dict[str, Union[Optional[KeyboardLayout], str]] = {}
         xkb = XKBManager(root=root)
         layouts = xkb.list_all(mask) if all_flag else xkb.list(mask)
         for locale, variants in sorted(layouts.items()):

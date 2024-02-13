@@ -3,7 +3,7 @@ name8 = "q-ansi"
 locale = "us"
 variant = "ansi"
 description = "standard QWERTY-US layout"
-url = "http://OneDeadKey.github.com/kalamine/"
+url = "https://OneDeadKey.github.com/kalamine/"
 version = "1.0.0"
 geometry = "ANSI"
 

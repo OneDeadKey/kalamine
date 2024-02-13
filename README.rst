@@ -7,38 +7,35 @@ A text-based, cross-platform Keyboard Layout Maker.
 Install
 --------------------------------------------------------------------------------
 
-All you need is a Python environment with version >= 3.8:
+To install kalamine, all you need is a Python environment with version >= 3.8 and ``pip``:
 
 .. code-block:: bash
 
-   python3 -m pip install kalamine
-
-Developers can also install it from the current directory:
-
-.. code-block:: bash
-
-    python3 -m pip install -e .
-
-To install dev dependencies, specify the extra dependencies:
-
-.. code-block:: bash
-
-    python3 -m pip install -e ".[dev]"
+   python3 -m pip install --user kalamine
 
 And to uninstall kalamine:
 
 .. code-block:: bash
 
-    python3 -m pip uninstall kalamine
+    python3 -m pip uninstall --user kalamine
 
+However, we recommend using pipx_ rather than ``pip`` as it provides ``pyenv``
+containment, which is a much saner approach and is becoming mandatory on many
+operating systems (e.g. Arch Linux). It works very similarly from a user
+perspective:
 
-If your system requires a ``python virtual environment``, check the XKalamine/pyenv section at the end of this document (you can skip the ``sudo su`` command to install as user).
+.. code-block:: bash
 
-If you get a ``UnicodeEncodeError`` on Windows, try specifying this environment variable before executing Kalamine:
+    # to install kalamine
+    pipx install kalamine
 
-.. code-block:: powershell
+    # to uninstall kalamine
+    pipx uninstall kalamine
 
-    $Env:PYTHONUTF8 = 1
+Developer-specific installation instructions can be found in the CONTRIBUTING.md_ file.
+
+.. _pipx: https://pipx.pypa.io
+.. _CONTRIBUTING.md: https://github.com/OneDeadKey/kalamine/blob/main/CONTRIBUTING.md
 
 
 Building Distributable Layouts
@@ -132,10 +129,13 @@ Windows (admin): ``*.klc``
 
 The keyboard layout appears in the language bar.
 
+Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11. KbdEdit works fine.
+
+Basic developer info available in Kalamine’s `KLC documentation page`_.
+
 .. _MSKLC: https://www.microsoft.com/en-us/download/details.aspx?id=102134
 .. _KbdEdit: http://www.kbdedit.com/
-
-Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11. KbdEdit works fine.
+.. _`KLC documentation page`: https://github.com/OneDeadKey/kalamine/tree/master/docs/klc.md
 
 
 macOS: ``*.keylayout``
@@ -259,12 +259,12 @@ However, installing a layout so it can be selected in the keyboard preferences r
 .. code-block:: bash
 
     # Install a YAML/TOML keyboard layout into /usr/share/X11/xkb
-    sudo xkalamine install layout.toml
+    sudo env "PATH=$PATH" xkalamine install layout.toml
 
     # Uninstall Kalamine layouts from /usr/share/X11/xkb
-    sudo xkalamine remove us/prog
-    sudo xkalamine remove fr
-    sudo xkalamine remove "*"
+    sudo env "PATH=$PATH" xkalamine remove us/prog
+    sudo env "PATH=$PATH" xkalamine remove fr
+    sudo env "PATH=$PATH" xkalamine remove "*"
 
 Once installed, you can apply a keyboard layout like this:
 
@@ -273,19 +273,6 @@ Once installed, you can apply a keyboard layout like this:
    setxkbmap us -variant prog
 
 Note that updating XKB will delete all layouts installed using ``sudo xkalamine install``.
-
-Besides, using ``xkalamine`` with ``sudo`` supposes kalamine has been installed as root — hopefully in a pyenv:
-
-.. code-block:: bash
-
-   python -m venv /path/to/pyenv      # create a pyenv (if you don’t already have one)
-   cd /path/to/pyenv/bin
-   sudo su                            # get root privileges
-   ./python -m pip install kalamine   # install Kalamine in the pyenv (don't forget `./`)
-   exit                               # return to standard user status
-   cd ~/.local/bin                    # symlink the executables in your $PATH dir
-   ln -s /path/to/pyenv/bin/kalamine
-   ln -s /path/to/pyenv/bin/xkalamine
 
 Sadly, it seems there’s no way to install keyboard layouts in ``~/.config/xkb`` for X.Org. The system keyboard preferences will probably list user-space kayouts, but they won’t be usable on X.Org.
 
@@ -310,4 +297,4 @@ XKB is a tricky piece of software. The following resources might be helpful if y
 Alternative
 --------------------------------------------------------------------------------
 
-https://github.com/39aldo39/klfc
+* https://github.com/39aldo39/klfc

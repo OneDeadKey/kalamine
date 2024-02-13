@@ -9,6 +9,7 @@ dev:  ## Install a development environment
 
 
 test:  ## Run tests
+	python3 -m kalamine.cli guide > docs/README.md
 	python3 -m kalamine.cli make layouts/*.toml
 	pytest
 
