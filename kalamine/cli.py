@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
 import json
-import pkgutil
 from contextlib import contextmanager
 from importlib import metadata
 from pathlib import Path
 from typing import Iterator, List, Literal, Union
 
 import click
-import tomli
 
 from .help import create_layout, user_guide
 from .layout import KeyboardLayout, load_layout
