@@ -10,8 +10,8 @@ from livereload import Server  # type: ignore
 from .layout import KeyboardLayout, load_layout
 
 
-def keyboard_server(file_path: Path) -> None:
-    kb_layout = KeyboardLayout(load_layout(file_path))
+def keyboard_server(file_path: Path, angle_mod: bool) -> None:
+    kb_layout = KeyboardLayout(load_layout(file_path), angle_mod)
 
     host_name = "localhost"
     webserver_port = 1664
@@ -74,7 +74,7 @@ def keyboard_server(file_path: Path) -> None:
                 # self.wfile.write(page.encode(charset))
 
             # XXX always reloads the layout on the root page, never in sub pages
-            nonlocal kb_layout
+            nonlocal kb_layout, angle_mod
             if self.path == "/json":
                 send(json.dumps(kb_layout.json), content="application/json")
             elif self.path == "/keylayout":
@@ -87,7 +87,7 @@ def keyboard_server(file_path: Path) -> None:
             elif self.path == "/xkb_custom":
                 send(kb_layout.xkb_patch)
             elif self.path == "/":
-                kb_layout = KeyboardLayout(load_layout(file_path))  # refresh
+                kb_layout = KeyboardLayout(load_layout(file_path), angle_mod)  # refresh
                 send(main_page(kb_layout), content="text/html")
             else:
                 return SimpleHTTPRequestHandler.do_GET(self)

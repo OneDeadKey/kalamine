@@ -24,7 +24,7 @@ def cli() -> None:
     "filepath", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
 @click.option(
-    "--angle-mod/--no-angle-mod",
+    "-a", "--angle-mod/--no-angle-mod",
     default=False,
     help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
 )
@@ -49,7 +49,7 @@ def apply(filepath: Path, angle_mod: bool) -> None:
     "layouts", nargs=-1, type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
 @click.option(
-    "--angle-mod/--no-angle-mod",
+    "-a", "--angle-mod/--no-angle-mod",
     default=False,
     help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
 )
