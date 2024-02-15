@@ -18,7 +18,7 @@ python3 -m pip install --user -e .
 python3 -m pip install --user build black isort ruff pytest mypy types-PyYAML pre-commit
 ```
 
-And if you prefer the old-school way, there’s a Makefile recipe for that:
+There’s also a Makefile recipe for that:
 
 ```bash
 make dev
@@ -35,7 +35,7 @@ black kalamine
 isort kalamine
 ```
 
-Old-school alternative:
+Alternative:
 
 ```bash
 make format
@@ -57,7 +57,7 @@ ruff kalamine
 mypy kalamine
 ```
 
-Old-school alternative:
+Alternative:
 
 ```bash
 make lint
@@ -84,7 +84,7 @@ python3 -m kalamine.cli make layouts/*.toml
 pytest
 ```
 
-Old-school alternative:
+Alternative:
 
 ```bash
 make test
@@ -96,19 +96,17 @@ make test
 Before Committing
 --------------------------------------------------------------------------------
 
-Then we strongly advise you to setup a git pre-commit hook that check things that will be checked by contnuous integration on GitHub.
-
-This is asking git to run the above commands before any commit is created, and to abort the commit if any of them fail.
-
-The fancy way to do this relies on `pre-commit` and `node.js`:
+You may ensure manually that your commit will pass the Github CI (continuous integration) with:
 
 ```bash
-pre-commit install
+make
 ```
 
-Old-school alternative, create an executable file `.git/hooks/pre-commit` containing:
+But setting up a git pre-commit hook is strongly recommended. Just create an executable `.git/hooks/pre-commit` file containing:
 
 ```bash
 #!/bin/sh
 make
 ```
+
+This is asking git to run the above command before any commit is created, and to abort the commit if it fails.
