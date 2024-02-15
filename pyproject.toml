@@ -40,7 +40,7 @@ dev = [
     "ruff",
     "pytest",
     "mypy",
-    "types-PyYAML"
+    "types-PyYAML",
 ]
 
 [project.urls]
