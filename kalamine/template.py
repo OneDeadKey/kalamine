@@ -214,7 +214,7 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
 #
 
 # return the corresponding char for a symbol
-def get_chr(symbol) -> str:
+def get_chr(symbol: str) -> str:
     if len(symbol) > 1 and symbol.endswith("@"):
         # remove dead key symbol for dict access
         key = symbol[:-1]
@@ -228,7 +228,8 @@ def get_chr(symbol) -> str:
 
     return char
 
-def klc_virtual_key(layout, symbols, scan_code) -> str:
+oem_idx = 0
+def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> str:
     if (layout.meta["geometry"] == "ISO" and scan_code == '56') or symbols[0] == "-1":
         # manage the ISO key (between shift and Z on ISO keyboards).
         # We're assuming that its scancode is always 56
@@ -266,18 +267,19 @@ def klc_virtual_key(layout, symbols, scan_code) -> str:
         # We affect abitrary OEM VK and it will not match the one
         # in distributed layout. It can cause issue if a application
         # is awaiting a particular OEM_ for a hotkey
-        klc_virtual_key.oem += 1
-        if klc_virtual_key.oem <= MAX_OEM:
-            return "OEM_" + str(klc_virtual_key.oem)
+        oem_idx += 1
+        if oem_idx <= MAX_OEM:
+            return "OEM_" + str(oem_idx)
         else:
             raise Exception("Too many OEM keys")
+
 
 def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, main part."""
     
     supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     
-    klc_virtual_key.oem = 0 # Python trick to do equivalent of C static variable
+    oem_idx = 0 # Python trick to do equivalent of C static variable
     output = []
     for key_name in LAYER_KEYS:
         if key_name.startswith("-"):
