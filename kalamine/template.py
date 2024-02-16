@@ -227,9 +227,10 @@ def get_chr(symbol: str) -> str:
         char = symbol
 
     return char
-
+ 
 oem_idx = 0
 def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> str:
+    global oem_idx
     if (layout.meta["geometry"] == "ISO" and scan_code == '56') or symbols[0] == "-1":
         # manage the ISO key (between shift and Z on ISO keyboards).
         # We're assuming that its scancode is always 56
@@ -277,6 +278,7 @@ def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> 
 def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, main part."""
     
+    global oem_idx
     supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     
     oem_idx = 0 # Python trick to do equivalent of C static variable
