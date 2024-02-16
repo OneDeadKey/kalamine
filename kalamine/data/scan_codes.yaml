@@ -1,88 +1,66 @@
-klc: # more info on SC and VK: https://learn.microsoft.com/en-us/windows/win32/inputdev/about-keyboard-input
-  sc: # Scan codes. They are the code sent by the hardware
-    spce: '39'
+klc:
+  spce: '39'
 
-    # digits
-    ae01: '02'
-    ae02: '03'
-    ae03: '04'
-    ae04: '05'
-    ae05: '06'
-    ae06: '07'
-    ae07: '08'
-    ae08: '09'
-    ae09: '0a'
-    ae10: '0b'
+  # digits
+  ae01: '02'
+  ae02: '03'
+  ae03: '04'
+  ae04: '05'
+  ae05: '06'
+  ae06: '07'
+  ae07: '08'
+  ae08: '09'
+  ae09: '0a'
+  ae10: '0b'
 
-    # letters, first row
-    ad01: '10'
-    ad02: '11'
-    ad03: '12'
-    ad04: '13'
-    ad05: '14'
-    ad06: '15'
-    ad07: '16'
-    ad08: '17'
-    ad09: '18'
-    ad10: '19'
+  # letters, first row
+  ad01: '10'
+  ad02: '11'
+  ad03: '12'
+  ad04: '13'
+  ad05: '14'
+  ad06: '15'
+  ad07: '16'
+  ad08: '17'
+  ad09: '18'
+  ad10: '19'
 
-    # letters, second row
-    ac01: '1e'
-    ac02: '1f'
-    ac03: '20'
-    ac04: '21'
-    ac05: '22'
-    ac06: '23'
-    ac07: '24'
-    ac08: '25'
-    ac09: '26'
-    ac10: '27'
+  # letters, second row
+  ac01: '1e'
+  ac02: '1f'
+  ac03: '20'
+  ac04: '21'
+  ac05: '22'
+  ac06: '23'
+  ac07: '24'
+  ac08: '25'
+  ac09: '26'
+  ac10: '27'
 
-    # letters, third row
-    ab01: '2c'
-    ab02: '2d'
-    ab03: '2e'
-    ab04: '2f'
-    ab05: '30'
-    ab06: '31'
-    ab07: '32'
-    ab08: '33'
-    ab09: '34'
-    ab10: '35'
+  # letters, third row
+  ab01: '2c'
+  ab02: '2d'
+  ab03: '2e'
+  ab04: '2f'
+  ab05: '30'
+  ab06: '31'
+  ab07: '32'
+  ab08: '33'
+  ab09: '34'
+  ab10: '35'
 
-    # pinky keys
-    tlde: '29'
-    ae11: '0c'
-    ae12: '0d'
-    ae13: '0d' # XXX FIXME
-    ad11: '1a'
-    ad12: '1b'
-    ac11: '28'
-    ab11: '28'  # XXX FIXME
-    bksl: '2b'
-    lsgt: '56'
-  vk: # Virtual keys
-    # the driver maps scan codes to VK which are in turn 
-    # translated by the layout to output a char.
-    # We don't put digits nor alpha chars as they are their own VK
-    '2019': 'OEM_1' # 1dk
-    '003b': 'OEM_1'
-    '002f': 'OEM_2'
-    '0060': 'OEM_3'
-    '005b': 'OEM_4'
-    '005d': 'OEM_6'
-    '0027': 'OEM_7'
-    '0023': 'OEM_8'
-    '002d': 'OEM_MINUS'
-    '003d': 'OEM_PLUS'
-    '002c': 'OEM_COMMA'
-    '002e': 'OEM_PERIOD'
-    '0020': 'SPACE'
-    '003c': 'OEM_102'
-    '-1': 'OEM_102'
-    '005c': 'OEM_5' # `\` key, probably "\ |", and on ISO keyboard, it can  be in 2 location: right of the homerow, 
-                    # or between Shift and Z. For the latter case, the VK should be OEM_102
-
+  # pinky keys
+  tlde: '29'
+  ae11: '0c'
+  ae12: '0d'
+  ae13: '0d' # XXX FIXME
+  ad11: '1a'
+  ad12: '1b'
+  ac11: '28'
+  ab11: '28'  # XXX FIXME
+  bksl: '2b'
+  lsgt: '56'
+ 
 osx:
   spce: 49
 

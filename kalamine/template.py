@@ -16,9 +16,8 @@ for dk in DEAD_KEYS:
 # Helpers
 #
 
-KEY_CODES = load_data("key_codes")
+SCAN_CODES = load_data("scan_codes")
 XKB_KEY_SYM = load_data("key_sym")
-
 
 def hex_ord(char: str) -> str:
     return hex(ord(char))[2:].zfill(4)
@@ -144,7 +143,7 @@ def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
         if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
 
-        sc = f"SC{KEY_CODES['klc']['sc'][key_name]}"
+        sc = f"SC{SCAN_CODES['klc'][key_name]}"
         for i in (
             [Layer.ALTGR, Layer.ALTGR_SHIFT] if altgr else [Layer.BASE, Layer.SHIFT]
         ):
@@ -188,7 +187,7 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
         if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
 
-        sc = f"SC{KEY_CODES['klc']['sc'][key_name]}"
+        sc = f"SC{SCAN_CODES['klc'][key_name]}"
         for i in [Layer.BASE, Layer.SHIFT]:
             layer = layout.layers[i]
             if key_name not in layer:
@@ -214,12 +213,72 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
 # file because they are not recognized by KBDEdit (as of v19.8.0).
 #
 
+# return the corresponding char for a symbol
+def get_chr(symbol) -> str:
+    if len(symbol) > 1 and symbol.endswith("@"):
+        # remove dead key symbol for dict access
+        key = symbol[:-1]
+    else:
+        key = symbol
+    
+    if len(symbol) == 4:
+        char = chr(int(key, base = 16))
+    else:
+        char = symbol
+
+    return char
+
+def klc_virtual_key(layout, symbols, scan_code) -> str:
+    if layout.meta["geometry"] == "ISO" and scan_code == '56':
+        # manage the ISO key (between shift and Z on ISO keyboards).
+        # We're assuming that its scancode is always 56
+        # https://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
+        return "OEM_102"
+
+    base = get_chr(symbols[0])
+    shifted = get_chr(symbols[1])
+
+    # Can’t use `isdigit()` because `²` is a digit but we don't want 
+    # that as a VK
+    allowed_digit = "0123456789"
+    # We assume that digit row always have digit as VK
+    if base in allowed_digit:
+        return base
+    elif shifted in allowed_digit:
+        return shifted
+    
+    if shifted.isascii() and shifted.isalpha():
+        return shifted
+    
+    # VK_OEM_* case
+    if base == ',' or shifted == ',':
+        return "OEM_COMMA"
+    elif base == '.' or shifted == '.':
+        return "OEM_PERIOD"
+    elif base == '+' or shifted == '+':
+        return "OEM_PLUS"
+    elif base == '-' or shifted == '-':
+        return "OEM_MINUS"
+    elif base == ' ':
+        return "SPACE"
+    else:
+        MAX_OEM = 8
+        # We affect abitrary OEM VK and it will not match the one
+        # in distributed layout. It can cause issue if a application
+        # is awaiting a particular OEM_ for a hotkey
+        klc_virtual_key.oem += 1
+        if klc_virtual_key.oem <= MAX_OEM:
+            print(f'OEM_{klc_virtual_key.oem}')
+            return "OEM_" + str(klc_virtual_key.oem)
+        else:
+            raise Exception("Too many OEM keys")
 
 def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, main part."""
-
+    
     supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
+    
+    klc_virtual_key.oem = 0 # Python trick to do equivalent of C static variable
     output = []
     for key_name in LAYER_KEYS:
         if key_name.startswith("-"):
@@ -231,7 +290,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
         symbols = []
         description = "//"
         alpha = False
-
+        
         for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
             layer = layout.layers[i]
 
@@ -252,29 +311,16 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbols.append("-1")
             description += " " + desc
 
-        if '@' in symbols[0]:
-            key = symbols[0][:-1]
-        else:
-            key = symbols[0]
-        
-        sc = KEY_CODES["klc"]["sc"][key_name]
-        if key in KEY_CODES["klc"]["vk"]:
-            if layout.meta["geometry"] == "ISO" and sc == '56': # `\`
-                # manage the when ISO key (between shift and Z on ISO keyboards).
-                # We're assuming that its scancode is always 56
-                # https://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
-                vk = "OEM_102"
-            else:
-                vk = KEY_CODES["klc"]["vk"][key]
-        else:
-            vk = symbols[0].upper()
+        scan_code = SCAN_CODES["klc"][key_name]
 
+        virtual_key = klc_virtual_key(layout, symbols, scan_code)
+        
         if layout.has_altgr:
             output.append(
                 "\t".join(
                     [
-                        sc,  # scan code
-                        vk, 
+                        scan_code,
+                        virtual_key, 
                         "1" if alpha else "0",  # affected by CapsLock?
                         symbols[0],
                         symbols[1],  # base layer
@@ -290,8 +336,8 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
             output.append(
                 "\t".join(
                     [
-                        sc,  # scan code
-                        vk, 
+                        scan_code,
+                        virtual_key, 
                         "1" if alpha else "0",  # affected by CapsLock?
                         symbols[0],
                         symbols[1],  # base layer
@@ -398,7 +444,7 @@ def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
                     symbol = xml_proof(key.upper() if caps else key)
                     final_key = not has_dead_keys(key.upper())
 
-            char = f"code=\"{KEY_CODES['osx'][key_name]}\"".ljust(10)
+            char = f"code=\"{SCAN_CODES['osx'][key_name]}\"".ljust(10)
             if final_key:
                 action = f'output="{symbol}"'
             else:
@@ -523,7 +569,7 @@ def web_keymap(layout: "KeyboardLayout") -> Dict[str, List[str]]:
             if key_name in layout.layers[i]:
                 chars.append(layout.layers[i][key_name])
         if chars:
-            keymap[KEY_CODES["web"][key_name]] = chars
+            keymap[SCAN_CODES["web"][key_name]] = chars
 
     return keymap
 
