@@ -229,7 +229,7 @@ def get_chr(symbol) -> str:
     return char
 
 def klc_virtual_key(layout, symbols, scan_code) -> str:
-    if layout.meta["geometry"] == "ISO" and scan_code == '56':
+    if (layout.meta["geometry"] == "ISO" and scan_code == '56') or symbols[0] == "-1":
         # manage the ISO key (between shift and Z on ISO keyboards).
         # We're assuming that its scancode is always 56
         # https://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
@@ -268,7 +268,6 @@ def klc_virtual_key(layout, symbols, scan_code) -> str:
         # is awaiting a particular OEM_ for a hotkey
         klc_virtual_key.oem += 1
         if klc_virtual_key.oem <= MAX_OEM:
-            print(f'OEM_{klc_virtual_key.oem}')
             return "OEM_" + str(klc_virtual_key.oem)
         else:
             raise Exception("Too many OEM keys")
