@@ -1,5 +1,8 @@
 import json
+import subprocess
+import os
 from typing import TYPE_CHECKING, Dict, List, Tuple
+from pathlib import Path
 
 from .utils import DEAD_KEYS, LAYER_KEYS, ODK_ID, Layer, load_data
 
@@ -387,7 +390,7 @@ def klc_deadkeys(layout: "KeyboardLayout") -> List[str]:
     return output[:-1]
 
 
-def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
+def win_dk_index(layout: "KeyboardLayout", format: str) -> List[str]:
     """Windows layout, dead key index."""
 
     output = []
@@ -395,9 +398,173 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
         if k not in layout.dead_keys:
             continue
         dk = layout.dead_keys[k]
-        output.append(f"{hex_ord(dk[' '])}\t\"{DK_INDEX[k].name.upper()}\"")
+        if format == "c":
+            output.append(f"L\"\\\\x{hex_ord(dk[' '])}\"\tL\"{DK_INDEX[k].name.upper()}\",")
+        else:
+            output.append(f"{hex_ord(dk[' '])}\t\"{DK_INDEX[k].name.upper()}\"")
     return output
 
+# This need the klc file to be created first
+def create_c_files(layout: "KeyboardLayout", msklc: Path, 
+                   verbose: bool, working_dir: Path = Path(os.getcwd())):
+    """Call kbdutools to generate C files"""
+    kbdutools = msklc / Path("bin/i386/kbdutool.exe")
+    cur = os.getcwd()
+    os.chdir(working_dir)
+    ret = subprocess.run([kbdutools, '-u', '-s', layout.meta["name8"] + ".klc"], capture_output=not verbose)
+    os.chdir(cur)
+    ret.check_returncode()
+
+def c_keymap(layout: "KeyboardLayout") -> List[str]:
+    """Windows C layout, main part."""
+    
+    global oem_idx
+    supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    
+    oem_idx = 0 # Python trick to do equivalent of C static variable
+    output = []
+    for key_name in LAYER_KEYS:
+        if key_name.startswith("-"):
+            continue
+
+        if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+            continue  # these two keys are not supported yet
+
+        symbols = []
+        dead_symbols = []
+        alpha = False
+        has_dead = False
+        
+        for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
+            layer = layout.layers[i]
+
+            if key_name in layer:
+                symbol = layer[key_name]
+                desc = symbol
+                dead = "WCH_NONE"
+                if symbol in layout.dead_keys:
+                    desc = layout.dead_keys[symbol][" "]
+                    symbol = "WCH_DEAD"
+                    dead = hex_ord(desc)
+                    has_dead = True
+                else:
+                    if i == Layer.BASE:
+                        alpha = symbol.upper() != symbol
+                    if symbol not in supported_symbols:
+                        symbol = hex_ord(symbol)
+                symbols.append(symbol)
+                dead_symbols.append(dead)
+            else:
+                desc = " "
+                symbols.append("WCH_NONE")
+                dead_symbols.append("WCH_NONE")
+            
+
+        virtual_key = klc_virtual_key(layout, symbols, "")
+        if len(virtual_key) == 1:
+            virtual_key = "'" + virtual_key + "'"
+        else:
+            virtual_key = "VK_" + virtual_key
+        def process_symbol(symbol: str) -> str:
+            if len(symbol) == 4:
+                return "0x" + symbol
+            elif len(symbol) == 1:
+                return "'" + symbol + "'"
+            else:
+                return symbol
+        symbols[:] = [process_symbol(symbol) for symbol in symbols]
+        dead_symbols[:] = [process_symbol(symbol) for symbol in dead_symbols]
+
+        if layout.has_altgr:
+            output.append("\t{" +
+                "\t,".join(
+                    [
+                        virtual_key,
+                        "CAPLOK" if alpha else "0",  # affected by CapsLock?
+                        symbols[0],
+                        symbols[1],  # base layer
+                        "WCH_NONE",
+                        "WCH_NONE",  # ctrl layer
+                        symbols[2],
+                        symbols[3],  # altgr layer
+                    ]
+                ) + "},"
+            )
+            if has_dead:
+                output.append("\t{" +
+                    "\t,".join(
+                        [
+                            "0xff",
+                            "0",
+                            dead_symbols[0],
+                            dead_symbols[1],
+                            "WCH_NONE",
+                            "WCH_NONE",  # ctrl layer
+                            dead_symbols[2],
+                            dead_symbols[3],
+                        ]
+                    ) + "},"
+                )
+        else:
+            output.append("\t{" +
+                "\t".join( 
+                    [
+                        virtual_key, 
+                        "CAPLOK" if alpha else "0",  # affected by CapsLock?
+                        symbols[0],
+                        symbols[1],  # base layer
+                        "WCH_NONE",
+                        "WCH_NONE",  # ctrl layer
+                    ]
+                ) + "},"
+            )
+            if has_dead:
+                output.append("\t{" +
+                    "\t,".join(
+                        [
+                            "0xff",
+                            "0",
+                            dead_symbols[0],
+                            dead_symbols[1],
+                            "WCH_NONE",
+                            "WCH_NONE",  # ctrl layer
+                        ]
+                    ) + "},"
+                )
+
+    return output
+
+def c_deadkeys(layout: "KeyboardLayout") -> List[str]:
+    """Windows C layout, dead keys."""
+
+    output = []
+
+    for k in DK_INDEX:
+        if k not in layout.dead_keys:
+            continue
+        dk = layout.dead_keys[k]
+        
+        output.append(f"// DEADKEY: {DK_INDEX[k].name.upper()}")
+
+        for base, alt in dk.items():
+            if base == k and alt in base:
+                continue
+
+            if base in layout.dead_keys:
+                base = layout.dead_keys[base][" "]
+            dead_alt = "0x000"
+            if alt in layout.dead_keys:
+                alt = layout.dead_keys[alt][" "]
+                dead_alt += "1"
+            else:
+                dead_alt += "0"
+            ext = hex_ord(alt)
+
+            output.append(f"DEADTRANS(0x{hex_ord(base)}\t, 0x{hex_ord(dk[' '])}\t, 0x{ext}\t, {dead_alt}), // {base} -> {alt}")
+        
+        output.append("")
+
+    return output[:-1]
 
 ###
 # macOS: keylayout

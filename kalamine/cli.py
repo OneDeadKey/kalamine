@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import json
+import platform
+import os
 from contextlib import contextmanager
 from importlib import metadata
 from pathlib import Path
@@ -9,7 +11,7 @@ from typing import Iterator, List, Literal, Union
 import click
 
 from .help import create_layout, user_guide
-from .layout import KeyboardLayout, load_layout
+from .layout import KeyboardLayout, load_layout, build_msklc_installer, build_msklc_dll
 from .server import keyboard_server
 
 
@@ -36,7 +38,7 @@ def pretty_json(layout: KeyboardLayout, output_path: Path) -> None:
     output_path.write_text(text, encoding="utf8")
 
 
-def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
+def make_all(layout: KeyboardLayout, output_dir_path: Path, msklc_dir: Path, verbose: bool) -> None:
     """Generate all layout output files.
 
     Parameters
@@ -45,6 +47,8 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
         The layout to process.
     output_dir_path : Path
         The output directory.
+    msklc_dir : Path
+        The MSKLC installation directory.
     """
 
     @contextmanager
@@ -64,9 +68,15 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
             file.write(layout.ahk)
 
     # Windows driver
-    with file_creation_context(".klc") as klc_path:
-        with klc_path.open("w", encoding="utf-16le", newline="\r\n") as file:
-            file.write(layout.klc)
+    if platform.system() == "Windows":
+        build_msklc_installer(layout, msklc_dir, verbose, os.getcwd() / output_dir_path)
+        build_msklc_dll(layout, msklc_dir, verbose, os.getcwd() / output_dir_path)
+        click.echo(f"... {output_dir_path}/{layout.meta["name8"]} (msklc)")
+    else:
+        with file_creation_context(".klc") as klc_path:
+            with klc_path.open("w", encoding="utf-16le", newline="\r\n") as file:
+                file.write(layout.klc)
+
 
     # macOS driver
     with file_creation_context(".keylayout") as osx_path:
@@ -109,8 +119,13 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     default=False,
     help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
 )
+@click.option("--msklc", default="C:\\Program Files (x86)\\Microsoft Keyboard Layout Creator 1.4\\", 
+              type=click.Path(exists=True, file_okay=False, resolve_path=True), 
+              help="Directory where MSKLC is installed")
+@click.option("--verbose", default=False, help="Verbose mode")
 def make(
-    layout_descriptors: List[Path], out: Union[Path, Literal["all"]], angle_mod: bool
+    layout_descriptors: List[Path], out: Union[Path, Literal["all"]], angle_mod: bool,
+    msklc: Path, verbose: bool
 ) -> None:
     """Convert TOML/YAML descriptions into OS-specific keyboard drivers."""
 
@@ -119,11 +134,11 @@ def make(
 
         # default: build all in the `dist` subdirectory
         if out == "all":
-            make_all(layout, Path("dist"))
+            make_all(layout, Path("dist"), msklc, verbose)
             continue
 
         # quick output: reuse the input name and change the file extension
-        if out in ["keylayout", "klc", "xkb", "xkb_custom", "svg"]:
+        if out in ["keylayout", "klc", "xkb", "xkb_custom", "svg", "msklc"]:
             output_file = input_file.with_suffix(f".{out}")
         else:
             output_file = Path(out)
@@ -137,6 +152,13 @@ def make(
         elif output_file.suffix == ".klc":
             with output_file.open("w", encoding="utf-16le", newline="\r\n") as file:
                 file.write(layout.klc)
+        elif output_file.suffix == ".msklc":
+            if platform.system() == "Windows":
+                build_msklc_installer(layout, msklc, verbose)
+                build_msklc_dll(layout, msklc, verbose)
+            else:
+                click.echo("msklc driver is for Windows only.", err=True)
+                return
 
         elif output_file.suffix == ".keylayout":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
