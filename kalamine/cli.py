@@ -71,7 +71,8 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path, msklc_dir: Path, ver
     if platform.system() == "Windows":
         build_msklc_installer(layout, msklc_dir, verbose, os.getcwd() / output_dir_path)
         build_msklc_dll(layout, msklc_dir, verbose, os.getcwd() / output_dir_path)
-        click.echo(f"... {output_dir_path}/{layout.meta["name8"]} (msklc)")
+        name8 = layout.meta["name8"]
+        click.echo(f"... {output_dir_path}/{name8} (msklc)")
     else:
         with file_creation_context(".klc") as klc_path:
             with klc_path.open("w", encoding="utf-16le", newline="\r\n") as file:
@@ -101,6 +102,11 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path, msklc_dir: Path, ver
     with file_creation_context(".svg") as svg_path:
         layout.svg.write(svg_path, pretty_print=True, encoding="utf-8")
 
+def default_msklc() -> str:
+    if platform.system() == "Windows":
+        return "C:\\Program Files (x86)\\Microsoft Keyboard Layout Creator 1.4\\"
+    else:
+        return ""
 
 @cli.command()
 @click.argument(
@@ -119,7 +125,7 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path, msklc_dir: Path, ver
     default=False,
     help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
 )
-@click.option("--msklc", default="C:\\Program Files (x86)\\Microsoft Keyboard Layout Creator 1.4\\", 
+@click.option("--msklc", default=default_msklc(), 
               type=click.Path(exists=True, file_okay=False, resolve_path=True), 
               help="Directory where MSKLC is installed")
 @click.option("--verbose", default=False, help="Verbose mode")
