@@ -1,15 +1,10 @@
 import copy
 import datetime
-import os
 import pkgutil
-import platform
 import re
-import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from shutil import move, rmtree
-from stat import S_IREAD, S_IWUSR
 from typing import Dict, List, Optional, Set, Type, TypeVar
 
 import click
@@ -22,7 +17,6 @@ from .template import (
     ahk_shortcuts,
     c_deadkeys,
     c_keymap,
-    create_c_files,
     klc_deadkeys,
     klc_keymap,
     osx_actions,
@@ -30,8 +24,9 @@ from .template import (
     osx_terminators,
     web_deadkeys,
     web_keymap,
-    win_dk_index,
+    klc_dk_index,
     xkb_keymap,
+    c_dk_index,
 )
 from .utils import (
     DEAD_KEYS,
@@ -111,114 +106,6 @@ def load_tpl(layout: "KeyboardLayout", ext: str, tpl: str = "base") -> str:
     for key, value in layout.meta.items():
         out = substitute_token(out, key, value)
     return out
-
-if platform.system() == "Windows":
-    def build_msklc_installer(
-        layout: "KeyboardLayout",
-        msklc_dir: Path,
-        verbose: bool,
-        working_dir: Path = Path(os.getcwd()),
-    ):
-        import ctypes.wintypes
-    
-        name8 = layout.meta["name8"]
-    
-        if (working_dir / Path(name8)).exists():
-            print(
-                f"WARN: `{working_dir / Path(name8)}` already exists, assuming installer sit there"
-            )
-            return
-    
-        klc_file = Path(working_dir) / Path(f"{name8}.klc")
-    
-        # create a dummy klc file to generate installer
-        # The file must have correct name to be reflected in the installer
-        dummy = load_tpl(layout, ".klc", "dummy")
-        with klc_file.open("w", encoding="utf-16le", newline="\n") as file:
-            file.write(dummy)
-        msklc = msklc_dir / Path("MSKLC.exe")
-        subprocess.run([msklc, klc_file, "-build"], capture_output=not verbose)
-    
-        # move the installer from "My Documents" to current dir
-        CSIDL_PERSONAL = 5  # My Documents
-        SHGFP_TYPE_CURRENT = 0  # Get current, not default value
-        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-        ctypes.windll.shell32.SHGetFolderPathW(
-            None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf
-        )
-        my_docs = Path(buf.value)
-        installer = my_docs / Path(name8)
-    
-        if installer.exists():
-            move(installer, working_dir / Path(name8))
-    
-    
-    def build_msklc_dll(
-        layout: "KeyboardLayout",
-        msklc_dir: Path,
-        verbose: bool,
-        working_dir: Path = Path(os.getcwd()),
-    ):
-        name8 = layout.meta["name8"]
-        prev = os.getcwd()
-        os.chdir(working_dir)
-        INST_DIR = working_dir / Path(name8)
-        dll_dirs = ["i386", "amd64", "ia64", "wow64"]
-        for dll_dir in dll_dirs:
-            full_dir = INST_DIR / Path(dll_dir)
-            if not full_dir.exists():
-                raise Exception(f"{full_dir} doesn't exists")
-            else:
-                rmtree(full_dir)
-                os.mkdir(full_dir)
-    
-        klc_file = working_dir / Path(f"{name8}.klc")
-    
-        # create correct klc
-        with klc_file.open("w", encoding="utf-16le", newline="\n") as file:
-            file.write(layout.klc)
-    
-        create_c_files(layout, msklc_dir, verbose, working_dir)
-        c_file = klc_file.with_suffix(".RC")
-        with c_file.open("w", encoding="utf-16le", newline="\n") as file:
-            file.write(layout.rc)
-        c_file = klc_file.with_suffix(".C")
-        with c_file.open("w", encoding="utf-16le", newline="\n") as file:
-            file.write(layout.c)
-        c_files = [".C", ".RC", ".H", ".DEF"]
-        # Set files to read only to avoid overwrite by buggy MSKLC
-        for suffix in c_files:
-            os.chmod(klc_file.with_suffix(suffix), S_IREAD)
-    
-        # build correct DLLs
-    
-        kbdutools = msklc_dir / Path("bin/i386/kbdutool.exe")
-        dll = klc_file.with_suffix(".dll")
-    
-        subprocess.run(
-            [kbdutools, "-u", "-x", klc_file], capture_output=not verbose
-        ).check_returncode()
-        move(dll, INST_DIR / Path("i386"))
-    
-        subprocess.run(
-            [kbdutools, "-u", "-m", klc_file], capture_output=not verbose
-        ).check_returncode()
-        move(dll, INST_DIR / Path("amd64"))
-    
-        subprocess.run(
-            [kbdutools, "-u", "-i", klc_file], capture_output=not verbose
-        ).check_returncode()
-        move(dll, INST_DIR / Path("ia64"))
-    
-        subprocess.run(
-            [kbdutools, "-u", "-o", klc_file], capture_output=not verbose
-        ).check_returncode()
-        move(dll, INST_DIR / Path("wow64"))
-    
-        # Restore write permission
-        for suffix in c_files:
-            os.chmod(klc_file.with_suffix(suffix), S_IWUSR)
-        os.chdir(prev)
 
 
 def load_layout(layout_path: Path) -> Dict:
@@ -625,12 +512,12 @@ class KeyboardLayout:
         out = load_tpl(self, ".klc")
         out = substitute_lines(out, "LAYOUT", klc_keymap(self))
         out = substitute_lines(out, "DEAD_KEYS", klc_deadkeys(self))
-        out = substitute_lines(out, "DEAD_KEY_INDEX", win_dk_index(self, "klc"))
+        out = substitute_lines(out, "DEAD_KEY_INDEX", klc_dk_index(self))
         out = substitute_token(out, "encoding", "utf-16le")
         return out
 
     @property
-    def rc(self) -> str:
+    def klc_rc(self) -> str:
         """Windows resource file for C drivers"""
         out = load_tpl(self, ".RC")
         # version numbers are in "a,b,c,d" format
@@ -639,12 +526,12 @@ class KeyboardLayout:
         return out
 
     @property
-    def c(self) -> str:
+    def klc_c(self) -> str:
         """Windows keymap file for C drivers"""
         out = load_tpl(self, ".C")
         out = substitute_lines(out, "LAYOUT", c_keymap(self))
         out = substitute_lines(out, "DEAD_KEYS", c_deadkeys(self))
-        out = substitute_lines(out, "DEAD_KEY_INDEX", win_dk_index(self, "c"))
+        out = substitute_lines(out, "DEAD_KEY_INDEX", c_dk_index(self))
         return out
 
     @property

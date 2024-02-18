@@ -1,5 +1,5 @@
 /***************************************************************************\
-* Module Name: q-ansi.C
+* Module Name: ${name8}.C
 *
 * keyboard layout
 *
@@ -142,7 +142,7 @@ static ALLOC_SECTION_LDATA VK_TO_BIT aVkToBits[] = {
     { VK_SHIFT    ,   KBDSHIFT     },
     { VK_CONTROL  ,   KBDCTRL      },
     { VK_MENU     ,   KBDALT       },
-    { 0           ,   0           }
+    { 0           ,   0            }
 };
 
 /***************************************************************************\

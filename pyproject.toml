@@ -49,6 +49,7 @@ Homepage = "https://github.com/OneDeadKey/kalamine"
 [project.scripts]
 kalamine = "kalamine.cli:cli"
 xkalamine = "kalamine.cli_xkb:cli"
+wkalamine = "kalamine.cli_msklc:cli"
 
 [tool.isort]
 profile = "black"
