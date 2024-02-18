@@ -11,9 +11,10 @@ from typing import Iterator, List, Literal, Union
 import click
 
 from .help import create_layout, user_guide
-from .layout import KeyboardLayout, build_msklc_dll, build_msklc_installer, load_layout
+from .layout import KeyboardLayout, load_layout
 from .server import keyboard_server
-
+if platform.system() == "Windows":
+    from .layout import build_msklc_dll, build_msklc_installer
 
 @click.group()
 def cli() -> None: ...
