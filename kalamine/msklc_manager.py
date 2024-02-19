@@ -5,7 +5,10 @@ from pathlib import Path
 from shutil import move, rmtree
 from stat import S_IREAD, S_IWUSR
 
-from .layout import KeyboardLayout, load_tpl
+import tomli
+
+from .help import create_layout_content
+from .layout import KeyboardLayout
 
 
 class MsklcManager:
@@ -45,13 +48,28 @@ class MsklcManager:
             )
             return
 
-        klc_file = Path(self._working_dir) / Path(f"{name8}.klc")
-
         # create a dummy klc file to generate installer
         # The file must have correct name to be reflected in the installer
-        dummy = load_tpl(self._layout, ".klc", "dummy")
+        dummy_toml = create_layout_content(
+            self._layout.geometry, self._layout.has_altgr, self._layout.has_1dk
+        )
+        dummy_toml = dummy_toml.replace(
+            "custom QWERTY layout", self._layout.meta["description"]
+        )
+        dummy_toml = dummy_toml.replace("qwerty-custom", self._layout.meta["name"])
+        dummy_toml = dummy_toml.replace("custom", self._layout.meta["name8"])
+        dummy_toml = dummy_toml.replace("nobody", self._layout.meta["author"])
+        dummy_toml = dummy_toml.replace(
+            "https://OneDeadKey.github.com/kalamine", self._layout.meta["url"]
+        )
+        dummy_toml = dummy_toml.replace("0.0.1", self._layout.meta["version"])
+        dummy_toml = dummy_toml.replace('"us"', f'"{self._layout.meta["locale"]}"')
+
+        dummy_layout = KeyboardLayout(tomli.loads(dummy_toml))
+        dummy_klc = dummy_layout.klc
+        klc_file = Path(self._working_dir) / Path(f'{self._layout.meta["name8"]}.klc')
         with klc_file.open("w", encoding="utf-16le", newline="\n") as file:
-            file.write(dummy)
+            file.write(dummy_klc)
         msklc = self._msklc_dir / Path("MSKLC.exe")
         subprocess.run([msklc, klc_file, "-build"], capture_output=not self._verbose)
 
