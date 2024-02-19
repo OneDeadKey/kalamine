@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
-from kalamine.template import klc_deadkeys, win_dk_index, klc_keymap
+from kalamine.template import klc_deadkeys, klc_dk_index, klc_keymap
 
 from .util import get_layout_dict
 
@@ -74,7 +74,7 @@ def test_ansi_keymap():
 
 
 def test_ansi_deadkeys():
-    assert len(win_dk_index(LAYOUTS["ansi"], "klc")) == 0
+    assert len(klc_dk_index(LAYOUTS["ansi"])) == 0
     assert len(klc_deadkeys(LAYOUTS["ansi"])) == 0
 
 
@@ -137,7 +137,7 @@ def test_intl_keymap():
 
 
 def test_intl_deadkeys():
-    dk_index = win_dk_index(LAYOUTS["intl"], "klc")
+    dk_index = klc_dk_index(LAYOUTS["intl"])
     assert len(dk_index) == 5
     assert dk_index == split(
         """
@@ -349,7 +349,7 @@ def test_prog_keymap():
 
 
 def test_prog_deadkeys():
-    dk_index = win_dk_index(LAYOUTS["prog"], "klc")
+    dk_index = klc_dk_index(LAYOUTS["prog"])
     assert len(dk_index) == 5
     assert dk_index == split(
         """
