@@ -33,7 +33,7 @@ class MsklcManager:
         )
         os.chdir(cur)
         ret.check_returncode()
-    
+
     def build_msklc_installer(
         self,
     ):

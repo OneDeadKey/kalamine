@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import json
-import platform
 from contextlib import contextmanager
 from importlib import metadata
 from pathlib import Path
@@ -37,9 +36,7 @@ def pretty_json(layout: KeyboardLayout, output_path: Path) -> None:
     output_path.write_text(text, encoding="utf8")
 
 
-def make_all(
-    layout: KeyboardLayout, output_dir_path: Path
-) -> None:
+def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     """Generate all layout output files.
 
     Parameters
@@ -95,6 +92,7 @@ def make_all(
     # SVG data
     with file_creation_context(".svg") as svg_path:
         layout.svg.write(svg_path, pretty_print=True, encoding="utf-8")
+
 
 @cli.command()
 @click.argument(

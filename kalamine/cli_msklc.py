@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 
-import os
 import platform
 import sys
-import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import List
 
 import click
 
 from .layout import KeyboardLayout, load_layout
 from .msklc_manager import MsklcManager
 
+
 @click.group()
 def cli() -> None:
     if platform.system() != "Windows":
         sys.exit("This command is only compatible with Windows, sorry.")
 
+
 DEFAULT_MSKLC_DIR = "C:\\Program Files (x86)\\Microsoft Keyboard Layout Creator 1.4\\"
+
 
 @cli.command()
 @click.argument(
@@ -47,8 +48,7 @@ def make(
 
     for input_file in layout_descriptors:
         layout = KeyboardLayout(load_layout(input_file), angle_mod)
-        msklc = MsklcManager(layout, msklc, verbose=verbose)
-        msklc.build_msklc_installer()
-        msklc.build_msklc_dll()
+        msklc_mgr = MsklcManager(layout, msklc, verbose=verbose)
+        msklc_mgr.build_msklc_installer()
+        msklc_mgr.build_msklc_dll()
         click.echo("Creation of MSKLC drivers succeeded")
-
