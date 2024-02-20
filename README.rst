@@ -121,6 +121,9 @@ You may also use Ahk2Exe to turn your ``*.ahk`` script into an executable file. 
 Windows (admin): ``*.klc``
 ``````````````````````````
 
+Note: this applies only if you want to use the ``*.klc`` file.
+A better approach is to use ``wkalamine`` (see below).
+
 * get a keyboard layout installer: MSKLC_ (freeware) or KbdEdit_ (shareware);
 * load the ``*.klc`` file with it;
 * run this installer to generate a setup program;
@@ -129,7 +132,9 @@ Windows (admin): ``*.klc``
 
 The keyboard layout appears in the language bar.
 
-Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11. KbdEdit works fine.
+Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11.
+KbdEdit works fine, but its installers are not signed.
+WKalamine works fine as well (see below) and its installers are signed.
 
 Basic developer info available in Kalamine’s `KLC documentation page`_.
 
@@ -205,6 +210,26 @@ On Wayland, this depends on your compositor. For Sway, tweak your keyboard input
     input type:keyboard {
         xkb_file /path/to/layout.xkb
     }
+
+
+WKalamine
+--------------------------------------------------------------------------------
+
+``wkalamine`` is a Windows-specific CLI tool to create MSKLC_ setup packages.
+
+This is kind of a hack, but it provides an automatic way to build setup packages on Windows and more importantly, these setup packages overcome MSKLC’s limitations regarding chained dead keys and AltGr+Space combos.
+
+It is done by generating the C layout file, and tricking MSKLC to use it by setting it as read-only before.
+
+Make sure MSKLC is installed and build your installer:
+
+.. code-block:: bash
+
+    wkalamine make layout.toml
+
+and you should get a ``[layout]\\setup.exe`` executable to install the layout.
+
+Remember to log out and log back in to apply the changes.
 
 
 XKalamine

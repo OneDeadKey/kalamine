@@ -120,9 +120,7 @@ def user_guide() -> str:
     return header + "\n" + "\n".join(core_guide())
 
 
-def create_layout(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
-    """Create a new TOML layout description."""
-
+def create_layout_content(geometry: str, altgr: bool, odk: bool) -> str:
     content = f'{TOML_HEADER}"{geometry.upper()}"\n'
     content += draw_layout(geometry, altgr, odk)
     if odk:
@@ -131,6 +129,13 @@ def create_layout(output_file: Path, geometry: str, altgr: bool, odk: bool) -> N
     for topic in core_guide():
         content += f"\n\n\n# {SEPARATOR}"
         content += "\n# ".join(topic.rstrip().split("\n"))
+    return content
+
+
+def create_layout(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
+    """Create a new TOML layout description."""
+
+    content = create_layout_content(geometry, altgr, odk)
 
     with open(output_file, "w", encoding="utf-8", newline="\n") as file:
         file.write(content.replace(" \n", "\n"))

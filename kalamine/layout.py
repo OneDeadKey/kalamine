@@ -15,6 +15,9 @@ from lxml import etree  # type: ignore
 from .template import (
     ahk_keymap,
     ahk_shortcuts,
+    c_deadkeys,
+    c_dk_index,
+    c_keymap,
     klc_deadkeys,
     klc_dk_index,
     klc_keymap,
@@ -85,13 +88,13 @@ def substitute_token(text: str, token: str, value: str) -> str:
     return exp.sub(value, text)
 
 
-def load_tpl(layout: "KeyboardLayout", ext: str) -> str:
+def load_tpl(layout: "KeyboardLayout", ext: str, tpl: str = "base") -> str:
     date = datetime.date.today().isoformat()
-    tpl = "base"
-    if layout.has_altgr:
-        tpl = "full"
-        if layout.has_1dk and ext.startswith(".xkb"):
-            tpl = "full_1dk"
+    if tpl == "base":
+        if layout.has_altgr or ext.startswith(".RC"):
+            tpl = "full"
+            if layout.has_1dk and ext.startswith(".xkb"):
+                tpl = "full_1dk"
     bin = pkgutil.get_data(__package__, f"tpl/{tpl}{ext}")
     if bin is None:
         return ""
@@ -511,6 +514,24 @@ class KeyboardLayout:
         out = substitute_lines(out, "DEAD_KEYS", klc_deadkeys(self))
         out = substitute_lines(out, "DEAD_KEY_INDEX", klc_dk_index(self))
         out = substitute_token(out, "encoding", "utf-16le")
+        return out
+
+    @property
+    def klc_rc(self) -> str:
+        """Windows resource file for C drivers"""
+        out = load_tpl(self, ".RC")
+        # version numbers are in "a,b,c,d" format
+        version = self.meta["version"].replace(".", ",")
+        out = substitute_token(out, "rc_version", version)
+        return out
+
+    @property
+    def klc_c(self) -> str:
+        """Windows keymap file for C drivers"""
+        out = load_tpl(self, ".C")
+        out = substitute_lines(out, "LAYOUT", c_keymap(self))
+        out = substitute_lines(out, "DEAD_KEYS", c_deadkeys(self))
+        out = substitute_lines(out, "DEAD_KEY_INDEX", c_dk_index(self))
         return out
 
     @property
