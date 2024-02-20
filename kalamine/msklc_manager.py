@@ -103,7 +103,7 @@ class MsklcManager:
             installer = my_docs / Path(name8)
 
             if installer.exists():
-                move(installer, self._working_dir / Path(name8))
+                move(str(installer), str(self._working_dir / Path(name8)))
 
         return True
 
