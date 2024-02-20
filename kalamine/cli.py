@@ -141,6 +141,7 @@ def make(
         elif output_file.suffix == ".klc":
             with output_file.open("w", encoding="utf-16le", newline="\r\n") as file:
                 file.write(layout.klc)
+
         elif output_file.suffix == ".keylayout":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
                 file.write(layout.keylayout)

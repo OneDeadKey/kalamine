@@ -51,12 +51,11 @@ def make(
         msklc_mgr = MsklcManager(layout, msklc, verbose=verbose)
         if msklc_mgr.build_msklc_installer():
             msklc_mgr.build_msklc_dll()
+            output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
             click.echo(
-                (
-                    "Creation of MSKLC drivers succeeded. Execute "
-                    f'`{msklc_mgr._working_dir}/{layout.meta["name8"]}/setup.exe` to install.\n'
-                    "Logout and login back to apply the change."
-                )
+                "MSKLC drivers successfully created.\n"
+                f"Execute `{output_dir}setup.exe` to install.\n"
+                "Log out and log back in to apply the changes."
             )
 
 

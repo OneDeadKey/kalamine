@@ -244,8 +244,7 @@ def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> 
     base = get_chr(symbols[0])
     shifted = get_chr(symbols[1])
 
-    # Can’t use `isdigit()` because `²` is a digit but we don't want
-    # that as a VK
+    # Can’t use `isdigit()` because `²` is a digit but we don't want that as a VK
     allowed_digit = "0123456789"
     # We assume that digit row always have digit as VK
     if base in allowed_digit:
@@ -450,9 +449,9 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
 
         virtual_key = klc_virtual_key(layout, symbols, "")
         if len(virtual_key) == 1:
-            virtual_key = "'" + virtual_key + "'"
+            virtual_key_id = f"'{virtual_key}'"
         else:
-            virtual_key = "VK_" + virtual_key
+            virtual_key_id = f"VK_{virtual_key}"
 
         def process_symbol(symbol: str) -> str:
             if len(symbol) == 4:
@@ -466,12 +465,12 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
 
         def key_list(
             key_syms: List[str],
-            virtual_key: str = "0xff",
+            virt_key: str = "0xff",
             has_altgr: bool = False,
             is_alpha: bool = False,
         ) -> str:
             cols = [
-                virtual_key,
+                virt_key,
                 "CAPLOK" if is_alpha else "0",  # affected by CapsLock?
                 key_syms[0],
                 key_syms[1],  # base layer
@@ -486,7 +485,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
             return "\t,".join(cols)
 
         output.append(
-            f"\t{{{key_list(symbols, virtual_key, layout.has_altgr, is_alpha)}}},"
+            f"\t{{{key_list(symbols, virtual_key_id, layout.has_altgr, is_alpha)}}},"
         )
         if has_dead_key:
             output.append(
@@ -514,12 +513,12 @@ def c_deadkeys(layout: "KeyboardLayout") -> List[str]:
 
             if base in layout.dead_keys:
                 base = layout.dead_keys[base][" "]
-            dead_alt = "0x000"
+
             if alt in layout.dead_keys:
                 alt = layout.dead_keys[alt][" "]
-                dead_alt += "1"
+                dead_alt = "0x0001"
             else:
-                dead_alt += "0"
+                dead_alt = "0x0000"
             ext = hex_ord(alt)
 
             output.append(
@@ -538,8 +537,8 @@ def c_dk_index(layout: "KeyboardLayout") -> List[str]:
     for k in DK_INDEX:
         if k not in layout.dead_keys:
             continue
-        dk = layout.dead_keys[k]
-        output.append(f"L\"\\\\x{hex_ord(dk[' '])}\"\tL\"{DK_INDEX[k].name.upper()}\",")
+        term = layout.dead_keys[k][" "]
+        output.append(f'L"\\\\x{hex_ord(term)}"\tL"{DK_INDEX[k].name.upper()}",')
     return output
 
 

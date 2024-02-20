@@ -1,6 +1,7 @@
-import ctypes.wintypes
+import ctypes
 import os
 import subprocess
+import sys
 from pathlib import Path
 from shutil import move, rmtree
 from stat import S_IREAD, S_IWUSR
@@ -37,8 +38,8 @@ class MsklcManager:
         os.chdir(cur)
         ret.check_returncode()
 
-    # Check if the driver is already installed as this will cause MSKLC to launch the GUI
-    # instead of creating the installer
+    # Check if the driver is already installed
+    # as this will cause MSKLC to launch the GUI instead of creating the installer
     def _is_already_installed(self) -> bool:
         sys32 = Path(os.environ["WINDIR"]) / Path("System32")
         dll = sys32 / Path(f'{self._layout.meta["name8"]}.dll')
@@ -51,23 +52,22 @@ class MsklcManager:
 
         if (self._working_dir / Path(name8)).exists():
             print(
-                f"WARN: `{self._working_dir / Path(name8)}` already exists, assuming installer sit there"
+                f"WARN: `{self._working_dir / Path(name8)}` already exists, "
+                "assuming installer sits there."
             )
             return True
-        else:
-            if self._is_already_installed():
-                print(
-                    (
-                        "Error: Layout already installed and "
-                        "can't find installer package in current directory.\n"
-                        "Either uninstall the layout manually, or put installer "
-                        f"folder in current directory ({self._working_dir})"
-                    )
-                )
-                return False
 
-        # create a dummy klc file to generate installer
-        # The file must have correct name to be reflected in the installer
+        if self._is_already_installed():
+            print(
+                "Error: layout already installed and "
+                "installer package not found in the current directory.\n"
+                "Either uninstall the layout manually, or put the installer "
+                f"folder in the current directory: ({self._working_dir})"
+            )
+            return False
+
+        # Create a dummy klc file to generate the installer.
+        # The file must have a correct name to be reflected in the installer.
         dummy_toml = create_layout_content(
             self._layout.geometry, self._layout.has_altgr, self._layout.has_1dk
         )
@@ -92,17 +92,19 @@ class MsklcManager:
         subprocess.run([msklc, klc_file, "-build"], capture_output=not self._verbose)
 
         # move the installer from "My Documents" to current dir
-        CSIDL_PERSONAL = 5  # My Documents
-        SHGFP_TYPE_CURRENT = 0  # Get current, not default value
-        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-        ctypes.windll.shell32.SHGetFolderPathW(
-            None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf
-        )
-        my_docs = Path(buf.value)
-        installer = my_docs / Path(name8)
+        if sys.platform == "win32":  # let mypy know this is win32-specific
+            CSIDL_PERSONAL = 5  # My Documents
+            SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+            buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+            ctypes.windll.shell32.SHGetFolderPathW(
+                None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf
+            )
+            my_docs = Path(buf.value)
+            installer = my_docs / Path(name8)
 
-        if installer.exists():
-            move(installer, self._working_dir / Path(name8))
+            if installer.exists():
+                move(installer, self._working_dir / Path(name8))
+
         return True
 
     def build_msklc_dll(
@@ -135,7 +137,8 @@ class MsklcManager:
         with c_file.open("w", encoding="utf-16le", newline="\n") as file:
             file.write(self._layout.klc_c)
         c_files = [".C", ".RC", ".H", ".DEF"]
-        # Set files to read only to avoid overwrite by buggy MSKLC
+
+        # Make files read-only to prevent MSKLC from overwriting them.
         for suffix in c_files:
             os.chmod(klc_file.with_suffix(suffix), S_IREAD)
 
