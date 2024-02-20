@@ -49,6 +49,8 @@ def make(
     for input_file in layout_descriptors:
         layout = KeyboardLayout(load_layout(input_file), angle_mod)
         msklc_mgr = MsklcManager(layout, msklc, verbose=verbose)
-        msklc_mgr.build_msklc_installer()
-        msklc_mgr.build_msklc_dll()
-        click.echo("Creation of MSKLC drivers succeeded")
+        if msklc_mgr.build_msklc_installer():
+            msklc_mgr.build_msklc_dll()
+            click.echo(("Creation of MSKLC drivers succeeded. Execute "
+                        f"`{msklc_mgr._working_dir}/{layout.meta["name8"]}/setup.exe` to install.\n"
+                        "Logout and login back to apply the change."))

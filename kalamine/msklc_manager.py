@@ -37,16 +37,34 @@ class MsklcManager:
         os.chdir(cur)
         ret.check_returncode()
 
+    # Check if the driver is already installed as this will cause MSKLC to launch the GUI
+    # instead of creating the installer
+    def _is_already_installed(self) -> bool:
+        sys32 = Path(os.environ["WINDIR"]) / Path("System32")
+        dll = sys32 / Path(f'{self._layout.meta["name8"]}.dll')
+        return dll.exists()
+
     def build_msklc_installer(
         self,
-    ):
+    ) -> bool:
         name8 = self._layout.meta["name8"]
 
         if (self._working_dir / Path(name8)).exists():
             print(
                 f"WARN: `{self._working_dir / Path(name8)}` already exists, assuming installer sit there"
             )
-            return
+            return True
+        else:
+            if self._is_already_installed():
+                print(
+                    (
+                        "Error: Layout already installed and "
+                        "can't find installer package in current directory.\n"
+                        "Either uninstall the layout manually, or put installer "
+                        f"folder in current directory ({self._working_dir})"
+                    )
+                )
+                return False
 
         # create a dummy klc file to generate installer
         # The file must have correct name to be reflected in the installer
@@ -85,6 +103,7 @@ class MsklcManager:
 
         if installer.exists():
             move(installer, self._working_dir / Path(name8))
+        return True
 
     def build_msklc_dll(
         self,
