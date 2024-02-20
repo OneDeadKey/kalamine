@@ -58,3 +58,6 @@ def make(
                     "Logout and login back to apply the change."
                 )
             )
+
+if __name__ == "__main__":
+    cli()
