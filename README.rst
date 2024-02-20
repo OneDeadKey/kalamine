@@ -121,6 +121,8 @@ You may also use Ahk2Exe to turn your ``*.ahk`` script into an executable file. 
 Windows (admin): ``*.klc``
 ``````````````````````````
 
+This apply if you want to use the ``*.klc`` file. A better approach is to use ``wkalamine`` (see below)
+
 * get a keyboard layout installer: MSKLC_ (freeware) or KbdEdit_ (shareware);
 * load the ``*.klc`` file with it;
 * run this installer to generate a setup program;
@@ -281,6 +283,17 @@ Sadly, it seems there’s no way to install keyboard layouts in ``~/.config/xkb`
     -- `Peter Hutterer`_
 
 .. _`Peter Hutterer`: https://who-t.blogspot.com/2020/09/no-user-specific-xkb-configuration-in-x.html
+
+WKalamine
+--------------------------------------------------------------------------------
+
+``wkalamine`` is a Windows-specific CLI tool to create MSKLC drivers setup package that supports chained dead keys.
+
+It is done by generating the C layout file, and tricking MSKLC to use it by setting it as read only before.
+
+Run ``wkalamine make layout.toml`` and you should get a folder ``layout`` with a ``setup.exe`` to install the layout.
+
+Remember to logout to apply the change.
 
 
 Resources
