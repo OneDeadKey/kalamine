@@ -509,6 +509,8 @@ class KeyboardLayout:
     @property
     def klc(self) -> str:
         """Windows driver (warning: requires CR/LF + UTF16LE encoding)"""
+        if len(self.meta["name8"]) > 8:
+            raise Exception("`name8` max length is 8 charaters")
         out = load_tpl(self, ".klc")
         out = substitute_lines(out, "LAYOUT", klc_keymap(self))
         out = substitute_lines(out, "DEAD_KEYS", klc_deadkeys(self))
