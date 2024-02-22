@@ -234,7 +234,6 @@ oem_idx = 0
 
 
 def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> str:
-    global oem_idx
     if (layout.meta["geometry"] == "ISO" and scan_code == "56") or symbols[0] == "-1":
         # manage the ISO key (between shift and Z on ISO keyboards).
         # We're assuming that its scancode is always 56
@@ -271,6 +270,7 @@ def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> 
         # We affect abitrary OEM VK and it will not match the one
         # in distributed layout. It can cause issue if a application
         # is awaiting a particular OEM_ for a hotkey
+        global oem_idx
         oem_idx += 1
         if oem_idx <= MAX_OEM:
             return "OEM_" + str(oem_idx)
@@ -447,7 +447,8 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbols.append("WCH_NONE")
                 dead_symbols.append("WCH_NONE")
 
-        virtual_key = klc_virtual_key(layout, symbols, "")
+        scan_code = SCAN_CODES["klc"][key_name]
+        virtual_key = klc_virtual_key(layout, symbols, scan_code)
         if len(virtual_key) == 1:
             virtual_key_id = f"'{virtual_key}'"
         else:
