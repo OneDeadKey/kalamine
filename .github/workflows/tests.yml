@@ -51,8 +51,8 @@ jobs:
 
       - name: Run tests
         run: |
-          python -m kalamine.cli make layouts/*.toml
-          python -m kalamine.cli create test.toml
+          python -m kalamine.cli build layouts/*.toml
+          python -m kalamine.cli new test.toml
           pytest
       - name: Run black
         run: black kalamine
