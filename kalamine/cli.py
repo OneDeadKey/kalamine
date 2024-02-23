@@ -36,7 +36,7 @@ def pretty_json(layout: KeyboardLayout, output_path: Path) -> None:
     output_path.write_text(text, encoding="utf8")
 
 
-def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
+def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     """Generate all layout output files.
 
     Parameters
@@ -76,14 +76,14 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
             file.write(layout.keylayout)
 
     # Linux driver, user-space
-    with file_creation_context(".xkb") as xkb_path:
+    with file_creation_context(".xkb_keymap") as xkb_path:
         with xkb_path.open("w", encoding="utf-8", newline="\n") as file:
-            file.write(layout.xkb)
+            file.write(layout.xkb_keymap)
 
     # Linux driver, root
-    with file_creation_context(".xkb_custom") as xkb_custom_path:
+    with file_creation_context(".xkb_symbols") as xkb_custom_path:
         with xkb_custom_path.open("w", encoding="utf-8", newline="\n") as file:
-            file.write(layout.xkb_patch)
+            file.write(layout.xkb_symbols.replace("//#", "//"))
 
     # JSON data
     with file_creation_context(".json") as json_path:
@@ -111,7 +111,7 @@ def make_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     default=False,
     help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
 )
-def make(
+def build(
     layout_descriptors: List[Path],
     out: Union[Path, Literal["all"]],
     angle_mod: bool,
@@ -123,11 +123,11 @@ def make(
 
         # default: build all in the `dist` subdirectory
         if out == "all":
-            make_all(layout, Path("dist"))
+            build_all(layout, Path("dist"))
             continue
 
         # quick output: reuse the input name and change the file extension
-        if out in ["keylayout", "klc", "xkb", "xkb_custom", "svg"]:
+        if out in ["keylayout", "klc", "xkb_keymap", "xkb_symbols", "svg"]:
             output_file = input_file.with_suffix(f".{out}")
         else:
             output_file = Path(out)
@@ -146,13 +146,13 @@ def make(
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
                 file.write(layout.keylayout)
 
-        elif output_file.suffix == ".xkb":
+        elif output_file.suffix == ".xkb_keymap":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
-                file.write(layout.xkb)
+                file.write(layout.xkb_keymap)
 
-        elif output_file.suffix == ".xkb_custom":
+        elif output_file.suffix == ".xkb_symbols":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
-                file.write(layout.xkb_patch)
+                file.write(layout.xkb_symbols.replace("//#", "//"))
 
         elif output_file.suffix == ".json":
             pretty_json(layout, output_file)
@@ -174,7 +174,7 @@ def make(
 @click.option("--geometry", default="ISO", help="Specify keyboard geometry.")
 @click.option("--altgr/--no-altgr", default=False, help="Set an AltGr layer.")
 @click.option("--1dk/--no-1dk", "odk", default=False, help="Set a custom dead key.")
-def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
+def new(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     """Create a new TOML layout description."""
     create_layout(output_file, geometry, altgr, odk)
     click.echo(f"... {output_file}")
@@ -183,7 +183,7 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
 @cli.command()
 @click.argument("filepath", nargs=1, type=click.Path(exists=True, path_type=Path))
 def watch(filepath: Path) -> None:
-    """Watch a TOML/YAML layout description and display it in a web server."""
+    """Watch a layout description file and display it in a web browser."""
     keyboard_server(filepath)
 
 

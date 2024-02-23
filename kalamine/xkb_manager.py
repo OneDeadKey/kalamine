@@ -1,3 +1,4 @@
+import re
 import sys
 import traceback
 from os import environ
@@ -230,7 +231,7 @@ def is_new_symbol_mark(line: str) -> Optional[str]:
 
 
 def update_symbols_locale(path: Path, named_layouts: Variant) -> None:
-    """Update Kalamine layouts in an xkb/symbols file."""
+    """Update Kalamine layouts in an xkb/symbols/[locale] file."""
 
     text = ""
     modified_text = False
@@ -273,7 +274,12 @@ def update_symbols_locale(path: Path, named_layouts: Variant) -> None:
                 mark = get_symbol_mark(name)
                 symbols.write("\n")
                 symbols.write(mark["begin"])
-                symbols.write(layout.xkb_patch.rstrip() + "\n")
+                symbols.write(
+                    re.sub(  # drop lines starting with '//#'
+                        r"^//#.*\n", "", layout.xkb_symbols, flags=re.MULTILINE
+                    ).rstrip()
+                    + "\n"
+                )
                 symbols.write(mark["end"])
 
         symbols.close()

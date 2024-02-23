@@ -535,16 +535,16 @@ class KeyboardLayout:
         return out
 
     @property
-    def xkb(self) -> str:  # will not work with Wayland
+    def xkb_keymap(self) -> str:  # will not work with Wayland
         """GNU/Linux driver (standalone / user-space)"""
-        out = load_tpl(self, ".xkb")
+        out = load_tpl(self, ".xkb_keymap")
         out = substitute_lines(out, "LAYOUT", xkb_keymap(self, xkbcomp=True))
         return out
 
     @property
-    def xkb_patch(self) -> str:
+    def xkb_symbols(self) -> str:
         """GNU/Linux driver (xkb patch, system or user-space)"""
-        out = load_tpl(self, ".xkb_patch")
+        out = load_tpl(self, ".xkb_symbols")
         out = substitute_lines(out, "LAYOUT", xkb_keymap(self, xkbcomp=False))
         return out
 

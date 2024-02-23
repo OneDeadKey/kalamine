@@ -19,7 +19,7 @@ lint:  ## Lint sources
 
 test:  ## Run tests
 	python3 -m kalamine.cli guide > docs/README.md
-	python3 -m kalamine.cli make layouts/*.toml
+	python3 -m kalamine.cli build layouts/*.toml
 	pytest
 
 publish: test  ## Publish package

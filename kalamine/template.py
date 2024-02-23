@@ -35,8 +35,8 @@ def xml_proof_id(symbol: str) -> str:
 
 ###
 # GNU/Linux: XKB
-# - standalone xkb file to be used by `xkbcomp` (XOrg only)
-# - xkb patch for XOrg (system-wide) & Wayland (system-wide/user-space)
+# - standalone xkb keymap file to be used by `xkbcomp` (XOrg only)
+# - xkb symbols/patch for XOrg (system-wide) & Wayland (system-wide/user-space)
 #
 
 
@@ -56,8 +56,8 @@ def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
             output.append("//" + key_name[1:])
             continue
 
+        descs = []
         symbols = []
-        description = " //"
         for layer in layout.layers.values():
             if key_name in layer:
                 keysym = layer[key_name]
@@ -76,27 +76,30 @@ def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
                 desc = " "
                 symbol = "VoidSymbol"
 
-            description += " " + desc
+            descs.append(desc)
             symbols.append(symbol.ljust(max_length))
 
-        key = "key <{}> {{[ {}, {}, {}, {}]}};"  # 4-level layout by default
+        key = "{{[ {0}, {1}, {2}, {3}]}}"  # 4-level layout by default
+        description = "{0} {1} {2} {3}"
         if layout.has_altgr and layout.has_1dk:
             # 6 layers are needed: they won't fit on the 4-level format.
-            if xkbcomp:  # user-space XKB file (standalone)
+            if xkbcomp:  # user-space XKB keymap file (standalone)
                 # standalone XKB files work best with a dual-group solution:
                 # one 4-level group for base+1dk, one two-level group for AltGr
-                key = "key <{}> {{[ {}, {}, {}, {}],[ {}, {}]}};"
-            else:  # eight_level XKB patch (Neo-like)
-                key = "key <{0}> {{[ {1}, {2}, {5}, {6}, {3}, {4}, {7}, {8}]}};"
-                symbols.append("VoidSymbol".ljust(max_length))
-                symbols.append("VoidSymbol".ljust(max_length))
+                key = "{{[ {}, {}, {}, {}],[ {}, {}]}}"
+                description = "{} {} {} {} {} {}"
+            else:  # eight_level XKB symbols (Neo-like)
+                key = "{{[ {0}, {1}, {4}, {5}, {2}, {3}]}}"
+                description = "{0} {1} {4} {5} {2} {3}"
         elif layout.has_altgr:
             del symbols[3]
             del symbols[2]
+            del descs[3]
+            del descs[2]
 
-        line = key.format(*[key_name.upper()] + symbols)
+        line = f"key <{key_name.upper()}> {key.format(*symbols)};"
         if show_description:
-            line += description.rstrip()
+            line += (" // " + description.format(*descs)).rstrip()
             if line.endswith("\\"):
                 line += " "  # escape trailing backslash
         output.append(line)
