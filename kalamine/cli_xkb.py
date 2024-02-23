@@ -38,9 +38,9 @@ def apply(filepath: Path, angle_mod: bool) -> None:
 
     layout = KeyboardLayout(load_layout(filepath), angle_mod)
     with tempfile.NamedTemporaryFile(
-        mode="w+", suffix=".xkb", encoding="utf-8"
+        mode="w+", suffix=".xkb_keymap", encoding="utf-8"
     ) as temp_file:
-        temp_file.write(layout.xkb)
+        temp_file.write(layout.xkb_keymap)
         os.system(f"xkbcomp -w0 {temp_file.name} $DISPLAY")
 
 

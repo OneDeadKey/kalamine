@@ -178,52 +178,52 @@ def test_prog():
     expected = split(
         """
         // Digits
-        key <AE01> {[ 1               , exclam          , exclam          , VoidSymbol      ]}; // 1 !     !
-        key <AE02> {[ 2               , at              , parenleft       , VoidSymbol      ]}; // 2 @     (
-        key <AE03> {[ 3               , numbersign      , parenright      , VoidSymbol      ]}; // 3 #     )
-        key <AE04> {[ 4               , dollar          , apostrophe      , VoidSymbol      ]}; // 4 $     '
-        key <AE05> {[ 5               , percent         , quotedbl        , VoidSymbol      ]}; // 5 %     "
-        key <AE06> {[ 6               , asciicircum     , dead_circumflex , VoidSymbol      ]}; // 6 ^     ^
-        key <AE07> {[ 7               , ampersand       , 7               , VoidSymbol      ]}; // 7 &     7
-        key <AE08> {[ 8               , asterisk        , 8               , VoidSymbol      ]}; // 8 *     8
-        key <AE09> {[ 9               , parenleft       , 9               , VoidSymbol      ]}; // 9 (     9
-        key <AE10> {[ 0               , parenright      , slash           , VoidSymbol      ]}; // 0 )     /
+        key <AE01> {[ 1               , exclam          , exclam          , VoidSymbol      ]}; // 1 ! !
+        key <AE02> {[ 2               , at              , parenleft       , VoidSymbol      ]}; // 2 @ (
+        key <AE03> {[ 3               , numbersign      , parenright      , VoidSymbol      ]}; // 3 # )
+        key <AE04> {[ 4               , dollar          , apostrophe      , VoidSymbol      ]}; // 4 $ '
+        key <AE05> {[ 5               , percent         , quotedbl        , VoidSymbol      ]}; // 5 % "
+        key <AE06> {[ 6               , asciicircum     , dead_circumflex , VoidSymbol      ]}; // 6 ^ ^
+        key <AE07> {[ 7               , ampersand       , 7               , VoidSymbol      ]}; // 7 & 7
+        key <AE08> {[ 8               , asterisk        , 8               , VoidSymbol      ]}; // 8 * 8
+        key <AE09> {[ 9               , parenleft       , 9               , VoidSymbol      ]}; // 9 ( 9
+        key <AE10> {[ 0               , parenright      , slash           , VoidSymbol      ]}; // 0 ) /
 
         // Letters, first row
-        key <AD01> {[ q               , Q               , equal           , VoidSymbol      ]}; // q Q     =
-        key <AD02> {[ w               , W               , less            , lessthanequal   ]}; // w W     < ≤
-        key <AD03> {[ e               , E               , greater         , greaterthanequal]}; // e E     > ≥
-        key <AD04> {[ r               , R               , minus           , VoidSymbol      ]}; // r R     -
-        key <AD05> {[ t               , T               , plus            , VoidSymbol      ]}; // t T     +
+        key <AD01> {[ q               , Q               , equal           , VoidSymbol      ]}; // q Q =
+        key <AD02> {[ w               , W               , less            , lessthanequal   ]}; // w W < ≤
+        key <AD03> {[ e               , E               , greater         , greaterthanequal]}; // e E > ≥
+        key <AD04> {[ r               , R               , minus           , VoidSymbol      ]}; // r R -
+        key <AD05> {[ t               , T               , plus            , VoidSymbol      ]}; // t T +
         key <AD06> {[ y               , Y               , VoidSymbol      , VoidSymbol      ]}; // y Y
-        key <AD07> {[ u               , U               , 4               , VoidSymbol      ]}; // u U     4
-        key <AD08> {[ i               , I               , 5               , VoidSymbol      ]}; // i I     5
-        key <AD09> {[ o               , O               , 6               , VoidSymbol      ]}; // o O     6
-        key <AD10> {[ p               , P               , asterisk        , VoidSymbol      ]}; // p P     *
+        key <AD07> {[ u               , U               , 4               , VoidSymbol      ]}; // u U 4
+        key <AD08> {[ i               , I               , 5               , VoidSymbol      ]}; // i I 5
+        key <AD09> {[ o               , O               , 6               , VoidSymbol      ]}; // o O 6
+        key <AD10> {[ p               , P               , asterisk        , VoidSymbol      ]}; // p P *
 
         // Letters, second row
-        key <AC01> {[ a               , A               , braceleft       , VoidSymbol      ]}; // a A     {
-        key <AC02> {[ s               , S               , bracketleft     , VoidSymbol      ]}; // s S     [
-        key <AC03> {[ d               , D               , bracketright    , VoidSymbol      ]}; // d D     ]
-        key <AC04> {[ f               , F               , braceright      , VoidSymbol      ]}; // f F     }
-        key <AC05> {[ g               , G               , slash           , VoidSymbol      ]}; // g G     /
+        key <AC01> {[ a               , A               , braceleft       , VoidSymbol      ]}; // a A {
+        key <AC02> {[ s               , S               , bracketleft     , VoidSymbol      ]}; // s S [
+        key <AC03> {[ d               , D               , bracketright    , VoidSymbol      ]}; // d D ]
+        key <AC04> {[ f               , F               , braceright      , VoidSymbol      ]}; // f F }
+        key <AC05> {[ g               , G               , slash           , VoidSymbol      ]}; // g G /
         key <AC06> {[ h               , H               , VoidSymbol      , VoidSymbol      ]}; // h H
-        key <AC07> {[ j               , J               , 1               , VoidSymbol      ]}; // j J     1
-        key <AC08> {[ k               , K               , 2               , VoidSymbol      ]}; // k K     2
-        key <AC09> {[ l               , L               , 3               , VoidSymbol      ]}; // l L     3
-        key <AC10> {[ semicolon       , colon           , minus           , VoidSymbol      ]}; // ; :     -
+        key <AC07> {[ j               , J               , 1               , VoidSymbol      ]}; // j J 1
+        key <AC08> {[ k               , K               , 2               , VoidSymbol      ]}; // k K 2
+        key <AC09> {[ l               , L               , 3               , VoidSymbol      ]}; // l L 3
+        key <AC10> {[ semicolon       , colon           , minus           , VoidSymbol      ]}; // ; : -
 
         // Letters, third row
-        key <AB01> {[ z               , Z               , asciitilde      , VoidSymbol      ]}; // z Z     ~
-        key <AB02> {[ x               , X               , grave           , VoidSymbol      ]}; // x X     `
-        key <AB03> {[ c               , C               , bar             , brokenbar       ]}; // c C     | ¦
-        key <AB04> {[ v               , V               , underscore      , VoidSymbol      ]}; // v V     _
-        key <AB05> {[ b               , B               , backslash       , VoidSymbol      ]}; // b B     \\ 
+        key <AB01> {[ z               , Z               , asciitilde      , VoidSymbol      ]}; // z Z ~
+        key <AB02> {[ x               , X               , grave           , VoidSymbol      ]}; // x X `
+        key <AB03> {[ c               , C               , bar             , brokenbar       ]}; // c C | ¦
+        key <AB04> {[ v               , V               , underscore      , VoidSymbol      ]}; // v V _
+        key <AB05> {[ b               , B               , backslash       , VoidSymbol      ]}; // b B \\ 
         key <AB06> {[ n               , N               , VoidSymbol      , VoidSymbol      ]}; // n N
-        key <AB07> {[ m               , M               , 0               , VoidSymbol      ]}; // m M     0
-        key <AB08> {[ comma           , less            , comma           , VoidSymbol      ]}; // , <     ,
-        key <AB09> {[ period          , greater         , period          , VoidSymbol      ]}; // . >     .
-        key <AB10> {[ slash           , question        , plus            , VoidSymbol      ]}; // / ?     +
+        key <AB07> {[ m               , M               , 0               , VoidSymbol      ]}; // m M 0
+        key <AB08> {[ comma           , less            , comma           , VoidSymbol      ]}; // , < ,
+        key <AB09> {[ period          , greater         , period          , VoidSymbol      ]}; // . > .
+        key <AB10> {[ slash           , question        , plus            , VoidSymbol      ]}; // / ? +
 
         // Pinky keys
         key <AE11> {[ minus           , underscore      , VoidSymbol      , VoidSymbol      ]}; // - _
@@ -231,14 +231,14 @@ def test_prog():
         key <AE13> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <AD11> {[ bracketleft     , braceleft       , VoidSymbol      , VoidSymbol      ]}; // [ {
         key <AD12> {[ bracketright    , braceright      , VoidSymbol      , VoidSymbol      ]}; // ] }
-        key <AC11> {[ apostrophe      , quotedbl        , dead_acute      , dead_diaeresis  ]}; // ' "     ´ ¨
+        key <AC11> {[ apostrophe      , quotedbl        , dead_acute      , dead_diaeresis  ]}; // ' " ´ ¨
         key <AB11> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
-        key <TLDE> {[ grave           , asciitilde      , dead_grave      , dead_tilde      ]}; // ` ~     ` ~
+        key <TLDE> {[ grave           , asciitilde      , dead_grave      , dead_tilde      ]}; // ` ~ ` ~
         key <BKSL> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
         key <LSGT> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
 
         // Space bar
-        key <SPCE> {[ space           , space           , space           , space           ]}; //     ' '
+        key <SPCE> {[ space           , space           , space           , space           ]}; //
         """
     )
 

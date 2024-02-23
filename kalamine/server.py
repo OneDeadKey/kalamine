@@ -50,8 +50,8 @@ def keyboard_server(file_path: Path) -> None:
                     <a href="/json">json</a>
                     | <a href="/keylayout">keylayout</a>
                     | <a href="/klc">klc</a>
-                    | <a href="/xkb">xkb</a>
-                    | <a href="/xkb_custom">xkb_custom</a>
+                    | <a href="/xkb_keymap">xkb_keymap</a>
+                    | <a href="/xkb_symbols">xkb_symbols</a>
                 </p>
             </body>
             </html>
@@ -82,10 +82,10 @@ def keyboard_server(file_path: Path) -> None:
                 send(kb_layout.keylayout)
             elif self.path == "/klc":
                 send(kb_layout.klc, charset="utf-16-le")
-            elif self.path == "/xkb":
-                send(kb_layout.xkb)
-            elif self.path == "/xkb_custom":
-                send(kb_layout.xkb_patch)
+            elif self.path == "/xkb_keymap":
+                send(kb_layout.xkb_keymap)
+            elif self.path == "/xkb_symbols":
+                send(kb_layout.xkb_symbols)
             elif self.path == "/":
                 kb_layout = KeyboardLayout(load_layout(file_path))  # refresh
                 send(main_page(kb_layout), content="text/html")
