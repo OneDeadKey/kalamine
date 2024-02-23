@@ -38,7 +38,7 @@ DEFAULT_MSKLC_DIR = "C:\\Program Files (x86)\\Microsoft Keyboard Layout Creator 
     help="Directory where MSKLC is installed",
 )
 @click.option("--verbose", "-v", is_flag=True, help="Verbose mode")
-def make(
+def build(
     layout_descriptors: List[Path],
     angle_mod: bool,
     msklc: Path,
@@ -53,7 +53,7 @@ def make(
             msklc_mgr.build_msklc_dll()
             output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
             click.echo(
-                "MSKLC drivers successfully created.\n"
+                "MSKLC drivers successfully built.\n"
                 f"Execute `{output_dir}setup.exe` to install.\n"
                 "Log out and log back in to apply the changes."
             )
