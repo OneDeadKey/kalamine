@@ -50,13 +50,13 @@ def build(
         layout = KeyboardLayout(load_layout(input_file), angle_mod)
         msklc_mgr = MsklcManager(layout, msklc, verbose=verbose)
         if msklc_mgr.build_msklc_installer():
-            msklc_mgr.build_msklc_dll()
-            output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
-            click.echo(
-                "MSKLC drivers successfully built.\n"
-                f"Execute `{output_dir}setup.exe` to install.\n"
-                "Log out and log back in to apply the changes."
-            )
+            if msklc_mgr.build_msklc_dll():
+                output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
+                click.echo(
+                    "MSKLC drivers successfully built.\n"
+                    f"Execute `{output_dir}setup.exe` to install.\n"
+                    "Log out and log back in to apply the changes."
+                )
 
 
 if __name__ == "__main__":
