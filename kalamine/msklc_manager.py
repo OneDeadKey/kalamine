@@ -130,7 +130,7 @@ class MsklcManager:
             try:
                 file.write(self._layout.klc)
             except ValueError as err:
-                print(f'ERROR: {err}')
+                print(f"ERROR: {err}")
                 return False
 
         self.create_c_files()

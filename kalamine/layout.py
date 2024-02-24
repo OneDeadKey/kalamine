@@ -511,11 +511,11 @@ class KeyboardLayout:
         """Windows driver (warning: requires CR/LF + UTF16LE encoding)"""
         if len(self.meta["name8"]) > 8:
             raise ValueError("`name8` max length is 8 charaters")
-        
+
         # check `version` format
         # it must be `a.b.c[.d]`
         version = re.compile("^\d+\.\d+.\d+(.\d+)?$")
-        if version.match(self.meta["version"]) == None:
+        if version.match(self.meta["version"]) is None:
             raise ValueError("`version` must be in `a.b.c[.d]` form")
 
         out = load_tpl(self, ".klc")
