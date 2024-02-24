@@ -160,7 +160,7 @@ class MsklcManager:
             subprocess.run(
                 [kbdutools, "-u", arch_flag, klc_file], capture_output=not self._verbose
             ).check_returncode()
-            move(dll, INST_DIR / Path(arch))
+            move(str(dll), str(INST_DIR / Path(arch)))
 
         # Restore write permission
         for suffix in c_files:
