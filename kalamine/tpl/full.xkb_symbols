@@ -3,7 +3,7 @@
 //# This XKB symbols file should be copied to:
 //#     /usr/share/X11/xkb/symbols/custom
 //# or
-//#     $XKB_CONFIG_ROOT/xkb}/symbols/custom
+//#     $XKB_CONFIG_ROOT/symbols/custom
 //#
 //# File          : ${fileName}.xkb_symbols
 // Project page  : ${url}

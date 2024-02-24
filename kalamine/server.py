@@ -5,7 +5,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 
 import click
-from livereload import Server  # type: ignore
+from livereload import Server # type: ignore
 
 from .layout import KeyboardLayout, load_layout
 
@@ -75,17 +75,19 @@ def keyboard_server(file_path: Path) -> None:
 
             # XXX always reloads the layout on the root page, never in sub pages
             nonlocal kb_layout
-            if self.path == "/json":
+            if self.path == "/favicon.ico":
+                pass
+            elif self.path == "/json":
                 send(json.dumps(kb_layout.json), content="application/json")
             elif self.path == "/keylayout":
                 # send(kb_layout.keylayout, content='application/xml')
                 send(kb_layout.keylayout)
             elif self.path == "/klc":
-                send(kb_layout.klc, charset="utf-16-le")
+                send(kb_layout.klc, charset="utf-16-le", content="text")
             elif self.path == "/xkb_keymap":
                 send(kb_layout.xkb_keymap)
             elif self.path == "/xkb_symbols":
-                send(kb_layout.xkb_symbols)
+                send(kb_layout.xkb_symbols.replace("//#", "//"))
             elif self.path == "/":
                 kb_layout = KeyboardLayout(load_layout(file_path))  # refresh
                 send(main_page(kb_layout), content="text/html")
