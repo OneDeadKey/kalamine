@@ -109,7 +109,7 @@ class MsklcManager:
 
     def build_msklc_dll(
         self,
-    ):
+    ) -> bool:
         name8 = self._layout.meta["name8"]
         prev = os.getcwd()
         os.chdir(self._working_dir)
@@ -127,7 +127,11 @@ class MsklcManager:
 
         # create correct klc
         with klc_file.open("w", encoding="utf-16le", newline="\n") as file:
-            file.write(self._layout.klc)
+            try:
+                file.write(self._layout.klc)
+            except ValueError as err:
+                print(f"ERROR: {err}")
+                return False
 
         self.create_c_files()
         c_file = klc_file.with_suffix(".RC")
@@ -156,9 +160,10 @@ class MsklcManager:
             subprocess.run(
                 [kbdutools, "-u", arch_flag, klc_file], capture_output=not self._verbose
             ).check_returncode()
-            move(dll, INST_DIR / Path(arch))
+            move(str(dll), str(INST_DIR / Path(arch)))
 
         # Restore write permission
         for suffix in c_files:
             os.chmod(klc_file.with_suffix(suffix), S_IWUSR)
         os.chdir(prev)
+        return True

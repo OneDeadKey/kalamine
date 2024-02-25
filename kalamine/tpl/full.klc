@@ -13,9 +13,9 @@
 KBD	${name8}	"${name}"
 COPYRIGHT	"(c) 2010-2024 ${author}"
 COMPANY	"${author}"
-LOCALENAME	"fr-FR"
-LOCALEID	"0000040c"
-VERSION	1.0
+LOCALENAME	"${locale}"
+LOCALEID	"${localeid}"
+VERSION	${version}
 
 // Base layer + dead key
 // KALAMINE::GEOMETRY_base
