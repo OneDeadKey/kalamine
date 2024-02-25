@@ -514,7 +514,7 @@ class KeyboardLayout:
 
         # check `version` format
         # it must be `a.b.c[.d]`
-        version = re.compile("^\d+\.\d+.\d+(.\d+)?$")
+        version = re.compile(r"^\d+\.\d+\.\d+(\.\d+)?$")
         if version.match(self.meta["version"]) is None:
             raise ValueError("`version` must be in `a.b.c[.d]` form")
         locale_codes = load_data("win_locales")
