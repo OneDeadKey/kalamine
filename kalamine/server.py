@@ -5,7 +5,7 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 
 import click
-from livereload import Server # type: ignore
+from livereload import Server  # type: ignore
 
 from .layout import KeyboardLayout, load_layout
 
