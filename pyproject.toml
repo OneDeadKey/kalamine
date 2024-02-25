@@ -28,7 +28,6 @@ requires-python = ">= 3.8"
 dependencies = [
     "click",
     "livereload",
-    "lxml",
     "pyyaml",
     "tomli",
 ]
