@@ -68,7 +68,10 @@ def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     # Windows driver
     with file_creation_context(".klc") as klc_path:
         with klc_path.open("w", encoding="utf-16le", newline="\r\n") as file:
-            file.write(layout.klc)
+            try:
+                file.write(layout.klc)
+            except ValueError as err:
+                print(err)
 
     # macOS driver
     with file_creation_context(".keylayout") as osx_path:
@@ -140,7 +143,10 @@ def build(
 
         elif output_file.suffix == ".klc":
             with output_file.open("w", encoding="utf-16le", newline="\r\n") as file:
-                file.write(layout.klc)
+                try:
+                    file.write(layout.klc)
+                except ValueError as err:
+                    print(err)
 
         elif output_file.suffix == ".keylayout":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
