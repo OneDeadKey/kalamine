@@ -94,7 +94,7 @@ def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
 
     # SVG data
     with file_creation_context(".svg") as svg_path:
-        layout.svg.write(svg_path, encoding="unicode", xml_declaration=True)
+        layout.svg.write(svg_path, xml_declaration=True)
 
 
 @cli.command()
@@ -164,7 +164,7 @@ def build(
             pretty_json(layout, output_file)
 
         elif output_file.suffix == ".svg":
-            layout.svg.write(output_file, encoding="unicode", xml_declaration=True)
+            layout.svg.write(output_file, xml_declaration=True)
 
         else:
             click.echo("Unsupported output format.", err=True)
