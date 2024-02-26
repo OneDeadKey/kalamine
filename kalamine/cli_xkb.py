@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Union
 import click
 
 from .layout import KeyboardLayout, load_layout
-from .xkb_manager import WAYLAND, Index, XKBManager
+from .xkb_manager import WAYLAND, KbdIndex, XKBManager
 
 
 @click.group()
@@ -67,7 +67,7 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
         kb_layouts.append(layout)
         kb_locales.add(layout.meta["locale"])
 
-    def xkb_install(xkb: XKBManager) -> Index:
+    def xkb_install(xkb: XKBManager) -> KbdIndex:
         for layout in kb_layouts:
             xkb.add(layout)
         index = xkb.index  # gets erased with xkb.update()

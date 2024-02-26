@@ -6,11 +6,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Type, TypeVar
+from xml.etree import ElementTree as ET
 
 import click
 import tomli
 import yaml
-from lxml import etree  # type: ignore
 
 from .template import (
     ahk_keymap,
@@ -584,13 +584,16 @@ class KeyboardLayout:
     #
 
     @property
-    def svg(self) -> etree.ElementTree:
+    def svg(self) -> ET.ElementTree:
         """SVG drawing"""
+
+        svg_ns = "http://www.w3.org/2000/svg"
+        ET.register_namespace("", svg_ns)
+        ns = {"": svg_ns}
 
         # Parse SVG data
         filepath = Path(__file__).parent / "tpl" / "x-keyboard.svg"
-        svg = etree.parse(str(filepath), etree.XMLParser(remove_blank_text=True))
-        ns = {"svg": "http://www.w3.org/2000/svg"}
+        svg = ET.parse(str(filepath))
 
         # Get Layout data
         keymap = web_keymap(self)
@@ -608,15 +611,15 @@ class KeyboardLayout:
 
         # Fill-in with layout
         for name, chars in keymap.items():
-            for key in svg.xpath(f'//svg:g[@id="{name}"]', namespaces=ns):
+            for key in svg.findall(f'.//g[@id="{name}"]', ns):
                 # Print 1-4 level chars
                 for level_num, char in enumerate(chars, start=1):
                     # Do not print the same label twice (lower and upper)
                     if level_num == 1 and chars[0] == chars[1].lower():
                         continue
 
-                    for location in key.xpath(
-                        f"svg:g/svg:text[@class='level{level_num}']", namespaces=ns
+                    for location in key.findall(
+                        f'g/text[@class="level{level_num}"]', ns
                     ):
                         set_key_label(location, char)
 
@@ -631,9 +634,8 @@ class KeyboardLayout:
                                     continue
 
                         if dead_char:
-                            for location in key.xpath(
-                                f"svg:g/svg:text[@class='level{level_num} dk']",
-                                namespaces=ns,
+                            for location in key.findall(
+                                f'g/text[@class="level{level_num} dk"]', ns
                             ):
                                 set_key_label(location, dead_char)
 
