@@ -38,6 +38,7 @@ dev = [
     "isort",
     "ruff",
     "pytest",
+    "lxml",
     "mypy",
     "types-PyYAML",
 ]
