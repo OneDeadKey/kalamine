@@ -152,7 +152,7 @@ def test_intl():
         key <AE13> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <AD11> {[ bracketleft     , braceleft       , VoidSymbol      , VoidSymbol      ]}; // [ {
         key <AD12> {[ bracketright    , braceright      , VoidSymbol      , VoidSymbol      ]}; // ] }
-        key <AC11> {[ ISO_Level3_Latch, dead_diaeresis  , acute           , VoidSymbol      ]}; // ´ ¨ ´
+        key <AC11> {[ ISO_Level3_Latch, dead_diaeresis  , apostrophe      , VoidSymbol      ]}; // ' ¨ '
         key <AB11> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <TLDE> {[ dead_grave      , dead_tilde      , VoidSymbol      , VoidSymbol      ]}; // ` ~
         key <BKSL> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
