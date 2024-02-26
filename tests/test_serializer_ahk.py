@@ -597,7 +597,7 @@ def test_intl():
          SC1b::SendKey("U+005d", {}) ; ]
         +SC1b::SendKey("U+007d", {}) ; }
 
-         SC28::SendKey("**", {"**": "´"})
+         SC28::SendKey("**", {"**": "\'"})
         +SC28::SendKey("*¨", {"*¨": "¨"})
 
          SC29::SendKey("*``", {"*``": "`"}) ; *`
