@@ -11,7 +11,7 @@ from os import environ
 from pathlib import Path
 from textwrap import dedent
 from typing import Dict, ItemsView, Optional
-from xml.etree import cElementTree as ET
+from xml.etree import ElementTree as ET
 
 from .layout import KeyboardLayout
 
@@ -24,7 +24,6 @@ def xdg_config_home() -> Path:
 
 
 def wayland_running() -> bool:
-    return True  # debug
     xdg_session = environ.get("XDG_SESSION_TYPE")
     if xdg_session:
         return xdg_session.startswith("wayland")
@@ -45,8 +44,9 @@ XKB_RULES_HEADER = f"""\
 
 LayoutName = str
 LocaleName = str
-Variant = Dict[LayoutName, Optional[KeyboardLayout]]
-Index = Dict[LocaleName, Variant]
+KbdVariant = Dict[LayoutName, Optional[KeyboardLayout]]
+KbdIndex = Dict[LocaleName, KbdVariant]
+XmlIndex = Dict[LocaleName, Dict[LayoutName, str]]
 
 
 class XKBManager:
@@ -55,10 +55,10 @@ class XKBManager:
     def __init__(self, root: bool = False) -> None:
         self._as_root = root
         self._rootdir = XKB_ROOT if root else XKB_HOME
-        self._index: Index = {}
+        self._index: KbdIndex = {}
 
     @property
-    def index(self) -> ItemsView[LocaleName, Variant]:
+    def index(self) -> ItemsView[LocaleName, KbdVariant]:
         return self._index.items()
 
     @property
@@ -92,11 +92,11 @@ class XKBManager:
             for variant in tree.findall(".//variant[@type]"):
                 variant.attrib.pop("type")
 
-    def list(self, mask: str = "") -> Index:
+    def list(self, mask: str = "") -> XmlIndex:
         layouts = list_rules(self._rootdir, mask)
         return list_symbols(self._rootdir, layouts)
 
-    def list_all(self, mask: str = "") -> Index:
+    def list_all(self, mask: str = "") -> XmlIndex:
         return list_rules(self._rootdir, mask)
 
     def has_custom_symbols(self) -> bool:
@@ -238,7 +238,7 @@ def is_new_symbol_mark(line: str) -> Optional[str]:
     return "lafayette"  # line.startswith("// LAFAYETTE::"):  # obsolete marker
 
 
-def update_symbols_locale(path: Path, named_layouts: Variant) -> None:
+def update_symbols_locale(path: Path, named_layouts: KbdVariant) -> None:
     """Update Kalamine layouts in an xkb/symbols/[locale] file."""
 
     text = ""
@@ -293,10 +293,10 @@ def update_symbols_locale(path: Path, named_layouts: Variant) -> None:
         symbols.close()
 
 
-def update_symbols(xkb_root: Path, kb_index: Index) -> None:
+def update_symbols(xkb_root: Path, kbd_index: KbdIndex) -> None:
     """Update Kalamine layouts in all xkb/symbols files."""
 
-    for locale, named_layouts in kb_index.items():
+    for locale, named_layouts in kbd_index.items():
         path = xkb_root / "symbols" / locale
         if not path.exists():
             with path.open("w") as file:
@@ -311,11 +311,11 @@ def update_symbols(xkb_root: Path, kb_index: Index) -> None:
             exit_FileNotWritable(exc, path)
 
 
-def list_symbols(xkb_root: Path, kb_index: Index) -> Index:
+def list_symbols(xkb_root: Path, xml_index: XmlIndex) -> XmlIndex:
     """Filter input layouts: only keep the ones defined with Kalamine."""
 
-    filtered_index: Index = {}
-    for locale, variants in sorted(kb_index.items()):
+    filtered_index: XmlIndex = {}
+    for locale, variants in sorted(xml_index.items()):
         path = xkb_root / "symbols" / locale
         if not path.exists():
             continue
@@ -373,7 +373,7 @@ def add_rules_variant(variant_list: ET.Element, name: str, description: str) -> 
     ET.SubElement(config, "description").text = description
 
 
-def update_rules(xkb_root: Path, kb_index: Index) -> None:
+def update_rules(xkb_root: Path, kbd_index: KbdIndex) -> None:
     """Update references in XKB/rules/{base,evdev}.xml."""
 
     for filename in ["base.xml", "evdev.xml"]:
@@ -384,7 +384,7 @@ def update_rules(xkb_root: Path, kb_index: Index) -> None:
         try:
             tree = ET.parse(filepath)
 
-            for locale, named_layouts in kb_index.items():
+            for locale, named_layouts in kbd_index.items():
                 vlist = get_rules_variant_list(tree, locale)
                 if vlist is None:
                     exit(f"Error: unexpected xml format in {filepath}.")
@@ -409,7 +409,7 @@ def update_rules(xkb_root: Path, kb_index: Index) -> None:
             exit_FileNotWritable(exc, filepath)
 
 
-def list_rules(xkb_root: Path, mask: str = "*") -> Index:
+def list_rules(xkb_root: Path, mask: str = "*") -> XmlIndex:
     """List all matching XKB layouts."""
 
     if mask in ("", "*"):
@@ -423,7 +423,7 @@ def list_rules(xkb_root: Path, mask: str = "*") -> Index:
             locale_mask = mask
             variant_mask = "*"
 
-    kb_index: Index = {}
+    xml_index: XmlIndex = {}
     for filename in ["base.xml", "evdev.xml"]:
         filepath = xkb_root / "rules" / filename
         if not filepath.exists():
@@ -441,11 +441,11 @@ def list_rules(xkb_root: Path, mask: str = "*") -> Index:
                     continue
 
                 if locale_mask in ("*", locale) and variant_mask in ("*", name.text):
-                    if locale not in kb_index:
-                        kb_index[(locale)] = {}
-                    kb_index[locale][name.text] = desc.text
+                    if locale not in xml_index:
+                        xml_index[(locale)] = {}
+                    xml_index[locale][name.text] = str(desc.text)
 
-    return kb_index
+    return xml_index
 
 
 ###############################################################################
