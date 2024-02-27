@@ -45,6 +45,25 @@ class MsklcManager:
         dll = sys32 / Path(f'{self._layout.meta["name8"]}.dll')
         return dll.exists()
 
+    def _create_dummy_layout(self) -> str:
+        dummy_toml = create_layout_content(
+            self._layout.geometry, self._layout.has_altgr, self._layout.has_1dk
+        )
+        dummy_toml = dummy_toml.replace(
+            "custom QWERTY layout", self._layout.meta["description"]
+        )
+        dummy_toml = dummy_toml.replace("qwerty-custom", self._layout.meta["name"])
+        dummy_toml = dummy_toml.replace("custom", self._layout.meta["name8"])
+        dummy_toml = dummy_toml.replace("nobody", self._layout.meta["author"])
+        dummy_toml = dummy_toml.replace(
+            "https://OneDeadKey.github.com/kalamine", self._layout.meta["url"]
+        )
+        dummy_toml = dummy_toml.replace("0.0.1", self._layout.meta["version"])
+        dummy_toml = dummy_toml.replace('"us"', f'"{self._layout.meta["locale"]}"')
+
+        dummy_layout = KeyboardLayout(tomli.loads(dummy_toml))
+        return dummy_layout.klc
+
     def build_msklc_installer(
         self,
     ) -> bool:
@@ -68,28 +87,14 @@ class MsklcManager:
 
         # Create a dummy klc file to generate the installer.
         # The file must have a correct name to be reflected in the installer.
-        dummy_toml = create_layout_content(
-            self._layout.geometry, self._layout.has_altgr, self._layout.has_1dk
-        )
-        dummy_toml = dummy_toml.replace(
-            "custom QWERTY layout", self._layout.meta["description"]
-        )
-        dummy_toml = dummy_toml.replace("qwerty-custom", self._layout.meta["name"])
-        dummy_toml = dummy_toml.replace("custom", self._layout.meta["name8"])
-        dummy_toml = dummy_toml.replace("nobody", self._layout.meta["author"])
-        dummy_toml = dummy_toml.replace(
-            "https://OneDeadKey.github.com/kalamine", self._layout.meta["url"]
-        )
-        dummy_toml = dummy_toml.replace("0.0.1", self._layout.meta["version"])
-        dummy_toml = dummy_toml.replace('"us"', f'"{self._layout.meta["locale"]}"')
-
-        dummy_layout = KeyboardLayout(tomli.loads(dummy_toml))
-        dummy_klc = dummy_layout.klc
+        dummy_klc = self._create_dummy_layout()
         klc_file = Path(self._working_dir) / Path(f'{self._layout.meta["name8"]}.klc')
-        with klc_file.open("w", encoding="utf-16le", newline="\n") as file:
+        with klc_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             file.write(dummy_klc)
         msklc = self._msklc_dir / Path("MSKLC.exe")
-        subprocess.run([msklc, klc_file, "-build"], capture_output=not self._verbose)
+        result = subprocess.run(
+            [msklc, klc_file, "-build"], capture_output=not self._verbose
+        )
 
         # move the installer from "My Documents" to current dir
         if sys.platform == "win32":  # let mypy know this is win32-specific
@@ -102,8 +107,18 @@ class MsklcManager:
             my_docs = Path(buf.value)
             installer = my_docs / Path(name8)
 
-            if installer.exists():
+            if (
+                installer.exists()
+                and installer.is_dir()
+                and (installer / Path("setup.exe")).exists()
+            ):
                 move(str(installer), str(self._working_dir / Path(name8)))
+            else:
+                print(f"Exit code: {result.returncode}")
+                print(result.stdout)
+                print(result.stderr)
+                print("Error: installer was not created.")
+                return False
 
         return True
 
@@ -126,7 +141,7 @@ class MsklcManager:
         klc_file = self._working_dir / Path(f"{name8}.klc")
 
         # create correct klc
-        with klc_file.open("w", encoding="utf-16le", newline="\n") as file:
+        with klc_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             try:
                 file.write(self._layout.klc)
             except ValueError as err:
@@ -135,10 +150,10 @@ class MsklcManager:
 
         self.create_c_files()
         c_file = klc_file.with_suffix(".RC")
-        with c_file.open("w", encoding="utf-16le", newline="\n") as file:
+        with c_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             file.write(self._layout.klc_rc)
         c_file = klc_file.with_suffix(".C")
-        with c_file.open("w", encoding="utf-16le", newline="\n") as file:
+        with c_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             file.write(self._layout.klc_c)
         c_files = [".C", ".RC", ".H", ".DEF"]
 
