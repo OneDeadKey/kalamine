@@ -89,7 +89,7 @@ class MsklcManager:
         # The file must have a correct name to be reflected in the installer.
         dummy_klc = self._create_dummy_layout()
         klc_file = Path(self._working_dir) / Path(f'{self._layout.meta["name8"]}.klc')
-        with klc_file.open("w", encoding="utf-16le", newline="\n") as file:
+        with klc_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             file.write(dummy_klc)
         msklc = self._msklc_dir / Path("MSKLC.exe")
         result = subprocess.run(
@@ -141,7 +141,7 @@ class MsklcManager:
         klc_file = self._working_dir / Path(f"{name8}.klc")
 
         # create correct klc
-        with klc_file.open("w", encoding="utf-16le", newline="\n") as file:
+        with klc_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             try:
                 file.write(self._layout.klc)
             except ValueError as err:
@@ -150,10 +150,10 @@ class MsklcManager:
 
         self.create_c_files()
         c_file = klc_file.with_suffix(".RC")
-        with c_file.open("w", encoding="utf-16le", newline="\n") as file:
+        with c_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             file.write(self._layout.klc_rc)
         c_file = klc_file.with_suffix(".C")
-        with c_file.open("w", encoding="utf-16le", newline="\n") as file:
+        with c_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             file.write(self._layout.klc_c)
         c_files = [".C", ".RC", ".H", ".DEF"]
 
