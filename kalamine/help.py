@@ -1,8 +1,5 @@
-import pkgutil
 from pathlib import Path
-from typing import List
-
-import yaml
+from typing import Dict, List
 
 from .layout import KeyboardLayout
 from .utils import load_data
@@ -66,15 +63,16 @@ def core_guide() -> List[str]:
     return sections
 
 
-def draw_layout(geometry: str = "ISO", altgr: bool = False, odk: bool = False) -> str:
-    """Draw a ASCII art description of a default layout."""
+def dummy_layout(
+    geometry: str = "ISO",
+    altgr: bool = False,
+    odk: bool = False,
+    meta: Dict[str, str] = {},
+) -> KeyboardLayout:
+    """Create a dummy (QWERTY) layout with the given characteristics."""
 
-    pkg_file = pkgutil.get_data(__package__, "data/layout.yaml")
-    if pkg_file is None:
-        return ""
-
-    # load the descriptor bug only keep the leyers we need
-    descriptor = yaml.safe_load(pkg_file.decode("utf-8"))
+    # load the descriptor, but only keep the layers we need
+    descriptor = load_data("layout")
     if not altgr:
         del descriptor["altgr"]
     if not odk:
@@ -84,9 +82,22 @@ def draw_layout(geometry: str = "ISO", altgr: bool = False, odk: bool = False) -
         del descriptor["alpha"]
         descriptor["base"] = descriptor.pop("1dk")
 
-    # make a layout, just to get the ASCII arts
+    # XXX this should be a dataclass
+    for key, val in meta.items():
+        if key != "geometry":  # must be set AFTER creating the KeyboardLayout
+            descriptor[key] = val
+
+    # return a KeyboardLayout matching the input parameters
     layout = KeyboardLayout(descriptor)
     layout.geometry = geometry
+    return layout
+
+
+def draw_layout(geometry: str = "ISO", altgr: bool = False, odk: bool = False) -> str:
+    """Draw a ASCII art description of a default layout."""
+
+    # make a KeyboardLayout, just to get the ASCII arts
+    layout = dummy_layout(geometry, altgr, odk)
 
     def keymap(layer_name: str) -> str:
         layer = "\n".join(getattr(layout, layer_name))
@@ -119,7 +130,9 @@ def user_guide() -> str:
     return header + "\n" + "\n".join(core_guide())
 
 
-def create_layout_content(geometry: str, altgr: bool, odk: bool) -> str:
+def create_layout(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
+    """Create a new TOML layout description."""
+
     content = f'{TOML_HEADER}"{geometry.upper()}"\n'
     content += draw_layout(geometry, altgr, odk)
     if odk:
@@ -128,13 +141,6 @@ def create_layout_content(geometry: str, altgr: bool, odk: bool) -> str:
     for topic in core_guide():
         content += f"\n\n\n# {SEPARATOR}"
         content += "\n# ".join(topic.rstrip().split("\n"))
-    return content
-
-
-def create_layout(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
-    """Create a new TOML layout description."""
-
-    content = create_layout_content(geometry, altgr, odk)
 
     with open(output_file, "w", encoding="utf-8", newline="\n") as file:
         file.write(content.replace(" \n", "\n"))

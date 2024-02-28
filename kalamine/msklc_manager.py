@@ -6,9 +6,7 @@ from pathlib import Path
 from shutil import move, rmtree
 from stat import S_IREAD, S_IWUSR
 
-import tomli
-
-from .help import create_layout_content
+from .help import dummy_layout
 from .layout import KeyboardLayout
 
 
@@ -25,48 +23,36 @@ class MsklcManager:
         self._verbose = verbose
         self._working_dir = working_dir
 
-    # This need the klc file to be created first
     def create_c_files(self):
-        """Call kbdutools to generate C files"""
-        kbdutools = self._msklc_dir / Path("bin/i386/kbdutool.exe")
+        """Call kbdutool on the KLC descriptor to generate C files."""
+
+        kbdutool = self._msklc_dir / Path("bin/i386/kbdutool.exe")
         cur = os.getcwd()
         os.chdir(self._working_dir)
         ret = subprocess.run(
-            [kbdutools, "-u", "-s", self._layout.meta["name8"] + ".klc"],
+            [kbdutool, "-u", "-s", f"{self._layout.meta['name8']}.klc"],
             capture_output=not self._verbose,
         )
         os.chdir(cur)
         ret.check_returncode()
 
-    # Check if the driver is already installed
-    # as this will cause MSKLC to launch the GUI instead of creating the installer
     def _is_already_installed(self) -> bool:
+        """Check if the keyboard driver is already installed,
+        which would cause MSKLC to launch the GUI instead of creating the installer."""
+
         sys32 = Path(os.environ["WINDIR"]) / Path("System32")
         dll = sys32 / Path(f'{self._layout.meta["name8"]}.dll')
         return dll.exists()
 
     def _create_dummy_layout(self) -> str:
-        dummy_toml = create_layout_content(
-            self._layout.geometry, self._layout.has_altgr, self._layout.has_1dk
-        )
-        dummy_toml = dummy_toml.replace(
-            "custom QWERTY layout", self._layout.meta["description"]
-        )
-        dummy_toml = dummy_toml.replace("qwerty-custom", self._layout.meta["name"])
-        dummy_toml = dummy_toml.replace("custom", self._layout.meta["name8"])
-        dummy_toml = dummy_toml.replace("nobody", self._layout.meta["author"])
-        dummy_toml = dummy_toml.replace(
-            "https://OneDeadKey.github.com/kalamine", self._layout.meta["url"]
-        )
-        dummy_toml = dummy_toml.replace("0.0.1", self._layout.meta["version"])
-        dummy_toml = dummy_toml.replace('"us"', f'"{self._layout.meta["locale"]}"')
+        return dummy_layout(
+            self._layout.geometry,
+            self._layout.has_altgr,
+            self._layout.has_1dk,
+            self._layout.meta,
+        ).klc
 
-        dummy_layout = KeyboardLayout(tomli.loads(dummy_toml))
-        return dummy_layout.klc
-
-    def build_msklc_installer(
-        self,
-    ) -> bool:
+    def build_msklc_installer(self) -> bool:
         name8 = self._layout.meta["name8"]
 
         if (self._working_dir / Path(name8)).exists():
@@ -88,9 +74,10 @@ class MsklcManager:
         # Create a dummy klc file to generate the installer.
         # The file must have a correct name to be reflected in the installer.
         dummy_klc = self._create_dummy_layout()
-        klc_file = Path(self._working_dir) / Path(f'{self._layout.meta["name8"]}.klc')
+        klc_file = Path(self._working_dir) / Path(f"{name8}.klc")
         with klc_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             file.write(dummy_klc)
+
         msklc = self._msklc_dir / Path("MSKLC.exe")
         result = subprocess.run(
             [msklc, klc_file, "-build"], capture_output=not self._verbose
@@ -122,9 +109,7 @@ class MsklcManager:
 
         return True
 
-    def build_msklc_dll(
-        self,
-    ) -> bool:
+    def build_msklc_dll(self) -> bool:
         name8 = self._layout.meta["name8"]
         prev = os.getcwd()
         os.chdir(self._working_dir)
@@ -138,9 +123,8 @@ class MsklcManager:
                 rmtree(full_dir)
                 os.mkdir(full_dir)
 
-        klc_file = self._working_dir / Path(f"{name8}.klc")
-
         # create correct klc
+        klc_file = self._working_dir / Path(f"{name8}.klc")
         with klc_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             try:
                 file.write(self._layout.klc)
@@ -149,12 +133,15 @@ class MsklcManager:
                 return False
 
         self.create_c_files()
-        c_file = klc_file.with_suffix(".RC")
-        with c_file.open("w", encoding="utf-16le", newline="\r\n") as file:
+
+        rc_file = klc_file.with_suffix(".RC")
+        with rc_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             file.write(self._layout.klc_rc)
+
         c_file = klc_file.with_suffix(".C")
         with c_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             file.write(self._layout.klc_c)
+
         c_files = [".C", ".RC", ".H", ".DEF"]
 
         # Make files read-only to prevent MSKLC from overwriting them.
@@ -163,7 +150,7 @@ class MsklcManager:
 
         # build correct DLLs
 
-        kbdutools = self._msklc_dir / Path("bin/i386/kbdutool.exe")
+        kbdutool = self._msklc_dir / Path("bin/i386/kbdutool.exe")
         dll = klc_file.with_suffix(".dll")
 
         for arch_flag, arch in [
@@ -173,7 +160,7 @@ class MsklcManager:
             ("-o", "wow64"),
         ]:
             result = subprocess.run(
-                [kbdutools, "-u", arch_flag, klc_file],
+                [kbdutool, "-u", arch_flag, klc_file],
                 text=True,
                 capture_output=not self._verbose,
             )
