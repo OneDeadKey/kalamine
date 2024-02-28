@@ -172,10 +172,22 @@ class MsklcManager:
             ("-i", "ia64"),
             ("-o", "wow64"),
         ]:
-            subprocess.run(
-                [kbdutools, "-u", arch_flag, klc_file], capture_output=not self._verbose
-            ).check_returncode()
-            move(str(dll), str(INST_DIR / Path(arch)))
+            result = subprocess.run(
+                [kbdutools, "-u", arch_flag, klc_file],
+                text=True,
+                capture_output=not self._verbose,
+            )
+            if result.returncode == 0:
+                move(str(dll), str(INST_DIR / Path(arch)))
+            else:
+                # Restore write permission
+                for suffix in c_files:
+                    os.chmod(klc_file.with_suffix(suffix), S_IWUSR)
+
+                print(f"Error while creating DLL for arch {arch}:")
+                print(result.stdout)
+                print(result.stderr)
+                return False
 
         # Restore write permission
         for suffix in c_files:
