@@ -84,7 +84,7 @@ def draw_layout(geometry: str = "ISO", altgr: bool = False, odk: bool = False) -
         del descriptor["alpha"]
         descriptor["base"] = descriptor.pop("1dk")
 
-    # make a lyaout, just to get the ASCII arts
+    # make a layout, just to get the ASCII arts
     layout = KeyboardLayout(descriptor)
     layout.geometry = geometry
 
