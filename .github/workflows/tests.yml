@@ -56,7 +56,6 @@ jobs:
           pytest
 
       - name: Run black
-        run: black kalamine --diff
         run: black kalamine --check
 
       - name: Run isort
