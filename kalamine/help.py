@@ -2,7 +2,8 @@ from pathlib import Path
 from typing import Dict, List
 
 from .layout import KeyboardLayout
-from .utils import load_data
+from .template import SCAN_CODES
+from .utils import Layer, load_data
 
 SEPARATOR = (
     "--------------------------------------------------------------------------------"
@@ -84,12 +85,19 @@ def dummy_layout(
 
     # XXX this should be a dataclass
     for key, val in meta.items():
-        if key != "geometry":  # must be set AFTER creating the KeyboardLayout
-            descriptor[key] = val
+        descriptor[key] = val
 
-    # return a KeyboardLayout matching the input parameters
+    # make a KeyboardLayout matching the input parameters
+    descriptor["geometry"] = "ANSI"  # layout.yaml has an ANSI geometry
     layout = KeyboardLayout(descriptor)
     layout.geometry = geometry
+
+    # ensure there is no empty keys (XXX maybe this should be in layout.py)
+    for key in SCAN_CODES["web"].keys():
+        if key not in layout.layers[Layer.BASE].keys():
+            layout.layers[Layer.BASE][key] = "\\"
+            layout.layers[Layer.SHIFT][key] = "|"
+
     return layout
 
 
