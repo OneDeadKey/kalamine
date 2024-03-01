@@ -131,7 +131,7 @@ class MsklcManager:
         # move the installer from "My Documents" to current dir
         if sys.platform != "win32":  # let mypy know this is win32-specific
             return False
-        
+
         CSIDL_PERSONAL = 5  # My Documents
         SHGFP_TYPE_CURRENT = 0  # Get current, not default value
         buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
@@ -149,7 +149,7 @@ class MsklcManager:
             print(result.stderr)
             print("Error: installer was not created.")
             return False
-        
+
         move(str(installer), str(self._working_dir / Path(name8)))
         return True
 
