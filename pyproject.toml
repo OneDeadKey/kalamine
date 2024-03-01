@@ -30,6 +30,7 @@ dependencies = [
     "livereload",
     "pyyaml",
     "tomli",
+    "progress",
 ]
 
 [project.optional-dependencies]
@@ -53,3 +54,7 @@ wkalamine = "kalamine.cli_msklc:cli"
 
 [tool.isort]
 profile = "black"
+
+[[tool.mypy.overrides]]
+module = ["progress.bar"]
+ignore_missing_imports = true

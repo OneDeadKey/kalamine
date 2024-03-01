@@ -43,6 +43,13 @@ from .utils import (
 #
 
 
+def get_langid(locale: str) -> str:
+    locale_codes = load_data("win_locales")
+    if locale not in locale_codes:
+        raise ValueError(f"`{locale}` is not a valid locale")
+    return locale_codes[locale]
+
+
 def upper_key(letter: str, blank_if_obvious: bool = True) -> str:
     """This is used for presentation purposes: in a key, the upper character
     becomes blank if it's an obvious uppercase version of the base character."""
@@ -517,11 +524,8 @@ class KeyboardLayout:
         version = re.compile(r"^\d+\.\d+\.\d+(\.\d+)?$")
         if version.match(self.meta["version"]) is None:
             raise ValueError("`version` must be in `a.b.c[.d]` form")
-        locale_codes = load_data("win_locales")
         locale = self.meta["locale"]
-        if locale not in locale_codes:
-            raise ValueError(f"`{locale}` is not a valid locale")
-        langid = locale_codes[locale]
+        langid = get_langid(locale)
         out = load_tpl(self, ".klc")
         out = substitute_lines(out, "LAYOUT", klc_keymap(self))
         out = substitute_lines(out, "DEAD_KEYS", klc_deadkeys(self))
