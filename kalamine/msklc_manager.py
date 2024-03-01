@@ -10,7 +10,7 @@ from stat import S_IREAD, S_IWUSR
 from progress.bar import ChargingBar
 
 from .help import dummy_layout
-from .layout import KeyboardLayout, get_langid
+from .layout import KeyboardLayout
 
 
 class MsklcManager:
@@ -59,7 +59,6 @@ class MsklcManager:
         if sys.platform == "win32":  # let mypy know this is win32-specific
             # check if the registry still has it
             # that can happen after a botch uninstall of the driver
-            langid = get_langid(self._layout.meta["locale"]).lower()
             kbd_layouts_handle = winreg.OpenKeyEx(
                 winreg.HKEY_LOCAL_MACHINE,
                 "SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts",
@@ -67,15 +66,14 @@ class MsklcManager:
             # [0] is the number of sub keys
             for i in range(0, winreg.QueryInfoKey(kbd_layouts_handle)[0]):
                 sub_key = winreg.EnumKey(kbd_layouts_handle, i)
-                # a sub_key is on 8 chars, the last 4 ones being a langid
-                if sub_key.endswith(langid):
-                    sub_handle = winreg.OpenKey(kbd_layouts_handle, sub_key)
-                    layout_file = winreg.QueryValueEx(sub_handle, "Layout File")[0]
-                    if layout_file == dll_name:
-                        print(
-                            f"Error: The registry still have reference to `{dll_name}`"
-                        )
-                        return True
+                sub_handle = winreg.OpenKey(kbd_layouts_handle, sub_key)
+                layout_file = winreg.QueryValueEx(sub_handle, "Layout File")[0]
+                if layout_file == dll_name:
+                    print(
+                        f"Error: The registry still have reference to `{dll_name}` in"
+                        f"`HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\{sub_key}`"
+                    )
+                    return True
         return False
 
     def _create_dummy_layout(self) -> str:
