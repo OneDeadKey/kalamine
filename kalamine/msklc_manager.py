@@ -56,24 +56,25 @@ class MsklcManager:
             print(f"Error: {dll_name} is already installed")
             return True
 
-        if sys.platform == "win32":  # let mypy know this is win32-specific
-            # check if the registry still has it
-            # that can happen after a botch uninstall of the driver
-            kbd_layouts_handle = winreg.OpenKeyEx(
-                winreg.HKEY_LOCAL_MACHINE,
-                "SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts",
-            )
-            # [0] is the number of sub keys
-            for i in range(0, winreg.QueryInfoKey(kbd_layouts_handle)[0]):
-                sub_key = winreg.EnumKey(kbd_layouts_handle, i)
-                sub_handle = winreg.OpenKey(kbd_layouts_handle, sub_key)
-                layout_file = winreg.QueryValueEx(sub_handle, "Layout File")[0]
-                if layout_file == dll_name:
-                    print(
-                        f"Error: The registry still have reference to `{dll_name}` in"
-                        f"`HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\{sub_key}`"
-                    )
-                    return True
+        if sys.platform != "win32":  # let mypy know this is win32-specific
+            return False
+        # check if the registry still has it
+        # that can happen after a botch uninstall of the driver
+        kbd_layouts_handle = winreg.OpenKeyEx(
+            winreg.HKEY_LOCAL_MACHINE,
+            "SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts",
+        )
+        # [0] is the number of sub keys
+        for i in range(0, winreg.QueryInfoKey(kbd_layouts_handle)[0]):
+            sub_key = winreg.EnumKey(kbd_layouts_handle, i)
+            sub_handle = winreg.OpenKey(kbd_layouts_handle, sub_key)
+            layout_file = winreg.QueryValueEx(sub_handle, "Layout File")[0]
+            if layout_file == dll_name:
+                print(
+                    f"Error: The registry still have reference to `{dll_name}` in"
+                    f"`HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Keyboard Layouts\\{sub_key}`"
+                )
+                return True
         return False
 
     def _create_dummy_layout(self) -> str:
@@ -111,7 +112,7 @@ class MsklcManager:
                 f"folder in the current directory: ({self._working_dir})"
             )
             return False
-
+        self._progress.message = "Creating installer package"
         self._progress.next()
         # Create a dummy klc file to generate the installer.
         # The file must have a correct name to be reflected in the installer.
@@ -128,27 +129,28 @@ class MsklcManager:
 
         self._progress.next()
         # move the installer from "My Documents" to current dir
-        if sys.platform == "win32":  # let mypy know this is win32-specific
-            CSIDL_PERSONAL = 5  # My Documents
-            SHGFP_TYPE_CURRENT = 0  # Get current, not default value
-            buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-            ctypes.windll.shell32.SHGetFolderPathW(
-                None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf
-            )
-            my_docs = Path(buf.value)
-            installer = my_docs / Path(name8)
+        if sys.platform != "win32":  # let mypy know this is win32-specific
+            return False
+        
+        CSIDL_PERSONAL = 5  # My Documents
+        SHGFP_TYPE_CURRENT = 0  # Get current, not default value
+        buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+        ctypes.windll.shell32.SHGetFolderPathW(
+            None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf
+        )
+        my_docs = Path(buf.value)
+        installer = my_docs / Path(name8)
 
-            self._progress.next()
-            if installer_exists(installer):
-                move(str(installer), str(self._working_dir / Path(name8)))
-            else:
-                self._progress.finish()
-                print(f"MSKLC Exit code: {result.returncode}")
-                print(result.stdout)
-                print(result.stderr)
-                print("Error: installer was not created.")
-                return False
-
+        self._progress.next()
+        if not installer_exists(installer):
+            self._progress.finish()
+            print(f"MSKLC Exit code: {result.returncode}")
+            print(result.stdout)
+            print(result.stderr)
+            print("Error: installer was not created.")
+            return False
+        
+        move(str(installer), str(self._working_dir / Path(name8)))
         return True
 
     def build_msklc_dll(self) -> bool:
@@ -200,7 +202,7 @@ class MsklcManager:
 
         kbdutool = self._msklc_dir / Path("bin/i386/kbdutool.exe")
         dll = klc_file.with_suffix(".dll")
-
+        self._progress.message = "Creating driver DLLs"
         for arch_flag, arch in [
             ("-x", "i386"),
             ("-m", "amd64"),
