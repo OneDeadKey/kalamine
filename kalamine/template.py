@@ -237,7 +237,7 @@ oem_idx = 0
 
 
 def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> str:
-    if (layout.meta["geometry"] == "ISO" and scan_code == "56") or symbols[0] == "-1":
+    if scan_code == "56":
         # manage the ISO key (between shift and Z on ISO keyboards).
         # We're assuming that its scancode is always 56
         # https://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
