@@ -46,11 +46,13 @@ def build(
 
     if platform.system() != "Windows":
         sys.exit("This command is only compatible with Windows, sorry.")
-
+        
+    print("1/2: Creating an MSKLC installer…")
     for input_file in layout_descriptors:
         layout = KeyboardLayout(load_layout(input_file), angle_mod)
         msklc_mgr = MsklcManager(layout, msklc, verbose=verbose)
         if msklc_mgr.build_msklc_installer():
+            print("2/2: Building the keyboard driver DLL…")
             if msklc_mgr.build_msklc_dll():
                 output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
                 click.echo(
