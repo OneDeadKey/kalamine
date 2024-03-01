@@ -72,7 +72,9 @@ class MsklcManager:
                     sub_handle = winreg.OpenKey(kbd_layouts_handle, sub_key)
                     layout_file = winreg.QueryValueEx(sub_handle, "Layout File")[0]
                     if layout_file == dll_name:
-                        print(f"Error: The registry still have reference to `{dll_name}`")
+                        print(
+                            f"Error: The registry still have reference to `{dll_name}`"
+                        )
                         return True
         return False
 
