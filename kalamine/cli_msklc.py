@@ -36,7 +36,7 @@ DEFAULT_MSKLC_DIR = "C:\\Program Files (x86)\\Microsoft Keyboard Layout Creator 
     help="Directory where MSKLC is installed",
 )
 @click.option(
-    "--qwerty-shortcut",
+    "--qwerty-shortcuts",
     default=False,
     is_flag=True,
     help="Keep shortcuts at their qwerty location",
@@ -46,7 +46,7 @@ def build(
     layout_descriptors: List[Path],
     angle_mod: bool,
     msklc: Path,
-    qwerty_shortcut: bool,
+    qwerty_shortcuts: bool,
     verbose: bool,
 ) -> None:
     """Convert TOML/YAML descriptions into Windows MSKLC keyboard drivers."""
@@ -55,7 +55,7 @@ def build(
         sys.exit("This command is only compatible with Windows, sorry.")
 
     for input_file in layout_descriptors:
-        layout = KeyboardLayout(load_layout(input_file), angle_mod, qwerty_shortcut)
+        layout = KeyboardLayout(load_layout(input_file), angle_mod, qwerty_shortcuts)
         msklc_mgr = MsklcManager(layout, msklc, verbose=verbose)
         if msklc_mgr.build_msklc_installer():
             if msklc_mgr.build_msklc_dll():

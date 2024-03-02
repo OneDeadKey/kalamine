@@ -198,7 +198,7 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
                 continue
 
             symbol = layer[key_name]
-            if layout.qwerty_shortcut:
+            if layout.qwerty_shortcuts:
                 symbol = qwerty_vk[scan_code]
             if symbol in enabled:
                 output.append(f"{prefixes[i]}SC{scan_code}::Send {prefixes[i]}{symbol}")
@@ -328,7 +328,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
         scan_code = SCAN_CODES["klc"][key_name]
 
         virtual_key = qwerty_vk[scan_code]
-        if not layout.qwerty_shortcut:
+        if not layout.qwerty_shortcuts:
             virtual_key = klc_virtual_key(layout, symbols, scan_code)
 
         if layout.has_altgr:
@@ -461,7 +461,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
         scan_code = SCAN_CODES["klc"][key_name]
 
         virtual_key = qwerty_vk[scan_code]
-        if not layout.qwerty_shortcut:
+        if not layout.qwerty_shortcuts:
             virtual_key = klc_virtual_key(layout, symbols, scan_code)
 
         if len(virtual_key) == 1:
