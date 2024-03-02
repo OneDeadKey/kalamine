@@ -571,7 +571,7 @@ def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
     """macOS layout, main part."""
     if layout.qwerty_shortcuts:
         print("WARN: keeping qwerty shortcuts is not yet supported for MacOS")
-        
+
     ret_str = []
     for index in range(5):
         layer = layout.layers[
