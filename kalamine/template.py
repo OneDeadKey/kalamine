@@ -43,6 +43,9 @@ def xml_proof_id(symbol: str) -> str:
 def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
     """Linux layout."""
 
+    if layout.qwerty_shortcuts:
+        print("WARN: keeping qwerty shortcuts is not yet supported for xkb")
+
     show_description = True
     eight_level = layout.has_altgr and layout.has_1dk and not xkbcomp
     odk_symbol = "ISO_Level5_Latch" if eight_level else "ISO_Level3_Latch"
@@ -566,7 +569,9 @@ def c_dk_index(layout: "KeyboardLayout") -> List[str]:
 
 def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
     """macOS layout, main part."""
-
+    if layout.qwerty_shortcuts:
+        print("WARN: keeping qwerty shortcuts is not yet supported for MacOS")
+        
     ret_str = []
     for index in range(5):
         layer = layout.layers[
