@@ -43,6 +43,9 @@ def xml_proof_id(symbol: str) -> str:
 def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
     """Linux layout."""
 
+    if layout.qwerty_shortcuts:
+        print("WARN: keeping qwerty shortcuts is not yet supported for xkb")
+
     show_description = True
     eight_level = layout.has_altgr and layout.has_1dk and not xkbcomp
     odk_symbol = "ISO_Level5_Latch" if eight_level else "ISO_Level3_Latch"
@@ -179,6 +182,7 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
 
     prefixes = [" ^", "^+"]
     enabled = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    qwerty_vk = load_data("qwerty_vk")
 
     output = []
     for key_name in LAYER_KEYS:
@@ -190,15 +194,17 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
         if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
 
-        sc = f"SC{SCAN_CODES['klc'][key_name]}"
+        scan_code = SCAN_CODES["klc"][key_name]
         for i in [Layer.BASE, Layer.SHIFT]:
             layer = layout.layers[i]
             if key_name not in layer:
                 continue
 
             symbol = layer[key_name]
+            if layout.qwerty_shortcuts:
+                symbol = qwerty_vk[scan_code]
             if symbol in enabled:
-                output.append(f"{prefixes[i]}{sc}::Send {prefixes[i]}{symbol}")
+                output.append(f"{prefixes[i]}SC{scan_code}::Send {prefixes[i]}{symbol}")
 
         if output[-1]:
             output.append("")
@@ -289,6 +295,8 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     global oem_idx
     oem_idx = 0  # Python trick to do equivalent of C static variable
     output = []
+    qwerty_vk = load_data("qwerty_vk")
+
     for key_name in LAYER_KEYS:
         if key_name.startswith("-"):
             continue
@@ -322,7 +330,9 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
 
         scan_code = SCAN_CODES["klc"][key_name]
 
-        virtual_key = klc_virtual_key(layout, symbols, scan_code)
+        virtual_key = qwerty_vk[scan_code]
+        if not layout.qwerty_shortcuts:
+            virtual_key = klc_virtual_key(layout, symbols, scan_code)
 
         if layout.has_altgr:
             output.append(
@@ -410,6 +420,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
     """Windows C layout, main part."""
 
     supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    qwerty_vk = load_data("qwerty_vk")
 
     global oem_idx
     oem_idx = 0  # Python trick to do equivalent of C static variable
@@ -451,7 +462,11 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
                 dead_symbols.append("WCH_NONE")
 
         scan_code = SCAN_CODES["klc"][key_name]
-        virtual_key = klc_virtual_key(layout, symbols, scan_code)
+
+        virtual_key = qwerty_vk[scan_code]
+        if not layout.qwerty_shortcuts:
+            virtual_key = klc_virtual_key(layout, symbols, scan_code)
+
         if len(virtual_key) == 1:
             virtual_key_id = f"'{virtual_key}'"
         else:
@@ -554,6 +569,8 @@ def c_dk_index(layout: "KeyboardLayout") -> List[str]:
 
 def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
     """macOS layout, main part."""
+    if layout.qwerty_shortcuts:
+        print("WARN: keeping qwerty shortcuts is not yet supported for MacOS")
 
     ret_str = []
     for index in range(5):

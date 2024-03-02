@@ -224,7 +224,9 @@ class KeyboardLayout:
 
     # self.meta = {key: MetaDescr.from_dict(val) for key, val in geometry_data.items()}
 
-    def __init__(self, layout_data: Dict, angle_mod: bool = False) -> None:
+    def __init__(
+        self, layout_data: Dict, angle_mod: bool = False, qwerty_shortcuts: bool = False
+    ) -> None:
         """Import a keyboard layout to instanciate the object."""
 
         # initialize a blank layout
@@ -235,6 +237,7 @@ class KeyboardLayout:
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
+        self.qwerty_shortcuts = qwerty_shortcuts
 
         # metadata: self.meta
         for k in layout_data:
