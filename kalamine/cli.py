@@ -178,9 +178,14 @@ def create(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
 
 @cli.command()
 @click.argument("filepath", nargs=1, type=click.Path(exists=True, path_type=Path))
-def watch(filepath: Path) -> None:
+@click.option(
+    "--angle-mod/--no-angle-mod",
+    default=False,
+    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
+)
+def watch(filepath: Path, angle_mod: bool) -> None:
     """Watch a TOML/YAML layout description and display it in a web server."""
-    keyboard_server(filepath)
+    keyboard_server(filepath, angle_mod)
 
 
 @cli.command()
