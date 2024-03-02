@@ -114,15 +114,22 @@ def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     default=False,
     help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
 )
+@click.option(
+    "--qwerty-shortcut",
+    default=False,
+    is_flag=True,
+    help="Keep shortcuts at their qwerty location",
+)
 def build(
     layout_descriptors: List[Path],
     out: Union[Path, Literal["all"]],
     angle_mod: bool,
+    qwerty_shortcut: bool,
 ) -> None:
     """Convert TOML/YAML descriptions into OS-specific keyboard drivers."""
 
     for input_file in layout_descriptors:
-        layout = KeyboardLayout(load_layout(input_file), angle_mod)
+        layout = KeyboardLayout(load_layout(input_file), angle_mod, qwerty_shortcut)
 
         # default: build all in the `dist` subdirectory
         if out == "all":
