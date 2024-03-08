@@ -6,15 +6,18 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Type, TypeVar
+from xml.etree import ElementTree as ET
 
 import click
 import tomli
 import yaml
-from lxml import etree  # type: ignore
 
 from .template import (
     ahk_keymap,
     ahk_shortcuts,
+    c_deadkeys,
+    c_dk_index,
+    c_keymap,
     klc_deadkeys,
     klc_dk_index,
     klc_keymap,
@@ -38,6 +41,13 @@ from .utils import (
 ###
 # Helpers
 #
+
+
+def get_langid(locale: str) -> str:
+    locale_codes = load_data("win_locales")
+    if locale not in locale_codes:
+        raise ValueError(f"`{locale}` is not a valid locale")
+    return locale_codes[locale]
 
 
 def upper_key(letter: str, blank_if_obvious: bool = True) -> str:
@@ -85,13 +95,13 @@ def substitute_token(text: str, token: str, value: str) -> str:
     return exp.sub(value, text)
 
 
-def load_tpl(layout: "KeyboardLayout", ext: str) -> str:
+def load_tpl(layout: "KeyboardLayout", ext: str, tpl: str = "base") -> str:
     date = datetime.date.today().isoformat()
-    tpl = "base"
-    if layout.has_altgr:
-        tpl = "full"
-        if layout.has_1dk and ext.startswith(".xkb"):
-            tpl = "full_1dk"
+    if tpl == "base":
+        if layout.has_altgr or ext.startswith(".RC"):
+            tpl = "full"
+            if layout.has_1dk and ext.startswith(".xkb"):
+                tpl = "full_1dk"
     bin = pkgutil.get_data(__package__, f"tpl/{tpl}{ext}")
     if bin is None:
         return ""
@@ -214,7 +224,9 @@ class KeyboardLayout:
 
     # self.meta = {key: MetaDescr.from_dict(val) for key, val in geometry_data.items()}
 
-    def __init__(self, layout_data: Dict, angle_mod: bool = False) -> None:
+    def __init__(
+        self, layout_data: Dict, angle_mod: bool = False, qwerty_shortcuts: bool = False
+    ) -> None:
         """Import a keyboard layout to instanciate the object."""
 
         # initialize a blank layout
@@ -225,6 +237,7 @@ class KeyboardLayout:
         self.meta = CONFIG.copy()  # default parameters, hardcoded
         self.has_altgr = False
         self.has_1dk = False
+        self.qwerty_shortcuts = qwerty_shortcuts
 
         # metadata: self.meta
         for k in layout_data:
@@ -506,24 +519,54 @@ class KeyboardLayout:
     @property
     def klc(self) -> str:
         """Windows driver (warning: requires CR/LF + UTF16LE encoding)"""
+        if len(self.meta["name8"]) > 8:
+            raise ValueError("`name8` max length is 8 charaters")
+
+        # check `version` format
+        # it must be `a.b.c[.d]`
+        version = re.compile(r"^\d+\.\d+\.\d+(\.\d+)?$")
+        if version.match(self.meta["version"]) is None:
+            raise ValueError("`version` must be in `a.b.c[.d]` form")
+        locale = self.meta["locale"]
+        langid = get_langid(locale)
         out = load_tpl(self, ".klc")
         out = substitute_lines(out, "LAYOUT", klc_keymap(self))
         out = substitute_lines(out, "DEAD_KEYS", klc_deadkeys(self))
         out = substitute_lines(out, "DEAD_KEY_INDEX", klc_dk_index(self))
+        out = substitute_token(out, "localeid", f"0000{langid}")
+        out = substitute_token(out, "locale", locale)
         out = substitute_token(out, "encoding", "utf-16le")
         return out
 
     @property
-    def xkb(self) -> str:  # will not work with Wayland
+    def klc_rc(self) -> str:
+        """Windows resource file for C drivers"""
+        out = load_tpl(self, ".RC")
+        # version numbers are in "a,b,c,d" format
+        version = self.meta["version"].replace(".", ",")
+        out = substitute_token(out, "rc_version", version)
+        return out
+
+    @property
+    def klc_c(self) -> str:
+        """Windows keymap file for C drivers"""
+        out = load_tpl(self, ".C")
+        out = substitute_lines(out, "LAYOUT", c_keymap(self))
+        out = substitute_lines(out, "DEAD_KEYS", c_deadkeys(self))
+        out = substitute_lines(out, "DEAD_KEY_INDEX", c_dk_index(self))
+        return out
+
+    @property
+    def xkb_keymap(self) -> str:  # will not work with Wayland
         """GNU/Linux driver (standalone / user-space)"""
-        out = load_tpl(self, ".xkb")
+        out = load_tpl(self, ".xkb_keymap")
         out = substitute_lines(out, "LAYOUT", xkb_keymap(self, xkbcomp=True))
         return out
 
     @property
-    def xkb_patch(self) -> str:
+    def xkb_symbols(self) -> str:
         """GNU/Linux driver (xkb patch, system or user-space)"""
-        out = load_tpl(self, ".xkb_patch")
+        out = load_tpl(self, ".xkb_symbols")
         out = substitute_lines(out, "LAYOUT", xkb_keymap(self, xkbcomp=False))
         return out
 
@@ -548,13 +591,16 @@ class KeyboardLayout:
     #
 
     @property
-    def svg(self) -> etree.ElementTree:
+    def svg(self) -> ET.ElementTree:
         """SVG drawing"""
+
+        svg_ns = "http://www.w3.org/2000/svg"
+        ET.register_namespace("", svg_ns)
+        ns = {"": svg_ns}
 
         # Parse SVG data
         filepath = Path(__file__).parent / "tpl" / "x-keyboard.svg"
-        svg = etree.parse(str(filepath), etree.XMLParser(remove_blank_text=True))
-        ns = {"svg": "http://www.w3.org/2000/svg"}
+        svg = ET.parse(str(filepath))
 
         # Get Layout data
         keymap = web_keymap(self)
@@ -572,15 +618,15 @@ class KeyboardLayout:
 
         # Fill-in with layout
         for name, chars in keymap.items():
-            for key in svg.xpath(f'//svg:g[@id="{name}"]', namespaces=ns):
+            for key in svg.findall(f'.//g[@id="{name}"]', ns):
                 # Print 1-4 level chars
                 for level_num, char in enumerate(chars, start=1):
                     # Do not print the same label twice (lower and upper)
                     if level_num == 1 and chars[0] == chars[1].lower():
                         continue
 
-                    for location in key.xpath(
-                        f"svg:g/svg:text[@class='level{level_num}']", namespaces=ns
+                    for location in key.findall(
+                        f'g/text[@class="level{level_num}"]', ns
                     ):
                         set_key_label(location, char)
 
@@ -595,9 +641,8 @@ class KeyboardLayout:
                                     continue
 
                         if dead_char:
-                            for location in key.xpath(
-                                f"svg:g/svg:text[@class='level{level_num} dk']",
-                                namespaces=ns,
+                            for location in key.findall(
+                                f'g/text[@class="level{level_num} dk"]', ns
                             ):
                                 set_key_label(location, dead_char)
 

@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Union
 import click
 
 from .layout import KeyboardLayout, load_layout
-from .xkb_manager import WAYLAND, Index, XKBManager
+from .xkb_manager import WAYLAND, KbdIndex, XKBManager
 
 
 @click.group()
@@ -38,9 +38,9 @@ def apply(filepath: Path, angle_mod: bool) -> None:
 
     layout = KeyboardLayout(load_layout(filepath), angle_mod)
     with tempfile.NamedTemporaryFile(
-        mode="w+", suffix=".xkb", encoding="utf-8"
+        mode="w+", suffix=".xkb_keymap", encoding="utf-8"
     ) as temp_file:
-        temp_file.write(layout.xkb)
+        temp_file.write(layout.xkb_keymap)
         os.system(f"xkbcomp -w0 {temp_file.name} $DISPLAY")
 
 
@@ -67,7 +67,7 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
         kb_layouts.append(layout)
         kb_locales.add(layout.meta["locale"])
 
-    def xkb_install(xkb: XKBManager) -> Index:
+    def xkb_install(xkb: XKBManager) -> KbdIndex:
         for layout in kb_layouts:
             xkb.add(layout)
         index = xkb.index  # gets erased with xkb.update()
@@ -88,8 +88,17 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
         print()
 
     except PermissionError:
+        print(xkb_root.path)
         print("    Not writable: switching to user-space.")
         print()
+        if not WAYLAND:
+            print(
+                "You appear to be running XOrg. You need sudo privileges to install keyboard layouts:"
+            )
+            for filepath in layouts:
+                print(f'    sudo env "PATH=$PATH" xkalamine install {filepath}')
+            sys.exit(1)
+
         xkb_home = XKBManager()
         xkb_home.ensure_xkb_config_is_ready()
         xkb_install(xkb_home)
@@ -114,6 +123,12 @@ def remove(mask: str) -> None:
     try:
         xkb_remove(root=True)
     except PermissionError:
+        if not WAYLAND:
+            print(
+                "You appear to be running XOrg. You need sudo privileges to remove keyboard layouts:"
+            )
+            print(f'    sudo env "PATH=$PATH" xkalamine remove {mask}')
+            sys.exit(1)
         xkb_remove()
 
 

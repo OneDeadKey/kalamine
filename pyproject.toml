@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kalamine"
-version = "0.28"
+version = "0.34"
 description = "a cross-platform Keyboard Layout Maker"
 readme = "README.rst"
 
@@ -28,9 +28,9 @@ requires-python = ">= 3.8"
 dependencies = [
     "click",
     "livereload",
-    "lxml",
     "pyyaml",
     "tomli",
+    "progress",
 ]
 
 [project.optional-dependencies]
@@ -39,8 +39,9 @@ dev = [
     "isort",
     "ruff",
     "pytest",
+    "lxml",
     "mypy",
-    "types-PyYAML"
+    "types-PyYAML",
 ]
 
 [project.urls]
@@ -49,6 +50,11 @@ Homepage = "https://github.com/OneDeadKey/kalamine"
 [project.scripts]
 kalamine = "kalamine.cli:cli"
 xkalamine = "kalamine.cli_xkb:cli"
+wkalamine = "kalamine.cli_msklc:cli"
 
 [tool.isort]
 profile = "black"
+
+[[tool.mypy.overrides]]
+module = ["progress.bar"]
+ignore_missing_imports = true

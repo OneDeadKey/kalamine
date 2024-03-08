@@ -51,8 +51,8 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                     <a href="/json">json</a>
                     | <a href="/keylayout">keylayout</a>
                     | <a href="/klc">klc</a>
-                    | <a href="/xkb">xkb</a>
-                    | <a href="/xkb_custom">xkb_custom</a>
+                    | <a href="/xkb_keymap">xkb_keymap</a>
+                    | <a href="/xkb_symbols">xkb_symbols</a>
                 </p>
             </body>
             </html>
@@ -77,17 +77,19 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             # XXX always reloads the layout on the root page, never in sub pages
             nonlocal kb_layout
             nonlocal angle_mod
-            if self.path == "/json":
+            if self.path == "/favicon.ico":
+                pass
+            elif self.path == "/json":
                 send(json.dumps(kb_layout.json), content="application/json")
             elif self.path == "/keylayout":
                 # send(kb_layout.keylayout, content='application/xml')
                 send(kb_layout.keylayout)
             elif self.path == "/klc":
-                send(kb_layout.klc, charset="utf-16-le")
-            elif self.path == "/xkb":
-                send(kb_layout.xkb)
-            elif self.path == "/xkb_custom":
-                send(kb_layout.xkb_patch)
+                send(kb_layout.klc, charset="utf-16-le", content="text")
+            elif self.path == "/xkb_keymap":
+                send(kb_layout.xkb_keymap)
+            elif self.path == "/xkb_symbols":
+                send(kb_layout.xkb_symbols.replace("//#", "//"))
             elif self.path == "/":
                 kb_layout = KeyboardLayout(load_layout(file_path), angle_mod)  # refresh
                 send(main_page(kb_layout, angle_mod), content="text/html")

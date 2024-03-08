@@ -15,7 +15,7 @@ for dk in DEAD_KEYS:
 # Helpers
 #
 
-KEY_CODES = load_data("key_codes")
+SCAN_CODES = load_data("scan_codes")
 XKB_KEY_SYM = load_data("key_sym")
 
 
@@ -35,13 +35,16 @@ def xml_proof_id(symbol: str) -> str:
 
 ###
 # GNU/Linux: XKB
-# - standalone xkb file to be used by `xkbcomp` (XOrg only)
-# - xkb patch for XOrg (system-wide) & Wayland (system-wide/user-space)
+# - standalone xkb keymap file to be used by `xkbcomp` (XOrg only)
+# - xkb symbols/patch for XOrg (system-wide) & Wayland (system-wide/user-space)
 #
 
 
 def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
     """Linux layout."""
+
+    if layout.qwerty_shortcuts:
+        print("WARN: keeping qwerty shortcuts is not yet supported for xkb")
 
     show_description = True
     eight_level = layout.has_altgr and layout.has_1dk and not xkbcomp
@@ -56,8 +59,8 @@ def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
             output.append("//" + key_name[1:])
             continue
 
+        descs = []
         symbols = []
-        description = " //"
         for layer in layout.layers.values():
             if key_name in layer:
                 keysym = layer[key_name]
@@ -76,27 +79,30 @@ def xkb_keymap(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
                 desc = " "
                 symbol = "VoidSymbol"
 
-            description += " " + desc
+            descs.append(desc)
             symbols.append(symbol.ljust(max_length))
 
-        key = "key <{}> {{[ {}, {}, {}, {}]}};"  # 4-level layout by default
+        key = "{{[ {0}, {1}, {2}, {3}]}}"  # 4-level layout by default
+        description = "{0} {1} {2} {3}"
         if layout.has_altgr and layout.has_1dk:
             # 6 layers are needed: they won't fit on the 4-level format.
-            if xkbcomp:  # user-space XKB file (standalone)
+            if xkbcomp:  # user-space XKB keymap file (standalone)
                 # standalone XKB files work best with a dual-group solution:
                 # one 4-level group for base+1dk, one two-level group for AltGr
-                key = "key <{}> {{[ {}, {}, {}, {}],[ {}, {}]}};"
-            else:  # eight_level XKB patch (Neo-like)
-                key = "key <{0}> {{[ {1}, {2}, {5}, {6}, {3}, {4}, {7}, {8}]}};"
-                symbols.append("VoidSymbol".ljust(max_length))
-                symbols.append("VoidSymbol".ljust(max_length))
+                key = "{{[ {}, {}, {}, {}],[ {}, {}]}}"
+                description = "{} {} {} {} {} {}"
+            else:  # eight_level XKB symbols (Neo-like)
+                key = "{{[ {0}, {1}, {4}, {5}, {2}, {3}]}}"
+                description = "{0} {1} {4} {5} {2} {3}"
         elif layout.has_altgr:
             del symbols[3]
             del symbols[2]
+            del descs[3]
+            del descs[2]
 
-        line = key.format(*[key_name.upper()] + symbols)
+        line = f"key <{key_name.upper()}> {key.format(*symbols)};"
         if show_description:
-            line += description.rstrip()
+            line += (" // " + description.format(*descs)).rstrip()
             if line.endswith("\\"):
                 line += " "  # escape trailing backslash
         output.append(line)
@@ -143,7 +149,7 @@ def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
         if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
 
-        sc = f"SC{KEY_CODES['klc'][key_name][:2]}"
+        sc = f"SC{SCAN_CODES['klc'][key_name]}"
         for i in (
             [Layer.ALTGR, Layer.ALTGR_SHIFT] if altgr else [Layer.BASE, Layer.SHIFT]
         ):
@@ -176,6 +182,7 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
 
     prefixes = [" ^", "^+"]
     enabled = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    qwerty_vk = load_data("qwerty_vk")
 
     output = []
     for key_name in LAYER_KEYS:
@@ -187,15 +194,17 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
         if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
 
-        sc = f"SC{KEY_CODES['klc'][key_name][:2]}"
+        scan_code = SCAN_CODES["klc"][key_name]
         for i in [Layer.BASE, Layer.SHIFT]:
             layer = layout.layers[i]
             if key_name not in layer:
                 continue
 
             symbol = layer[key_name]
+            if layout.qwerty_shortcuts:
+                symbol = qwerty_vk[scan_code]
             if symbol in enabled:
-                output.append(f"{prefixes[i]}{sc}::Send {prefixes[i]}{symbol}")
+                output.append(f"{prefixes[i]}SC{scan_code}::Send {prefixes[i]}{symbol}")
 
         if output[-1]:
             output.append("")
@@ -214,12 +223,80 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
 #
 
 
+# return the corresponding char for a symbol
+def get_chr(symbol: str) -> str:
+    if len(symbol) > 1 and symbol.endswith("@"):
+        # remove dead key symbol for dict access
+        key = symbol[:-1]
+    else:
+        key = symbol
+
+    if len(symbol) == 4:
+        char = chr(int(key, base=16))
+    else:
+        char = symbol
+
+    return char
+
+
+oem_idx = 0
+
+
+def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> str:
+    if scan_code == "56":
+        # manage the ISO key (between shift and Z on ISO keyboards).
+        # We're assuming that its scancode is always 56
+        # https://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
+        return "OEM_102"
+
+    base = get_chr(symbols[0])
+    shifted = get_chr(symbols[1])
+
+    # Can’t use `isdigit()` because `²` is a digit but we don't want that as a VK
+    allowed_digit = "0123456789"
+    # We assume that digit row always have digit as VK
+    if base in allowed_digit:
+        return base
+    elif shifted in allowed_digit:
+        return shifted
+
+    if shifted.isascii() and shifted.isalpha():
+        return shifted
+
+    # VK_OEM_* case
+    if base == "," or shifted == ",":
+        return "OEM_COMMA"
+    elif base == "." or shifted == ".":
+        return "OEM_PERIOD"
+    elif base == "+" or shifted == "+":
+        return "OEM_PLUS"
+    elif base == "-" or shifted == "-":
+        return "OEM_MINUS"
+    elif base == " ":
+        return "SPACE"
+    else:
+        MAX_OEM = 8
+        # We affect abitrary OEM VK and it will not match the one
+        # in distributed layout. It can cause issue if a application
+        # is awaiting a particular OEM_ for a hotkey
+        global oem_idx
+        oem_idx += 1
+        if oem_idx <= MAX_OEM:
+            return "OEM_" + str(oem_idx)
+        else:
+            raise Exception("Too many OEM keys")
+
+
 def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, main part."""
 
     supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+    global oem_idx
+    oem_idx = 0  # Python trick to do equivalent of C static variable
     output = []
+    qwerty_vk = load_data("qwerty_vk")
+
     for key_name in LAYER_KEYS:
         if key_name.startswith("-"):
             continue
@@ -229,7 +306,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
 
         symbols = []
         description = "//"
-        alpha = False
+        is_alpha = False
 
         for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
             layer = layout.layers[i]
@@ -242,7 +319,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                     symbol = hex_ord(desc) + "@"
                 else:
                     if i == Layer.BASE:
-                        alpha = symbol.upper() != symbol
+                        is_alpha = symbol.upper() != symbol
                     if symbol not in supported_symbols:
                         symbol = hex_ord(symbol)
                 symbols.append(symbol)
@@ -251,12 +328,19 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbols.append("-1")
             description += " " + desc
 
+        scan_code = SCAN_CODES["klc"][key_name]
+
+        virtual_key = qwerty_vk[scan_code]
+        if not layout.qwerty_shortcuts:
+            virtual_key = klc_virtual_key(layout, symbols, scan_code)
+
         if layout.has_altgr:
             output.append(
                 "\t".join(
                     [
-                        KEY_CODES["klc"][key_name],  # scan code & virtual key
-                        "1" if alpha else "0",  # affected by CapsLock?
+                        scan_code,
+                        virtual_key,
+                        "1" if is_alpha else "0",  # affected by CapsLock?
                         symbols[0],
                         symbols[1],  # base layer
                         "-1",
@@ -271,8 +355,9 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
             output.append(
                 "\t".join(
                     [
-                        KEY_CODES["klc"][key_name],  # scan code & virtual key
-                        "1" if alpha else "0",  # affected by CapsLock?
+                        scan_code,
+                        virtual_key,
+                        "1" if is_alpha else "0",  # affected by CapsLock?
                         symbols[0],
                         symbols[1],  # base layer
                         "-1",
@@ -299,7 +384,7 @@ def klc_deadkeys(layout: "KeyboardLayout") -> List[str]:
         output.append(f"DEADKEY\t{hex_ord(dk[' '])}")
 
         for base, alt in dk.items():
-            if base == k:
+            if base == k and alt in base:
                 continue
 
             if base in layout.dead_keys:
@@ -331,6 +416,151 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
     return output
 
 
+def c_keymap(layout: "KeyboardLayout") -> List[str]:
+    """Windows C layout, main part."""
+
+    supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    qwerty_vk = load_data("qwerty_vk")
+
+    global oem_idx
+    oem_idx = 0  # Python trick to do equivalent of C static variable
+    output = []
+    for key_name in LAYER_KEYS:
+        if key_name.startswith("-"):
+            continue
+
+        if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+            continue  # these two keys are not supported yet
+
+        symbols = []
+        dead_symbols = []
+        is_alpha = False
+        has_dead_key = False
+
+        for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
+            layer = layout.layers[i]
+
+            if key_name in layer:
+                symbol = layer[key_name]
+                desc = symbol
+                dead = "WCH_NONE"
+                if symbol in layout.dead_keys:
+                    desc = layout.dead_keys[symbol][" "]
+                    symbol = "WCH_DEAD"
+                    dead = hex_ord(desc)
+                    has_dead_key = True
+                else:
+                    if i == Layer.BASE:
+                        is_alpha = symbol.upper() != symbol
+                    if symbol not in supported_symbols:
+                        symbol = hex_ord(symbol)
+                symbols.append(symbol)
+                dead_symbols.append(dead)
+            else:
+                desc = " "
+                symbols.append("WCH_NONE")
+                dead_symbols.append("WCH_NONE")
+
+        scan_code = SCAN_CODES["klc"][key_name]
+
+        virtual_key = qwerty_vk[scan_code]
+        if not layout.qwerty_shortcuts:
+            virtual_key = klc_virtual_key(layout, symbols, scan_code)
+
+        if len(virtual_key) == 1:
+            virtual_key_id = f"'{virtual_key}'"
+        else:
+            virtual_key_id = f"VK_{virtual_key}"
+
+        def process_symbol(symbol: str) -> str:
+            if len(symbol) == 4:
+                return f"0x{symbol}"
+            if len(symbol) == 1:
+                return f"'{symbol}'"
+            return symbol
+
+        symbols[:] = [process_symbol(symbol) for symbol in symbols]
+        dead_symbols[:] = [process_symbol(symbol) for symbol in dead_symbols]
+
+        def key_list(
+            key_syms: List[str],
+            virt_key: str = "0xff",
+            has_altgr: bool = False,
+            is_alpha: bool = False,
+        ) -> str:
+            cols = [
+                virt_key,
+                "CAPLOK" if is_alpha else "0",  # affected by CapsLock?
+                key_syms[0],
+                key_syms[1],  # base layer
+                "WCH_NONE",
+                "WCH_NONE",  # ctrl layer
+            ]
+            if has_altgr:
+                cols += [
+                    key_syms[2],
+                    key_syms[3],
+                ]
+            return "\t,".join(cols)
+
+        output.append(
+            f"\t{{{key_list(symbols, virtual_key_id, layout.has_altgr, is_alpha)}}},"
+        )
+        if has_dead_key:
+            output.append(
+                f"\t{{{key_list(dead_symbols, has_altgr=layout.has_altgr, is_alpha=is_alpha)}}},"
+            )
+
+    return output
+
+
+def c_deadkeys(layout: "KeyboardLayout") -> List[str]:
+    """Windows C layout, dead keys."""
+
+    output = []
+
+    for k in DK_INDEX:
+        if k not in layout.dead_keys:
+            continue
+        dk = layout.dead_keys[k]
+
+        output.append(f"// DEADKEY: {DK_INDEX[k].name.upper()}")
+
+        for base, alt in dk.items():
+            if base == k and alt in base:
+                continue
+
+            if base in layout.dead_keys:
+                base = layout.dead_keys[base][" "]
+
+            if alt in layout.dead_keys:
+                alt = layout.dead_keys[alt][" "]
+                dead_alt = "0x0001"
+            else:
+                dead_alt = "0x0000"
+            ext = hex_ord(alt)
+
+            output.append(
+                f"DEADTRANS(0x{hex_ord(base)}\t, 0x{hex_ord(dk[' '])}\t, 0x{ext}\t, {dead_alt}), // {base} -> {alt}"
+            )
+
+        output.append("")
+
+    return output[:-1]
+
+
+def c_dk_index(layout: "KeyboardLayout") -> List[str]:
+    """Windows layout, dead key index."""
+
+    output = []
+    for k in DK_INDEX:
+        if k not in layout.dead_keys:
+            continue
+        term = layout.dead_keys[k][" "]
+        output.append(f'L"\\\\x{hex_ord(term)}"\tL"{DK_INDEX[k].name.upper()}",')
+    return output
+
+
 ###
 # macOS: keylayout
 # https://developer.apple.com/library/content/technotes/tn2056/
@@ -339,6 +569,8 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
 
 def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
     """macOS layout, main part."""
+    if layout.qwerty_shortcuts:
+        print("WARN: keeping qwerty shortcuts is not yet supported for MacOS")
 
     ret_str = []
     for index in range(5):
@@ -378,7 +610,7 @@ def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
                     symbol = xml_proof(key.upper() if caps else key)
                     final_key = not has_dead_keys(key.upper())
 
-            char = f"code=\"{KEY_CODES['osx'][key_name]}\"".ljust(10)
+            char = f"code=\"{SCAN_CODES['osx'][key_name]}\"".ljust(10)
             if final_key:
                 action = f'output="{symbol}"'
             else:
@@ -503,7 +735,7 @@ def web_keymap(layout: "KeyboardLayout") -> Dict[str, List[str]]:
             if key_name in layout.layers[i]:
                 chars.append(layout.layers[i][key_name])
         if chars:
-            keymap[KEY_CODES["web"][key_name]] = chars
+            keymap[SCAN_CODES["web"][key_name]] = chars
 
     return keymap
 

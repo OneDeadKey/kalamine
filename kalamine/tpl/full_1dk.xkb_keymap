@@ -1,15 +1,17 @@
 // ${KALAMINE}
 //
-// File          : ${fileName}.xkb
+// This is a standalone XKB keymap file. To apply this keymap, use:
+//   xkbcomp -w9 ${fileName}.xkb_keymap $DISPLAY
+//
+// DO NOT COPY THIS INTO xkb/symbols: THIS WOULD MESS UP YOUR XKB CONFIG.
+//
+// File          : ${fileName}.xkb_keymap
 // Project page  : ${url}
 // Author        : ${author}
 // Version       : ${version}
 // License       : ${license}
 //
 // ${description}
-//
-// To apply this keymap, use:
-//   xkbcomp -w9 ${fileName}.xkb $DISPLAY
 //
 
 xkb_keymap {

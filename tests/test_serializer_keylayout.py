@@ -850,7 +850,7 @@ def test_intl():
     assert len(terminators) == 5
     assert terminators == split(
         """
-        <when state="1dk"        output="´" />
+        <when state="1dk"        output="\'" />
         <when state="grave"      output="`" />
         <when state="circumflex" output="^" />
         <when state="tilde"      output="~" />

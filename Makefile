@@ -1,31 +1,32 @@
 .PHONY: all dev test lint publish format clean
 
-all: test
+all: format lint test
 
 dev:  ## Install a development environment
+	python3 -m pip install --user --upgrade .[dev]
+	# python3 -m pip install --user --upgrade build
 	# python3 -m pip install --user --upgrade twine wheel
-	python3 -m pip install --user --upgrade build
-	python3 -m pip install --user -e .
 
+format:  ## Format sources
+	black kalamine
+	isort kalamine
+
+lint:  ## Lint sources
+	black --check --quiet kalamine
+	isort --check --quiet kalamine
+	ruff kalamine
+	mypy kalamine
 
 test:  ## Run tests
 	python3 -m kalamine.cli guide > docs/README.md
-	python3 -m kalamine.cli make layouts/*.toml
+	python3 -m kalamine.cli build layouts/*.toml
 	pytest
 
 publish: test  ## Publish package
-	# flake8 kalamine
 	rm -rf dist/*
 	python3 -m build
 	twine check dist/*
 	twine upload dist/*
-
-lint:  ## Lint sources
-	flake8 kalamine
-
-format:  ## Format sources
-	isort .
-	black .
 
 clean:  ## Clean sources
 	rm -rf build

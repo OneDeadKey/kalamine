@@ -1,5 +1,11 @@
 // ${KALAMINE}
 //
+//# This XKB symbols file should be copied to:
+//#     /usr/share/X11/xkb/symbols/custom
+//# or
+//#     $XKB_CONFIG_ROOT/symbols/custom
+//#
+//# File          : ${fileName}.xkb_symbols
 // Project page  : ${url}
 // Author        : ${author}
 // Version       : ${version}
@@ -31,3 +37,4 @@ xkb_symbols "${variant}" {
     };
     modifier_map Mod3 { <MDSW> };
 };
+//# vim: ft=xkb:fdm=indent:ts=4:nowrap
