@@ -38,7 +38,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                 </p>
                 <input spellcheck="false" placeholder="" />
                 <x-keyboard src="/json"></x-keyboard>
-                <p style="text-align: right;">
+                <p style="text-align: right;" {"hidden" if angle_mod else ""}>
                     <select>
                         <option value="iso">  ISO  </option>
                         <option value="ansi"> ANSI </option>
