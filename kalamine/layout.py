@@ -613,7 +613,7 @@ class KeyboardLayout:
             else:  # only last char for deadkeys
                 label_element.text = "★" if char == "**" else char[-1]
                 label_element.set(  # Apply special class for deadkeys
-                    "class", label_element.get("class") + " deadKey diacritic"
+                    "class", label_element.get("class") + " deadKey"
                 )
 
         # Fill-in with layout
@@ -642,7 +642,7 @@ class KeyboardLayout:
 
                         if dead_char:
                             for location in key.findall(
-                                f'g/text[@class="level{level_num} dk"]', ns
+                                f'g/text[@class="level{level_num}"]', ns
                             ):
                                 set_key_label(location, dead_char)
 
