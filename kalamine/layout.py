@@ -50,9 +50,12 @@ def get_langid(locale: str) -> str:
     return locale_codes[locale]
 
 
-def upper_key(letter: str, blank_if_obvious: bool = True) -> str:
+def upper_key(letter: Optional[str], blank_if_obvious: bool = True) -> str:
     """This is used for presentation purposes: in a key, the upper character
     becomes blank if it's an obvious uppercase version of the base character."""
+
+    if letter is None:
+        return " "
 
     custom_alpha = {
         "\u00df": "\u1e9e",  # ß ẞ
@@ -598,52 +601,50 @@ class KeyboardLayout:
         ET.register_namespace("", svg_ns)
         ns = {"": svg_ns}
 
-        # Parse SVG data
-        filepath = Path(__file__).parent / "tpl" / "x-keyboard.svg"
-        svg = ET.parse(str(filepath))
+        # Parse the SVG template
+        res = pkgutil.get_data(__package__, "tpl/x-keyboard.svg")
+        if res is None:
+            return ET.ElementTree()
+        svg = ET.ElementTree(ET.fromstring(res.decode("utf-8")))
 
-        # Get Layout data
+        def set_key_label(key: ET.Element, lvl: int, char: str) -> None:
+            for label in key.findall(f'g/text[@class="level{lvl}"]', ns):
+                if char not in deadkeys:
+                    label.text = char
+                else:  # only show last char for deadkeys
+                    if char == ODK_ID:
+                        label.text = "★"
+                    elif char == "*µ":
+                        label.text = "α"
+                    else:
+                        label.text = char[-1]
+                    label.set("class", f"{label.get('class')} deadKey")
+
+        # Get layout data
         keymap = web_keymap(self)
         deadkeys = web_deadkeys(self)
-        # breakpoint()
-
-        def set_key_label(label_element, char: str):
-            if char not in deadkeys:
-                label_element.text = char
-            else:  # only last char for deadkeys
-                label_element.text = "★" if char == "**" else char[-1]
-                label_element.set(  # Apply special class for deadkeys
-                    "class", label_element.get("class") + " deadKey diacritic"
-                )
 
         # Fill-in with layout
         for name, chars in keymap.items():
             for key in svg.findall(f'.//g[@id="{name}"]', ns):
+
                 # Print 1-4 level chars
                 for level_num, char in enumerate(chars, start=1):
-                    # Do not print the same label twice (lower and upper)
-                    if level_num == 1 and chars[0] == chars[1].lower():
-                        continue
-
-                    for location in key.findall(
-                        f'g/text[@class="level{level_num}"]', ns
-                    ):
-                        set_key_label(location, char)
+                    if level_num == 1:
+                        if chars[1] == upper_key(chars[0], blank_if_obvious=False):
+                            continue
+                    if level_num == 4:
+                        if chars[3] == upper_key(chars[2], blank_if_obvious=False):
+                            continue
+                    set_key_label(key, level_num, char)
 
                 # Print 5-6 levels (1dk deadkeys)
-                if deadkeys and (main_deadkey := deadkeys.get("**")):
-                    for level_num, char in enumerate(chars[:2], start=5):
-                        dead_char = main_deadkey.get(char)
-                        if level_num == Layer.ODK_SHIFT:
-                            # Do not print the same label twice (lower and upper)
-                            if dead_char_previous := main_deadkey.get(chars[0]):
-                                if upper_key(dead_char_previous) == dead_char:
-                                    continue
-
-                        if dead_char:
-                            for location in key.findall(
-                                f'g/text[@class="level{level_num} dk"]', ns
-                            ):
-                                set_key_label(location, dead_char)
+                if deadkeys and (odk := deadkeys.get(ODK_ID)):
+                    level5 = odk.get(chars[0])
+                    level6 = odk.get(chars[1])
+                    if level5:
+                        set_key_label(key, 5, level5)
+                    if level6 and level6 != upper_key(level5, blank_if_obvious=False):
+                        set_key_label(key, 6, level6)
 
         return svg
