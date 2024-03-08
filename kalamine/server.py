@@ -17,7 +17,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
     webserver_port = 1664
     lr_server_port = 5500
 
-    def main_page(layout: KeyboardLayout, angle_mod=False) -> str:
+    def main_page(layout: KeyboardLayout, angle_mod: bool = False) -> str:
         return f"""
             <!DOCTYPE html>
             <html xmlns="http://www.w3.org/1999/xhtml">
