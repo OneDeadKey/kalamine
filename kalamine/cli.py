@@ -195,6 +195,11 @@ def new(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
 
 @cli.command()
 @click.argument("filepath", nargs=1, type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--angle-mod/--no-angle-mod",
+    default=False,
+    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
+)
 def watch(filepath: Path) -> None:
     """Watch a layout description file and display it in a web browser."""
     keyboard_server(filepath)
