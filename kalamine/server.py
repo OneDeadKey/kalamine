@@ -53,6 +53,8 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                     <a href="/json">json</a>
                     | <a href="/keylayout">keylayout</a>
                     | <a href="/klc">klc</a>
+                    | <a href="/rc">rc</a>
+                    | <a href="/c">c</a>
                     | <a href="/xkb_keymap">xkb_keymap</a>
                     | <a href="/xkb_symbols">xkb_symbols</a>
                     | <a href="/svg">svg</a>
@@ -91,6 +93,10 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                 send(ahk.ahk(kb_layout))
             elif self.path == "/klc":
                 send(klc.klc(kb_layout), charset="utf-16-le", content="text")
+            elif self.path == "/rc":
+                send(klc.klc_rc(kb_layout), content="text")
+            elif self.path == "/c":
+                send(klc.klc_c(kb_layout), content="text")
             elif self.path == "/xkb_keymap":
                 send(xkb.xkb_keymap(kb_layout))
             elif self.path == "/xkb_symbols":
