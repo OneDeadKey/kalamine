@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
-from kalamine.template import osx_actions, osx_keymap, osx_terminators
+from kalamine.generators.keylayout import macos_actions, macos_keymap, macos_terminators
 
 from .util import get_layout_dict
 
@@ -83,7 +83,7 @@ EMPTY_KEYMAP = split(
 def test_ansi():
     layout = load_layout("ansi")
 
-    keymap = osx_keymap(layout)
+    keymap = macos_keymap(layout)
 
     assert len(keymap[0]) == 60
     assert keymap[0] == split(
@@ -289,7 +289,7 @@ def test_ansi():
     assert len(keymap[4]) == 60
     assert keymap[4] == EMPTY_KEYMAP
 
-    actions = osx_actions(layout)
+    actions = macos_actions(layout)
     assert actions[1:] == split(
         """
         <!-- Digits -->
@@ -315,14 +315,14 @@ def test_ansi():
         """
     )
 
-    terminators = osx_terminators(layout)
+    terminators = macos_terminators(layout)
     assert len(terminators) == 0
 
 
 def test_intl():
     layout = load_layout("intl")
 
-    keymap = osx_keymap(layout)
+    keymap = macos_keymap(layout)
 
     assert len(keymap[0]) == 60
     assert keymap[0] == split(
@@ -528,7 +528,7 @@ def test_intl():
     assert len(keymap[4]) == 60
     assert keymap[4] == EMPTY_KEYMAP
 
-    actions = osx_actions(layout)
+    actions = macos_actions(layout)
     assert actions == split(
         """
         <action id="dead_1dk">
@@ -846,7 +846,7 @@ def test_intl():
         """
     )
 
-    terminators = osx_terminators(layout)
+    terminators = macos_terminators(layout)
     assert len(terminators) == 5
     assert terminators == split(
         """
@@ -862,7 +862,7 @@ def test_intl():
 def test_prog():
     layout = load_layout("prog")
 
-    keymap = osx_keymap(layout)
+    keymap = macos_keymap(layout)
 
     assert len(keymap[0]) == 60
     assert keymap[0] == split(
@@ -1194,7 +1194,7 @@ def test_prog():
         """
     )
 
-    actions = osx_actions(layout)
+    actions = macos_actions(layout)
     assert actions == split(
         """
         <action id="dead_grave">
@@ -1625,7 +1625,7 @@ def test_prog():
         """
     )
 
-    terminators = osx_terminators(layout)
+    terminators = macos_terminators(layout)
     assert len(terminators) == 5
     assert terminators == split(
         """

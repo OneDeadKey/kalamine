@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
-from kalamine.template import xkb_keymap
+from kalamine.generators.xkb import xkb_table
 
 from .util import get_layout_dict
 
@@ -84,11 +84,11 @@ def test_ansi():
         """
     )
 
-    xkbcomp = xkb_keymap(layout, xkbcomp=True)
+    xkbcomp = xkb_table(layout, xkbcomp=True)
     assert len(xkbcomp) == len(expected)
     assert xkbcomp == expected
 
-    xkbpatch = xkb_keymap(layout, xkbcomp=False)
+    xkbpatch = xkb_table(layout, xkbcomp=False)
     assert len(xkbpatch) == len(expected)
     assert xkbpatch == expected
 
@@ -163,11 +163,11 @@ def test_intl():
         """
     )
 
-    xkbcomp = xkb_keymap(layout, xkbcomp=True)
+    xkbcomp = xkb_table(layout, xkbcomp=True)
     assert len(xkbcomp) == len(expected)
     assert xkbcomp == expected
 
-    xkbpatch = xkb_keymap(layout, xkbcomp=False)
+    xkbpatch = xkb_table(layout, xkbcomp=False)
     assert len(xkbpatch) == len(expected)
     assert xkbpatch == expected
 
@@ -242,10 +242,10 @@ def test_prog():
         """
     )
 
-    xkbcomp = xkb_keymap(layout, xkbcomp=True)
+    xkbcomp = xkb_table(layout, xkbcomp=True)
     assert len(xkbcomp) == len(expected)
     assert xkbcomp == expected
 
-    xkbpatch = xkb_keymap(layout, xkbcomp=False)
+    xkbpatch = xkb_table(layout, xkbcomp=False)
     assert len(xkbpatch) == len(expected)
     assert xkbpatch == expected

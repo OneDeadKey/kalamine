@@ -1,9 +1,13 @@
 import pkgutil
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import yaml
+
+
+def hex_ord(char: str) -> str:
+    return hex(ord(char))[2:].zfill(4)
 
 
 def lines_to_text(lines: List[str], indent: str = "") -> str:
@@ -56,6 +60,35 @@ class Layer(IntEnum):
         return self
 
 
+def upper_key(letter: Optional[str], blank_if_obvious: bool = True) -> str:
+    """This is used for presentation purposes: in a key, the upper character
+    becomes blank if it's an obvious uppercase version of the base character."""
+
+    if letter is None:
+        return " "
+
+    custom_alpha = {
+        "\u00df": "\u1e9e",  # ß ẞ
+        "\u007c": "\u00a6",  # | ¦
+        "\u003c": "\u2264",  # < ≤
+        "\u003e": "\u2265",  # > ≥
+        "\u2020": "\u2021",  # † ‡
+        "\u2190": "\u21d0",  # ← ⇐
+        "\u2191": "\u21d1",  # ↑ ⇑
+        "\u2192": "\u21d2",  # → ⇒
+        "\u2193": "\u21d3",  # ↓ ⇓
+        "\u00b5": " ",  # µ (to avoid getting `Μ` as uppercase)
+    }
+    if letter in custom_alpha:
+        return custom_alpha[letter]
+
+    if len(letter) == 1 and letter.upper() != letter.lower():
+        return letter.upper()
+
+    # dead key or non-letter character
+    return " " if blank_if_obvious else letter
+
+
 @dataclass
 class DeadKeyDescr:
     char: str
@@ -68,7 +101,14 @@ class DeadKeyDescr:
 
 DEAD_KEYS = [DeadKeyDescr(**data) for data in load_data("dead_keys")]
 
+DK_INDEX = {}
+for dk in DEAD_KEYS:
+    DK_INDEX[dk.char] = dk
+
+SCAN_CODES = load_data("scan_codes")
+
 ODK_ID = "**"  # must match the value in dead_keys.yaml
+
 LAYER_KEYS = [
     "- Digits",
     "ae01",
