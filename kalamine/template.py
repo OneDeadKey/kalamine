@@ -541,7 +541,7 @@ def c_deadkeys(layout: "KeyboardLayout") -> List[str]:
             ext = hex_ord(alt)
 
             output.append(
-                f"DEADTRANS(0x{hex_ord(base)}\t, 0x{hex_ord(dk[' '])}\t, 0x{ext}\t, {dead_alt}), // {base} -> {alt}"
+                f"DEADTRANS(0x{hex_ord(base)}\t, 0x{hex_ord(dk[' '])}\t, 0x{ext}\t, {dead_alt}), /* {base} -> {alt} */"
             )
 
         output.append("")
