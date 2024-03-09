@@ -4,7 +4,7 @@ from lxml import etree
 
 
 def check_keylayout(filename: str):
-    path = Path(__file__).parent.parent / "dist" / (filename + ".keylayout")
+    path = Path(__file__).parent.parent / f"dist/{filename}.keylayout"
     tree = etree.parse(path, etree.XMLParser(recover=True))
     dead_keys = []
 
