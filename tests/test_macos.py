@@ -4,7 +4,7 @@ from lxml import etree
 
 
 def check_keylayout(filename: str):
-    path = Path(__file__).parent.parent / "dist" / (filename + ".keylayout")
+    path = Path(__file__).parent.parent / f"dist/{filename}.keylayout"
     tree = etree.parse(path, etree.XMLParser(recover=True))
     dead_keys = []
 
@@ -52,6 +52,9 @@ def check_keylayout(filename: str):
                 action_query = f'//actions/action[@id="{action_id}"]'
                 action = tree.xpath(action_query)
                 assert len(action) == 1, f"{action_query} should be unique"
+                assert (
+                    len(action_id) > 1
+                ), f"{key_query} should have a multi-char action ID"
             else:
                 assert (
                     len(key[0].get("output")) <= 1
@@ -60,11 +63,15 @@ def check_keylayout(filename: str):
     # check all dead keys
     # TODO: ensure there are no unused actions or terminators
     for dk in dead_keys:
+
+        # ensure all 'when' definitions are defined and unique
         when_query = f'//actions/action[@id="dead_{dk}"]/when'
         when = tree.xpath(when_query)
         assert len(when) == 1, f"{when_query} should be unique"
         assert when[0].get("state") == "none"
         assert when[0].get("next") == dk
+
+        # ensure all terminators are defined and unique
         terminator_query = f'//terminators/when[@state="{dk}"]'
         terminator = tree.xpath(terminator_query)
         assert len(terminator) == 1, f"{terminator_query} should be unique"

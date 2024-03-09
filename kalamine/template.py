@@ -613,8 +613,10 @@ def osx_keymap(layout: "KeyboardLayout") -> List[List[str]]:
             char = f"code=\"{SCAN_CODES['osx'][key_name]}\"".ljust(10)
             if final_key:
                 action = f'output="{symbol}"'
-            else:
+            elif symbol.startswith("dead_"):
                 action = f'action="{xml_proof_id(symbol)}"'
+            else:
+                action = f'action="{key_name}_{xml_proof_id(symbol)}"'
             output.append(f"<key {char} {action} />")
 
         ret_str.append(output)
@@ -636,8 +638,8 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
             action_attr = f'output="{xml_proof(action)}"'
         return f"  <when {state_attr} {action_attr} />"
 
-    def append_actions(symbol: str, actions: List[Tuple[str, str]]) -> None:
-        ret_actions.append(f'<action id="{xml_proof_id(symbol)}">')
+    def append_actions(key: str, symbol: str, actions: List[Tuple[str, str]]) -> None:
+        ret_actions.append(f'<action id="{key}_{xml_proof_id(symbol)}">')
         ret_actions.append(when("none", symbol))
         for state, out in actions:
             ret_actions.append(when(state, out))
@@ -662,7 +664,7 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
             ret_actions.append(f"<!--{key_name[1:]} -->")
             continue
 
-        for i in [Layer.BASE, Layer.SHIFT]:
+        for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
             if key_name == "spce" or key_name not in layout.layers[i]:
                 continue
 
@@ -678,16 +680,16 @@ def osx_actions(layout: "KeyboardLayout") -> List[str]:
                     if key in layout.dead_keys[k]:
                         actions.append((DK_INDEX[k].name, layout.dead_keys[k][key]))
             if actions:
-                append_actions(xml_proof(key), actions)
+                append_actions(key_name, xml_proof(key), actions)
 
     # spacebar actions
     actions = []
     for k in DK_INDEX:
         if k in layout.dead_keys:
             actions.append((DK_INDEX[k].name, layout.dead_keys[k][" "]))
-    append_actions("&#x0020;", actions)  # space
-    append_actions("&#x00a0;", actions)  # no-break space
-    append_actions("&#x202f;", actions)  # fine no-break space
+    append_actions("spce", "&#x0020;", actions)  # space
+    append_actions("spce", "&#x00a0;", actions)  # no-break space
+    append_actions("spce", "&#x202f;", actions)  # fine no-break space
 
     return ret_actions
 

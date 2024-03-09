@@ -147,7 +147,7 @@ def test_ansi():
         <key code="10"  output="&#x0010;" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -213,7 +213,7 @@ def test_ansi():
         <key code="10"  output="&#x0010;" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -279,7 +279,7 @@ def test_ansi():
         <key code="10"  output="&#x0010;" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -303,13 +303,13 @@ def test_ansi():
         <!-- Pinky keys -->
 
         <!-- Space bar -->
-        <action id="x0020">
+        <action id="spce_x0020">
           <when state="none"       output="&#x0020;" />
         </action>
-        <action id="x00a0">
+        <action id="spce_x00a0">
           <when state="none"       output="&#x00a0;" />
         </action>
-        <action id="x202f">
+        <action id="spce_x202f">
           <when state="none"       output="&#x202f;" />
         </action>
         """
@@ -328,56 +328,56 @@ def test_intl():
     assert keymap[0] == split(
         """
         <!-- Digits -->
-        <key code="18"  action="1" />
-        <key code="19"  action="2" />
-        <key code="20"  action="3" />
-        <key code="21"  action="4" />
-        <key code="23"  action="5" />
-        <key code="22"  action="6" />
-        <key code="26"  action="7" />
-        <key code="28"  action="8" />
-        <key code="25"  action="9" />
-        <key code="29"  action="0" />
+        <key code="18"  action="ae01_1" />
+        <key code="19"  action="ae02_2" />
+        <key code="20"  action="ae03_3" />
+        <key code="21"  action="ae04_4" />
+        <key code="23"  action="ae05_5" />
+        <key code="22"  action="ae06_6" />
+        <key code="26"  action="ae07_7" />
+        <key code="28"  action="ae08_8" />
+        <key code="25"  action="ae09_9" />
+        <key code="29"  action="ae10_0" />
 
         <!-- Letters, first row -->
         <key code="12"  output="q" />
-        <key code="13"  action="w" />
-        <key code="14"  action="e" />
+        <key code="13"  action="ad02_w" />
+        <key code="14"  action="ad03_e" />
         <key code="15"  output="r" />
         <key code="17"  output="t" />
-        <key code="16"  action="y" />
-        <key code="32"  action="u" />
-        <key code="34"  action="i" />
-        <key code="31"  action="o" />
+        <key code="16"  action="ad06_y" />
+        <key code="32"  action="ad07_u" />
+        <key code="34"  action="ad08_i" />
+        <key code="31"  action="ad09_o" />
         <key code="35"  output="p" />
 
         <!-- Letters, second row -->
-        <key code="0"   action="a" />
-        <key code="1"   action="s" />
+        <key code="0"   action="ac01_a" />
+        <key code="1"   action="ac02_s" />
         <key code="2"   output="d" />
         <key code="3"   output="f" />
-        <key code="5"   action="g" />
-        <key code="4"   action="h" />
-        <key code="38"  action="j" />
+        <key code="5"   action="ac05_g" />
+        <key code="4"   action="ac06_h" />
+        <key code="38"  action="ac07_j" />
         <key code="40"  output="k" />
         <key code="37"  output="l" />
         <key code="41"  output=";" />
 
         <!-- Letters, third row -->
-        <key code="6"   action="z" />
-        <key code="7"   action="x" />
-        <key code="8"   action="c" />
-        <key code="9"   action="v" />
+        <key code="6"   action="ab01_z" />
+        <key code="7"   action="ab02_x" />
+        <key code="8"   action="ab03_c" />
+        <key code="9"   action="ab04_v" />
         <key code="11"  output="b" />
-        <key code="45"  action="n" />
+        <key code="45"  action="ab06_n" />
         <key code="46"  output="m" />
         <key code="43"  output="," />
-        <key code="47"  action="." />
+        <key code="47"  action="ab09_." />
         <key code="44"  output="/" />
 
         <!-- Pinky keys -->
-        <key code="27"  action="-" />
-        <key code="24"  action="=" />
+        <key code="27"  action="ae11_-" />
+        <key code="24"  action="ae12_=" />
         <key code="33"  output="[" />
         <key code="30"  output="]" />
         <key code="39"  action="dead_1dk" />
@@ -386,7 +386,7 @@ def test_intl():
         <key code="10"  output="\\" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -402,48 +402,48 @@ def test_intl():
         <key code="22"  action="dead_circumflex" />
         <key code="26"  output="&#x0026;" />
         <key code="28"  output="*" />
-        <key code="25"  action="(" />
-        <key code="29"  action=")" />
+        <key code="25"  action="ae09_(" />
+        <key code="29"  action="ae10_)" />
 
         <!-- Letters, first row -->
         <key code="12"  output="Q" />
-        <key code="13"  action="W" />
-        <key code="14"  action="E" />
+        <key code="13"  action="ad02_W" />
+        <key code="14"  action="ad03_E" />
         <key code="15"  output="R" />
         <key code="17"  output="T" />
-        <key code="16"  action="Y" />
-        <key code="32"  action="U" />
-        <key code="34"  action="I" />
-        <key code="31"  action="O" />
+        <key code="16"  action="ad06_Y" />
+        <key code="32"  action="ad07_U" />
+        <key code="34"  action="ad08_I" />
+        <key code="31"  action="ad09_O" />
         <key code="35"  output="P" />
 
         <!-- Letters, second row -->
-        <key code="0"   action="A" />
-        <key code="1"   action="S" />
+        <key code="0"   action="ac01_A" />
+        <key code="1"   action="ac02_S" />
         <key code="2"   output="D" />
         <key code="3"   output="F" />
-        <key code="5"   action="G" />
-        <key code="4"   action="H" />
-        <key code="38"  action="J" />
+        <key code="5"   action="ac05_G" />
+        <key code="4"   action="ac06_H" />
+        <key code="38"  action="ac07_J" />
         <key code="40"  output="K" />
         <key code="37"  output="L" />
         <key code="41"  output=":" />
 
         <!-- Letters, third row -->
-        <key code="6"   action="Z" />
-        <key code="7"   action="X" />
-        <key code="8"   action="C" />
-        <key code="9"   action="V" />
+        <key code="6"   action="ab01_Z" />
+        <key code="7"   action="ab02_X" />
+        <key code="8"   action="ab03_C" />
+        <key code="9"   action="ab04_V" />
         <key code="11"  output="B" />
-        <key code="45"  action="N" />
+        <key code="45"  action="ab06_N" />
         <key code="46"  output="M" />
-        <key code="43"  action="x003c" />
-        <key code="47"  action="x003e" />
+        <key code="43"  action="ab08_x003c" />
+        <key code="47"  action="ab09_x003e" />
         <key code="44"  output="?" />
 
         <!-- Pinky keys -->
         <key code="27"  output="_" />
-        <key code="24"  action="+" />
+        <key code="24"  action="ae12_+" />
         <key code="33"  output="{" />
         <key code="30"  output="}" />
         <key code="39"  action="dead_diaeresis" />
@@ -452,7 +452,7 @@ def test_intl():
         <key code="10"  output="|" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -460,56 +460,56 @@ def test_intl():
     assert keymap[2] == split(
         """
         <!-- Digits -->
-        <key code="18"  action="1" />
-        <key code="19"  action="2" />
-        <key code="20"  action="3" />
-        <key code="21"  action="4" />
-        <key code="23"  action="5" />
-        <key code="22"  action="6" />
-        <key code="26"  action="7" />
-        <key code="28"  action="8" />
-        <key code="25"  action="9" />
-        <key code="29"  action="0" />
+        <key code="18"  action="ae01_1" />
+        <key code="19"  action="ae02_2" />
+        <key code="20"  action="ae03_3" />
+        <key code="21"  action="ae04_4" />
+        <key code="23"  action="ae05_5" />
+        <key code="22"  action="ae06_6" />
+        <key code="26"  action="ae07_7" />
+        <key code="28"  action="ae08_8" />
+        <key code="25"  action="ae09_9" />
+        <key code="29"  action="ae10_0" />
 
         <!-- Letters, first row -->
         <key code="12"  output="Q" />
-        <key code="13"  action="W" />
-        <key code="14"  action="E" />
+        <key code="13"  action="ad02_W" />
+        <key code="14"  action="ad03_E" />
         <key code="15"  output="R" />
         <key code="17"  output="T" />
-        <key code="16"  action="Y" />
-        <key code="32"  action="U" />
-        <key code="34"  action="I" />
-        <key code="31"  action="O" />
+        <key code="16"  action="ad06_Y" />
+        <key code="32"  action="ad07_U" />
+        <key code="34"  action="ad08_I" />
+        <key code="31"  action="ad09_O" />
         <key code="35"  output="P" />
 
         <!-- Letters, second row -->
-        <key code="0"   action="A" />
-        <key code="1"   action="S" />
+        <key code="0"   action="ac01_A" />
+        <key code="1"   action="ac02_S" />
         <key code="2"   output="D" />
         <key code="3"   output="F" />
-        <key code="5"   action="G" />
-        <key code="4"   action="H" />
-        <key code="38"  action="J" />
+        <key code="5"   action="ac05_G" />
+        <key code="4"   action="ac06_H" />
+        <key code="38"  action="ac07_J" />
         <key code="40"  output="K" />
         <key code="37"  output="L" />
         <key code="41"  output=";" />
 
         <!-- Letters, third row -->
-        <key code="6"   action="Z" />
-        <key code="7"   action="X" />
-        <key code="8"   action="C" />
-        <key code="9"   action="V" />
+        <key code="6"   action="ab01_Z" />
+        <key code="7"   action="ab02_X" />
+        <key code="8"   action="ab03_C" />
+        <key code="9"   action="ab04_V" />
         <key code="11"  output="B" />
-        <key code="45"  action="N" />
+        <key code="45"  action="ab06_N" />
         <key code="46"  output="M" />
         <key code="43"  output="," />
-        <key code="47"  action="." />
+        <key code="47"  action="ab09_." />
         <key code="44"  output="/" />
 
         <!-- Pinky keys -->
-        <key code="27"  action="-" />
-        <key code="24"  action="=" />
+        <key code="27"  action="ae11_-" />
+        <key code="24"  action="ae12_=" />
         <key code="33"  output="[" />
         <key code="30"  output="]" />
         <key code="39"  action="dead_1dk" />
@@ -518,7 +518,7 @@ def test_intl():
         <key code="10"  output="\\" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -548,69 +548,69 @@ def test_intl():
         </action>
 
         <!-- Digits -->
-        <action id="1">
+        <action id="ae01_1">
           <when state="none"       output="1" />
           <when state="circumflex" output="¹" />
         </action>
-        <action id="2">
+        <action id="ae02_2">
           <when state="none"       output="2" />
           <when state="circumflex" output="²" />
         </action>
-        <action id="3">
+        <action id="ae03_3">
           <when state="none"       output="3" />
           <when state="circumflex" output="³" />
         </action>
-        <action id="4">
+        <action id="ae04_4">
           <when state="none"       output="4" />
           <when state="circumflex" output="⁴" />
         </action>
-        <action id="5">
+        <action id="ae05_5">
           <when state="none"       output="5" />
           <when state="circumflex" output="⁵" />
         </action>
-        <action id="6">
+        <action id="ae06_6">
           <when state="none"       output="6" />
           <when state="circumflex" output="⁶" />
         </action>
-        <action id="7">
+        <action id="ae07_7">
           <when state="none"       output="7" />
           <when state="circumflex" output="⁷" />
         </action>
-        <action id="8">
+        <action id="ae08_8">
           <when state="none"       output="8" />
           <when state="circumflex" output="⁸" />
         </action>
-        <action id="9">
+        <action id="ae09_9">
           <when state="none"       output="9" />
           <when state="circumflex" output="⁹" />
         </action>
-        <action id="(">
+        <action id="ae09_(">
           <when state="none"       output="(" />
           <when state="circumflex" output="⁽" />
         </action>
-        <action id="0">
+        <action id="ae10_0">
           <when state="none"       output="0" />
           <when state="circumflex" output="⁰" />
         </action>
-        <action id=")">
+        <action id="ae10_)">
           <when state="none"       output=")" />
           <when state="circumflex" output="⁾" />
         </action>
 
         <!-- Letters, first row -->
-        <action id="w">
+        <action id="ad02_w">
           <when state="none"       output="w" />
           <when state="grave"      output="ẁ" />
           <when state="circumflex" output="ŵ" />
           <when state="diaeresis"  output="ẅ" />
         </action>
-        <action id="W">
+        <action id="ad02_W">
           <when state="none"       output="W" />
           <when state="grave"      output="Ẁ" />
           <when state="circumflex" output="Ŵ" />
           <when state="diaeresis"  output="Ẅ" />
         </action>
-        <action id="e">
+        <action id="ad03_e">
           <when state="none"       output="e" />
           <when state="1dk"        output="é" />
           <when state="grave"      output="è" />
@@ -618,7 +618,7 @@ def test_intl():
           <when state="tilde"      output="ẽ" />
           <when state="diaeresis"  output="ë" />
         </action>
-        <action id="E">
+        <action id="ad03_E">
           <when state="none"       output="E" />
           <when state="1dk"        output="É" />
           <when state="grave"      output="È" />
@@ -626,25 +626,25 @@ def test_intl():
           <when state="tilde"      output="Ẽ" />
           <when state="diaeresis"  output="Ë" />
         </action>
-        <action id="t">
+        <action id="ad05_t">
           <when state="none"       output="t" />
           <when state="diaeresis"  output="ẗ" />
         </action>
-        <action id="y">
+        <action id="ad06_y">
           <when state="none"       output="y" />
           <when state="grave"      output="ỳ" />
           <when state="circumflex" output="ŷ" />
           <when state="tilde"      output="ỹ" />
           <when state="diaeresis"  output="ÿ" />
         </action>
-        <action id="Y">
+        <action id="ad06_Y">
           <when state="none"       output="Y" />
           <when state="grave"      output="Ỳ" />
           <when state="circumflex" output="Ŷ" />
           <when state="tilde"      output="Ỹ" />
           <when state="diaeresis"  output="Ÿ" />
         </action>
-        <action id="u">
+        <action id="ad07_u">
           <when state="none"       output="u" />
           <when state="1dk"        output="ú" />
           <when state="grave"      output="ù" />
@@ -652,7 +652,7 @@ def test_intl():
           <when state="tilde"      output="ũ" />
           <when state="diaeresis"  output="ü" />
         </action>
-        <action id="U">
+        <action id="ad07_U">
           <when state="none"       output="U" />
           <when state="1dk"        output="Ú" />
           <when state="grave"      output="Ù" />
@@ -660,7 +660,7 @@ def test_intl():
           <when state="tilde"      output="Ũ" />
           <when state="diaeresis"  output="Ü" />
         </action>
-        <action id="i">
+        <action id="ad08_i">
           <when state="none"       output="i" />
           <when state="1dk"        output="í" />
           <when state="grave"      output="ì" />
@@ -668,7 +668,7 @@ def test_intl():
           <when state="tilde"      output="ĩ" />
           <when state="diaeresis"  output="ï" />
         </action>
-        <action id="I">
+        <action id="ad08_I">
           <when state="none"       output="I" />
           <when state="1dk"        output="Í" />
           <when state="grave"      output="Ì" />
@@ -676,7 +676,7 @@ def test_intl():
           <when state="tilde"      output="Ĩ" />
           <when state="diaeresis"  output="Ï" />
         </action>
-        <action id="o">
+        <action id="ad09_o">
           <when state="none"       output="o" />
           <when state="1dk"        output="ó" />
           <when state="grave"      output="ò" />
@@ -684,7 +684,7 @@ def test_intl():
           <when state="tilde"      output="õ" />
           <when state="diaeresis"  output="ö" />
         </action>
-        <action id="O">
+        <action id="ad09_O">
           <when state="none"       output="O" />
           <when state="1dk"        output="Ó" />
           <when state="grave"      output="Ò" />
@@ -694,7 +694,7 @@ def test_intl():
         </action>
 
         <!-- Letters, second row -->
-        <action id="a">
+        <action id="ac01_a">
           <when state="none"       output="a" />
           <when state="1dk"        output="á" />
           <when state="grave"      output="à" />
@@ -702,7 +702,7 @@ def test_intl():
           <when state="tilde"      output="ã" />
           <when state="diaeresis"  output="ä" />
         </action>
-        <action id="A">
+        <action id="ac01_A">
           <when state="none"       output="A" />
           <when state="1dk"        output="Á" />
           <when state="grave"      output="À" />
@@ -710,116 +710,116 @@ def test_intl():
           <when state="tilde"      output="Ã" />
           <when state="diaeresis"  output="Ä" />
         </action>
-        <action id="s">
+        <action id="ac02_s">
           <when state="none"       output="s" />
           <when state="circumflex" output="ŝ" />
         </action>
-        <action id="S">
+        <action id="ac02_S">
           <when state="none"       output="S" />
           <when state="circumflex" output="Ŝ" />
         </action>
-        <action id="g">
+        <action id="ac05_g">
           <when state="none"       output="g" />
           <when state="circumflex" output="ĝ" />
         </action>
-        <action id="G">
+        <action id="ac05_G">
           <when state="none"       output="G" />
           <when state="circumflex" output="Ĝ" />
         </action>
-        <action id="h">
+        <action id="ac06_h">
           <when state="none"       output="h" />
           <when state="circumflex" output="ĥ" />
           <when state="diaeresis"  output="ḧ" />
         </action>
-        <action id="H">
+        <action id="ac06_H">
           <when state="none"       output="H" />
           <when state="circumflex" output="Ĥ" />
           <when state="diaeresis"  output="Ḧ" />
         </action>
-        <action id="j">
+        <action id="ac07_j">
           <when state="none"       output="j" />
           <when state="circumflex" output="ĵ" />
         </action>
-        <action id="J">
+        <action id="ac07_J">
           <when state="none"       output="J" />
           <when state="circumflex" output="Ĵ" />
         </action>
 
         <!-- Letters, third row -->
-        <action id="z">
+        <action id="ab01_z">
           <when state="none"       output="z" />
           <when state="circumflex" output="ẑ" />
         </action>
-        <action id="Z">
+        <action id="ab01_Z">
           <when state="none"       output="Z" />
           <when state="circumflex" output="Ẑ" />
         </action>
-        <action id="x">
+        <action id="ab02_x">
           <when state="none"       output="x" />
           <when state="diaeresis"  output="ẍ" />
         </action>
-        <action id="X">
+        <action id="ab02_X">
           <when state="none"       output="X" />
           <when state="diaeresis"  output="Ẍ" />
         </action>
-        <action id="c">
+        <action id="ab03_c">
           <when state="none"       output="c" />
           <when state="1dk"        output="ç" />
           <when state="circumflex" output="ĉ" />
         </action>
-        <action id="C">
+        <action id="ab03_C">
           <when state="none"       output="C" />
           <when state="1dk"        output="Ç" />
           <when state="circumflex" output="Ĉ" />
         </action>
-        <action id="v">
+        <action id="ab04_v">
           <when state="none"       output="v" />
           <when state="tilde"      output="ṽ" />
         </action>
-        <action id="V">
+        <action id="ab04_V">
           <when state="none"       output="V" />
           <when state="tilde"      output="Ṽ" />
         </action>
-        <action id="n">
+        <action id="ab06_n">
           <when state="none"       output="n" />
           <when state="grave"      output="ǹ" />
           <when state="tilde"      output="ñ" />
         </action>
-        <action id="N">
+        <action id="ab06_N">
           <when state="none"       output="N" />
           <when state="grave"      output="Ǹ" />
           <when state="tilde"      output="Ñ" />
         </action>
-        <action id="x003c">
+        <action id="ab08_x003c">
           <when state="none"       output="&#x003c;" />
           <when state="tilde"      output="≲" />
         </action>
-        <action id=".">
+        <action id="ab09_.">
           <when state="none"       output="." />
           <when state="1dk"        output="…" />
         </action>
-        <action id="x003e">
+        <action id="ab09_x003e">
           <when state="none"       output="&#x003e;" />
           <when state="tilde"      output="≳" />
         </action>
 
         <!-- Pinky keys -->
-        <action id="-">
+        <action id="ae11_-">
           <when state="none"       output="-" />
           <when state="circumflex" output="⁻" />
         </action>
-        <action id="=">
+        <action id="ae12_=">
           <when state="none"       output="=" />
           <when state="circumflex" output="⁼" />
           <when state="tilde"      output="≃" />
         </action>
-        <action id="+">
+        <action id="ae12_+">
           <when state="none"       output="+" />
           <when state="circumflex" output="⁺" />
         </action>
 
         <!-- Space bar -->
-        <action id="x0020">
+        <action id="spce_x0020">
           <when state="none"       output="&#x0020;" />
           <when state="1dk"        output="'" />
           <when state="grave"      output="`" />
@@ -827,7 +827,7 @@ def test_intl():
           <when state="tilde"      output="~" />
           <when state="diaeresis"  output="&#x0022;" />
         </action>
-        <action id="x00a0">
+        <action id="spce_x00a0">
           <when state="none"       output="&#x00a0;" />
           <when state="1dk"        output="'" />
           <when state="grave"      output="`" />
@@ -835,7 +835,7 @@ def test_intl():
           <when state="tilde"      output="~" />
           <when state="diaeresis"  output="&#x0022;" />
         </action>
-        <action id="x202f">
+        <action id="spce_x202f">
           <when state="none"       output="&#x202f;" />
           <when state="1dk"        output="'" />
           <when state="grave"      output="`" />
@@ -868,56 +868,56 @@ def test_prog():
     assert keymap[0] == split(
         """
         <!-- Digits -->
-        <key code="18"  action="1" />
-        <key code="19"  action="2" />
-        <key code="20"  action="3" />
-        <key code="21"  action="4" />
-        <key code="23"  action="5" />
-        <key code="22"  action="6" />
-        <key code="26"  action="7" />
-        <key code="28"  action="8" />
-        <key code="25"  action="9" />
-        <key code="29"  action="0" />
+        <key code="18"  action="ae01_1" />
+        <key code="19"  action="ae02_2" />
+        <key code="20"  action="ae03_3" />
+        <key code="21"  action="ae04_4" />
+        <key code="23"  action="ae05_5" />
+        <key code="22"  action="ae06_6" />
+        <key code="26"  action="ae07_7" />
+        <key code="28"  action="ae08_8" />
+        <key code="25"  action="ae09_9" />
+        <key code="29"  action="ae10_0" />
 
         <!-- Letters, first row -->
         <key code="12"  output="q" />
-        <key code="13"  action="w" />
-        <key code="14"  action="e" />
-        <key code="15"  action="r" />
+        <key code="13"  action="ad02_w" />
+        <key code="14"  action="ad03_e" />
+        <key code="15"  action="ad04_r" />
         <key code="17"  output="t" />
-        <key code="16"  action="y" />
-        <key code="32"  action="u" />
-        <key code="34"  action="i" />
-        <key code="31"  action="o" />
-        <key code="35"  action="p" />
+        <key code="16"  action="ad06_y" />
+        <key code="32"  action="ad07_u" />
+        <key code="34"  action="ad08_i" />
+        <key code="31"  action="ad09_o" />
+        <key code="35"  action="ad10_p" />
 
         <!-- Letters, second row -->
-        <key code="0"   action="a" />
-        <key code="1"   action="s" />
+        <key code="0"   action="ac01_a" />
+        <key code="1"   action="ac02_s" />
         <key code="2"   output="d" />
         <key code="3"   output="f" />
-        <key code="5"   action="g" />
-        <key code="4"   action="h" />
-        <key code="38"  action="j" />
-        <key code="40"  action="k" />
-        <key code="37"  action="l" />
+        <key code="5"   action="ac05_g" />
+        <key code="4"   action="ac06_h" />
+        <key code="38"  action="ac07_j" />
+        <key code="40"  action="ac08_k" />
+        <key code="37"  action="ac09_l" />
         <key code="41"  output=";" />
 
         <!-- Letters, third row -->
-        <key code="6"   action="z" />
-        <key code="7"   action="x" />
-        <key code="8"   action="c" />
-        <key code="9"   action="v" />
+        <key code="6"   action="ab01_z" />
+        <key code="7"   action="ab02_x" />
+        <key code="8"   action="ab03_c" />
+        <key code="9"   action="ab04_v" />
         <key code="11"  output="b" />
-        <key code="45"  action="n" />
-        <key code="46"  action="m" />
+        <key code="45"  action="ab06_n" />
+        <key code="46"  action="ab07_m" />
         <key code="43"  output="," />
         <key code="47"  output="." />
         <key code="44"  output="/" />
 
         <!-- Pinky keys -->
-        <key code="27"  action="-" />
-        <key code="24"  action="=" />
+        <key code="27"  action="ae11_-" />
+        <key code="24"  action="ae12_=" />
         <key code="33"  output="[" />
         <key code="30"  output="]" />
         <key code="39"  output="'" />
@@ -926,7 +926,7 @@ def test_prog():
         <key code="10"  output="&#x0010;" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -942,48 +942,48 @@ def test_prog():
         <key code="22"  output="^" />
         <key code="26"  output="&#x0026;" />
         <key code="28"  output="*" />
-        <key code="25"  action="(" />
-        <key code="29"  action=")" />
+        <key code="25"  action="ae09_(" />
+        <key code="29"  action="ae10_)" />
 
         <!-- Letters, first row -->
         <key code="12"  output="Q" />
-        <key code="13"  action="W" />
-        <key code="14"  action="E" />
-        <key code="15"  action="R" />
+        <key code="13"  action="ad02_W" />
+        <key code="14"  action="ad03_E" />
+        <key code="15"  action="ad04_R" />
         <key code="17"  output="T" />
-        <key code="16"  action="Y" />
-        <key code="32"  action="U" />
-        <key code="34"  action="I" />
-        <key code="31"  action="O" />
-        <key code="35"  action="P" />
+        <key code="16"  action="ad06_Y" />
+        <key code="32"  action="ad07_U" />
+        <key code="34"  action="ad08_I" />
+        <key code="31"  action="ad09_O" />
+        <key code="35"  action="ad10_P" />
 
         <!-- Letters, second row -->
-        <key code="0"   action="A" />
-        <key code="1"   action="S" />
+        <key code="0"   action="ac01_A" />
+        <key code="1"   action="ac02_S" />
         <key code="2"   output="D" />
         <key code="3"   output="F" />
-        <key code="5"   action="G" />
-        <key code="4"   action="H" />
-        <key code="38"  action="J" />
-        <key code="40"  action="K" />
-        <key code="37"  action="L" />
+        <key code="5"   action="ac05_G" />
+        <key code="4"   action="ac06_H" />
+        <key code="38"  action="ac07_J" />
+        <key code="40"  action="ac08_K" />
+        <key code="37"  action="ac09_L" />
         <key code="41"  output=":" />
 
         <!-- Letters, third row -->
-        <key code="6"   action="Z" />
-        <key code="7"   action="X" />
-        <key code="8"   action="C" />
-        <key code="9"   action="V" />
+        <key code="6"   action="ab01_Z" />
+        <key code="7"   action="ab02_X" />
+        <key code="8"   action="ab03_C" />
+        <key code="9"   action="ab04_V" />
         <key code="11"  output="B" />
-        <key code="45"  action="N" />
-        <key code="46"  action="M" />
-        <key code="43"  action="x003c" />
-        <key code="47"  action="x003e" />
+        <key code="45"  action="ab06_N" />
+        <key code="46"  action="ab07_M" />
+        <key code="43"  action="ab08_x003c" />
+        <key code="47"  action="ab09_x003e" />
         <key code="44"  output="?" />
 
         <!-- Pinky keys -->
         <key code="27"  output="_" />
-        <key code="24"  action="+" />
+        <key code="24"  action="ae12_+" />
         <key code="33"  output="{" />
         <key code="30"  output="}" />
         <key code="39"  output="&#x0022;" />
@@ -992,7 +992,7 @@ def test_prog():
         <key code="10"  output="&#x0010;" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -1000,56 +1000,56 @@ def test_prog():
     assert keymap[2] == split(
         """
         <!-- Digits -->
-        <key code="18"  action="1" />
-        <key code="19"  action="2" />
-        <key code="20"  action="3" />
-        <key code="21"  action="4" />
-        <key code="23"  action="5" />
-        <key code="22"  action="6" />
-        <key code="26"  action="7" />
-        <key code="28"  action="8" />
-        <key code="25"  action="9" />
-        <key code="29"  action="0" />
+        <key code="18"  action="ae01_1" />
+        <key code="19"  action="ae02_2" />
+        <key code="20"  action="ae03_3" />
+        <key code="21"  action="ae04_4" />
+        <key code="23"  action="ae05_5" />
+        <key code="22"  action="ae06_6" />
+        <key code="26"  action="ae07_7" />
+        <key code="28"  action="ae08_8" />
+        <key code="25"  action="ae09_9" />
+        <key code="29"  action="ae10_0" />
 
         <!-- Letters, first row -->
         <key code="12"  output="Q" />
-        <key code="13"  action="W" />
-        <key code="14"  action="E" />
-        <key code="15"  action="R" />
+        <key code="13"  action="ad02_W" />
+        <key code="14"  action="ad03_E" />
+        <key code="15"  action="ad04_R" />
         <key code="17"  output="T" />
-        <key code="16"  action="Y" />
-        <key code="32"  action="U" />
-        <key code="34"  action="I" />
-        <key code="31"  action="O" />
-        <key code="35"  action="P" />
+        <key code="16"  action="ad06_Y" />
+        <key code="32"  action="ad07_U" />
+        <key code="34"  action="ad08_I" />
+        <key code="31"  action="ad09_O" />
+        <key code="35"  action="ad10_P" />
 
         <!-- Letters, second row -->
-        <key code="0"   action="A" />
-        <key code="1"   action="S" />
+        <key code="0"   action="ac01_A" />
+        <key code="1"   action="ac02_S" />
         <key code="2"   output="D" />
         <key code="3"   output="F" />
-        <key code="5"   action="G" />
-        <key code="4"   action="H" />
-        <key code="38"  action="J" />
-        <key code="40"  action="K" />
-        <key code="37"  action="L" />
+        <key code="5"   action="ac05_G" />
+        <key code="4"   action="ac06_H" />
+        <key code="38"  action="ac07_J" />
+        <key code="40"  action="ac08_K" />
+        <key code="37"  action="ac09_L" />
         <key code="41"  output=";" />
 
         <!-- Letters, third row -->
-        <key code="6"   action="Z" />
-        <key code="7"   action="X" />
-        <key code="8"   action="C" />
-        <key code="9"   action="V" />
+        <key code="6"   action="ab01_Z" />
+        <key code="7"   action="ab02_X" />
+        <key code="8"   action="ab03_C" />
+        <key code="9"   action="ab04_V" />
         <key code="11"  output="B" />
-        <key code="45"  action="N" />
-        <key code="46"  action="M" />
+        <key code="45"  action="ab06_N" />
+        <key code="46"  action="ab07_M" />
         <key code="43"  output="," />
         <key code="47"  output="." />
         <key code="44"  output="/" />
 
         <!-- Pinky keys -->
-        <key code="27"  action="-" />
-        <key code="24"  action="=" />
+        <key code="27"  action="ae11_-" />
+        <key code="24"  action="ae12_=" />
         <key code="33"  output="[" />
         <key code="30"  output="]" />
         <key code="39"  output="'" />
@@ -1058,7 +1058,7 @@ def test_prog():
         <key code="10"  output="&#x0010;" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -1067,26 +1067,26 @@ def test_prog():
         """
         <!-- Digits -->
         <key code="18"  output="!" />
-        <key code="19"  action="(" />
-        <key code="20"  action=")" />
+        <key code="19"  action="ae02_(" />
+        <key code="20"  action="ae03_)" />
         <key code="21"  output="'" />
         <key code="23"  output="&#x0022;" />
         <key code="22"  action="dead_circumflex" />
-        <key code="26"  action="7" />
-        <key code="28"  action="8" />
-        <key code="25"  action="9" />
+        <key code="26"  action="ae07_7" />
+        <key code="28"  action="ae08_8" />
+        <key code="25"  action="ae09_9" />
         <key code="29"  output="/" />
 
         <!-- Letters, first row -->
-        <key code="12"  action="=" />
-        <key code="13"  action="x003c" />
-        <key code="14"  action="x003e" />
-        <key code="15"  action="-" />
-        <key code="17"  action="+" />
+        <key code="12"  action="ad01_=" />
+        <key code="13"  action="ad02_x003c" />
+        <key code="14"  action="ad03_x003e" />
+        <key code="15"  action="ad04_-" />
+        <key code="17"  action="ad05_+" />
         <key code="16"  output="&#x0010;" />
-        <key code="32"  action="4" />
-        <key code="34"  action="5" />
-        <key code="31"  action="6" />
+        <key code="32"  action="ad07_4" />
+        <key code="34"  action="ad08_5" />
+        <key code="31"  action="ad09_6" />
         <key code="35"  output="*" />
 
         <!-- Letters, second row -->
@@ -1096,10 +1096,10 @@ def test_prog():
         <key code="3"   output="}" />
         <key code="5"   output="/" />
         <key code="4"   output="&#x0010;" />
-        <key code="38"  action="1" />
-        <key code="40"  action="2" />
-        <key code="37"  action="3" />
-        <key code="41"  action="-" />
+        <key code="38"  action="ac07_1" />
+        <key code="40"  action="ac08_2" />
+        <key code="37"  action="ac09_3" />
+        <key code="41"  action="ac10_-" />
 
         <!-- Letters, third row -->
         <key code="6"   output="~" />
@@ -1108,10 +1108,10 @@ def test_prog():
         <key code="9"   output="_" />
         <key code="11"  output="\\" />
         <key code="45"  output="&#x0010;" />
-        <key code="46"  action="0" />
+        <key code="46"  action="ab07_0" />
         <key code="43"  output="," />
         <key code="47"  output="." />
-        <key code="44"  action="+" />
+        <key code="44"  action="ab10_+" />
 
         <!-- Pinky keys -->
         <key code="27"  output="&#x0010;" />
@@ -1124,7 +1124,7 @@ def test_prog():
         <key code="10"  output="&#x0010;" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -1190,7 +1190,7 @@ def test_prog():
         <key code="10"  output="&#x0010;" />
 
         <!-- Space bar -->
-        <key code="49"  action="x0020" />
+        <key code="49"  action="spce_x0020" />
         """
     )
 
@@ -1214,71 +1214,88 @@ def test_prog():
         </action>
 
         <!-- Digits -->
-        <action id="1">
+        <action id="ae01_1">
           <when state="none"       output="1" />
           <when state="circumflex" output="¹" />
         </action>
-        <action id="2">
+        <action id="ae02_2">
           <when state="none"       output="2" />
           <when state="circumflex" output="²" />
         </action>
-        <action id="3">
-          <when state="none"       output="3" />
-          <when state="circumflex" output="³" />
-        </action>
-        <action id="4">
-          <when state="none"       output="4" />
-          <when state="circumflex" output="⁴" />
-        </action>
-        <action id="5">
-          <when state="none"       output="5" />
-          <when state="circumflex" output="⁵" />
-        </action>
-        <action id="6">
-          <when state="none"       output="6" />
-          <when state="circumflex" output="⁶" />
-        </action>
-        <action id="7">
-          <when state="none"       output="7" />
-          <when state="circumflex" output="⁷" />
-        </action>
-        <action id="8">
-          <when state="none"       output="8" />
-          <when state="circumflex" output="⁸" />
-        </action>
-        <action id="9">
-          <when state="none"       output="9" />
-          <when state="circumflex" output="⁹" />
-        </action>
-        <action id="(">
+        <action id="ae02_(">
           <when state="none"       output="(" />
           <when state="circumflex" output="⁽" />
         </action>
-        <action id="0">
+        <action id="ae03_3">
+          <when state="none"       output="3" />
+          <when state="circumflex" output="³" />
+        </action>
+        <action id="ae03_)">
+          <when state="none"       output=")" />
+          <when state="circumflex" output="⁾" />
+        </action>
+        <action id="ae04_4">
+          <when state="none"       output="4" />
+          <when state="circumflex" output="⁴" />
+        </action>
+        <action id="ae05_5">
+          <when state="none"       output="5" />
+          <when state="circumflex" output="⁵" />
+        </action>
+        <action id="ae06_6">
+          <when state="none"       output="6" />
+          <when state="circumflex" output="⁶" />
+        </action>
+        <action id="ae07_7">
+          <when state="none"       output="7" />
+          <when state="circumflex" output="⁷" />
+        </action>
+        <action id="ae08_8">
+          <when state="none"       output="8" />
+          <when state="circumflex" output="⁸" />
+        </action>
+        <action id="ae09_9">
+          <when state="none"       output="9" />
+          <when state="circumflex" output="⁹" />
+        </action>
+        <action id="ae09_(">
+          <when state="none"       output="(" />
+          <when state="circumflex" output="⁽" />
+        </action>
+        <action id="ae10_0">
           <when state="none"       output="0" />
           <when state="circumflex" output="⁰" />
         </action>
-        <action id=")">
+        <action id="ae10_)">
           <when state="none"       output=")" />
           <when state="circumflex" output="⁾" />
         </action>
 
         <!-- Letters, first row -->
-        <action id="w">
+        <action id="ad01_=">
+          <when state="none"       output="=" />
+          <when state="circumflex" output="⁼" />
+          <when state="tilde"      output="≃" />
+        </action>
+        <action id="ad02_w">
           <when state="none"       output="w" />
           <when state="grave"      output="ẁ" />
           <when state="acute"      output="ẃ" />
           <when state="circumflex" output="ŵ" />
           <when state="diaeresis"  output="ẅ" />
         </action>
-        <action id="W">
+        <action id="ad02_W">
           <when state="none"       output="W" />
           <when state="grave"      output="Ẁ" />
           <when state="acute"      output="Ẃ" />
           <when state="circumflex" output="Ŵ" />
           <when state="diaeresis"  output="Ẅ" />
         </action>
-        <action id="e">
+        <action id="ad02_x003c">
+          <when state="none"       output="&#x003c;" />
+          <when state="tilde"      output="≲" />
+        </action>
+        <action id="ad03_e">
           <when state="none"       output="e" />
           <when state="grave"      output="è" />
           <when state="acute"      output="é" />
@@ -1286,7 +1303,7 @@ def test_prog():
           <when state="tilde"      output="ẽ" />
           <when state="diaeresis"  output="ë" />
         </action>
-        <action id="E">
+        <action id="ad03_E">
           <when state="none"       output="E" />
           <when state="grave"      output="È" />
           <when state="acute"      output="É" />
@@ -1294,19 +1311,31 @@ def test_prog():
           <when state="tilde"      output="Ẽ" />
           <when state="diaeresis"  output="Ë" />
         </action>
-        <action id="r">
+        <action id="ad03_x003e">
+          <when state="none"       output="&#x003e;" />
+          <when state="tilde"      output="≳" />
+        </action>
+        <action id="ad04_r">
           <when state="none"       output="r" />
           <when state="acute"      output="ŕ" />
         </action>
-        <action id="R">
+        <action id="ad04_R">
           <when state="none"       output="R" />
           <when state="acute"      output="Ŕ" />
         </action>
-        <action id="t">
+        <action id="ad04_-">
+          <when state="none"       output="-" />
+          <when state="circumflex" output="⁻" />
+        </action>
+        <action id="ad05_t">
           <when state="none"       output="t" />
           <when state="diaeresis"  output="ẗ" />
         </action>
-        <action id="y">
+        <action id="ad05_+">
+          <when state="none"       output="+" />
+          <when state="circumflex" output="⁺" />
+        </action>
+        <action id="ad06_y">
           <when state="none"       output="y" />
           <when state="grave"      output="ỳ" />
           <when state="acute"      output="ý" />
@@ -1314,7 +1343,7 @@ def test_prog():
           <when state="tilde"      output="ỹ" />
           <when state="diaeresis"  output="ÿ" />
         </action>
-        <action id="Y">
+        <action id="ad06_Y">
           <when state="none"       output="Y" />
           <when state="grave"      output="Ỳ" />
           <when state="acute"      output="Ý" />
@@ -1322,7 +1351,7 @@ def test_prog():
           <when state="tilde"      output="Ỹ" />
           <when state="diaeresis"  output="Ÿ" />
         </action>
-        <action id="u">
+        <action id="ad07_u">
           <when state="none"       output="u" />
           <when state="grave"      output="ù" />
           <when state="acute"      output="ú" />
@@ -1330,7 +1359,7 @@ def test_prog():
           <when state="tilde"      output="ũ" />
           <when state="diaeresis"  output="ü" />
         </action>
-        <action id="U">
+        <action id="ad07_U">
           <when state="none"       output="U" />
           <when state="grave"      output="Ù" />
           <when state="acute"      output="Ú" />
@@ -1338,7 +1367,11 @@ def test_prog():
           <when state="tilde"      output="Ũ" />
           <when state="diaeresis"  output="Ü" />
         </action>
-        <action id="i">
+        <action id="ad07_4">
+          <when state="none"       output="4" />
+          <when state="circumflex" output="⁴" />
+        </action>
+        <action id="ad08_i">
           <when state="none"       output="i" />
           <when state="grave"      output="ì" />
           <when state="acute"      output="í" />
@@ -1346,7 +1379,7 @@ def test_prog():
           <when state="tilde"      output="ĩ" />
           <when state="diaeresis"  output="ï" />
         </action>
-        <action id="I">
+        <action id="ad08_I">
           <when state="none"       output="I" />
           <when state="grave"      output="Ì" />
           <when state="acute"      output="Í" />
@@ -1354,7 +1387,11 @@ def test_prog():
           <when state="tilde"      output="Ĩ" />
           <when state="diaeresis"  output="Ï" />
         </action>
-        <action id="o">
+        <action id="ad08_5">
+          <when state="none"       output="5" />
+          <when state="circumflex" output="⁵" />
+        </action>
+        <action id="ad09_o">
           <when state="none"       output="o" />
           <when state="grave"      output="ò" />
           <when state="acute"      output="ó" />
@@ -1362,7 +1399,7 @@ def test_prog():
           <when state="tilde"      output="õ" />
           <when state="diaeresis"  output="ö" />
         </action>
-        <action id="O">
+        <action id="ad09_O">
           <when state="none"       output="O" />
           <when state="grave"      output="Ò" />
           <when state="acute"      output="Ó" />
@@ -1370,17 +1407,21 @@ def test_prog():
           <when state="tilde"      output="Õ" />
           <when state="diaeresis"  output="Ö" />
         </action>
-        <action id="p">
+        <action id="ad09_6">
+          <when state="none"       output="6" />
+          <when state="circumflex" output="⁶" />
+        </action>
+        <action id="ad10_p">
           <when state="none"       output="p" />
           <when state="acute"      output="ṕ" />
         </action>
-        <action id="P">
+        <action id="ad10_P">
           <when state="none"       output="P" />
           <when state="acute"      output="Ṕ" />
         </action>
 
         <!-- Letters, second row -->
-        <action id="a">
+        <action id="ac01_a">
           <when state="none"       output="a" />
           <when state="grave"      output="à" />
           <when state="acute"      output="á" />
@@ -1388,7 +1429,7 @@ def test_prog():
           <when state="tilde"      output="ã" />
           <when state="diaeresis"  output="ä" />
         </action>
-        <action id="A">
+        <action id="ac01_A">
           <when state="none"       output="A" />
           <when state="grave"      output="À" />
           <when state="acute"      output="Á" />
@@ -1396,144 +1437,168 @@ def test_prog():
           <when state="tilde"      output="Ã" />
           <when state="diaeresis"  output="Ä" />
         </action>
-        <action id="s">
+        <action id="ac02_s">
           <when state="none"       output="s" />
           <when state="acute"      output="ś" />
           <when state="circumflex" output="ŝ" />
         </action>
-        <action id="S">
+        <action id="ac02_S">
           <when state="none"       output="S" />
           <when state="acute"      output="Ś" />
           <when state="circumflex" output="Ŝ" />
         </action>
-        <action id="g">
+        <action id="ac05_g">
           <when state="none"       output="g" />
           <when state="acute"      output="ǵ" />
           <when state="circumflex" output="ĝ" />
         </action>
-        <action id="G">
+        <action id="ac05_G">
           <when state="none"       output="G" />
           <when state="acute"      output="Ǵ" />
           <when state="circumflex" output="Ĝ" />
         </action>
-        <action id="h">
+        <action id="ac06_h">
           <when state="none"       output="h" />
           <when state="circumflex" output="ĥ" />
           <when state="diaeresis"  output="ḧ" />
         </action>
-        <action id="H">
+        <action id="ac06_H">
           <when state="none"       output="H" />
           <when state="circumflex" output="Ĥ" />
           <when state="diaeresis"  output="Ḧ" />
         </action>
-        <action id="j">
+        <action id="ac07_j">
           <when state="none"       output="j" />
           <when state="circumflex" output="ĵ" />
         </action>
-        <action id="J">
+        <action id="ac07_J">
           <when state="none"       output="J" />
           <when state="circumflex" output="Ĵ" />
         </action>
-        <action id="k">
+        <action id="ac07_1">
+          <when state="none"       output="1" />
+          <when state="circumflex" output="¹" />
+        </action>
+        <action id="ac08_k">
           <when state="none"       output="k" />
           <when state="acute"      output="ḱ" />
         </action>
-        <action id="K">
+        <action id="ac08_K">
           <when state="none"       output="K" />
           <when state="acute"      output="Ḱ" />
         </action>
-        <action id="l">
+        <action id="ac08_2">
+          <when state="none"       output="2" />
+          <when state="circumflex" output="²" />
+        </action>
+        <action id="ac09_l">
           <when state="none"       output="l" />
           <when state="acute"      output="ĺ" />
         </action>
-        <action id="L">
+        <action id="ac09_L">
           <when state="none"       output="L" />
           <when state="acute"      output="Ĺ" />
         </action>
+        <action id="ac09_3">
+          <when state="none"       output="3" />
+          <when state="circumflex" output="³" />
+        </action>
+        <action id="ac10_-">
+          <when state="none"       output="-" />
+          <when state="circumflex" output="⁻" />
+        </action>
 
         <!-- Letters, third row -->
-        <action id="z">
+        <action id="ab01_z">
           <when state="none"       output="z" />
           <when state="acute"      output="ź" />
           <when state="circumflex" output="ẑ" />
         </action>
-        <action id="Z">
+        <action id="ab01_Z">
           <when state="none"       output="Z" />
           <when state="acute"      output="Ź" />
           <when state="circumflex" output="Ẑ" />
         </action>
-        <action id="x">
+        <action id="ab02_x">
           <when state="none"       output="x" />
           <when state="diaeresis"  output="ẍ" />
         </action>
-        <action id="X">
+        <action id="ab02_X">
           <when state="none"       output="X" />
           <when state="diaeresis"  output="Ẍ" />
         </action>
-        <action id="c">
+        <action id="ab03_c">
           <when state="none"       output="c" />
           <when state="acute"      output="ć" />
           <when state="circumflex" output="ĉ" />
         </action>
-        <action id="C">
+        <action id="ab03_C">
           <when state="none"       output="C" />
           <when state="acute"      output="Ć" />
           <when state="circumflex" output="Ĉ" />
         </action>
-        <action id="v">
+        <action id="ab04_v">
           <when state="none"       output="v" />
           <when state="tilde"      output="ṽ" />
         </action>
-        <action id="V">
+        <action id="ab04_V">
           <when state="none"       output="V" />
           <when state="tilde"      output="Ṽ" />
         </action>
-        <action id="n">
+        <action id="ab06_n">
           <when state="none"       output="n" />
           <when state="grave"      output="ǹ" />
           <when state="acute"      output="ń" />
           <when state="tilde"      output="ñ" />
         </action>
-        <action id="N">
+        <action id="ab06_N">
           <when state="none"       output="N" />
           <when state="grave"      output="Ǹ" />
           <when state="acute"      output="Ń" />
           <when state="tilde"      output="Ñ" />
         </action>
-        <action id="m">
+        <action id="ab07_m">
           <when state="none"       output="m" />
           <when state="acute"      output="ḿ" />
         </action>
-        <action id="M">
+        <action id="ab07_M">
           <when state="none"       output="M" />
           <when state="acute"      output="Ḿ" />
         </action>
-        <action id="x003c">
+        <action id="ab07_0">
+          <when state="none"       output="0" />
+          <when state="circumflex" output="⁰" />
+        </action>
+        <action id="ab08_x003c">
           <when state="none"       output="&#x003c;" />
           <when state="tilde"      output="≲" />
         </action>
-        <action id="x003e">
+        <action id="ab09_x003e">
           <when state="none"       output="&#x003e;" />
           <when state="tilde"      output="≳" />
         </action>
+        <action id="ab10_+">
+          <when state="none"       output="+" />
+          <when state="circumflex" output="⁺" />
+        </action>
 
         <!-- Pinky keys -->
-        <action id="-">
+        <action id="ae11_-">
           <when state="none"       output="-" />
           <when state="circumflex" output="⁻" />
         </action>
-        <action id="=">
+        <action id="ae12_=">
           <when state="none"       output="=" />
           <when state="circumflex" output="⁼" />
           <when state="tilde"      output="≃" />
         </action>
-        <action id="+">
+        <action id="ae12_+">
           <when state="none"       output="+" />
           <when state="circumflex" output="⁺" />
         </action>
 
         <!-- Space bar -->
-        <action id="x0020">
+        <action id="spce_x0020">
           <when state="none"       output="&#x0020;" />
           <when state="grave"      output="`" />
           <when state="acute"      output="'" />
@@ -1541,7 +1606,7 @@ def test_prog():
           <when state="tilde"      output="~" />
           <when state="diaeresis"  output="&#x0022;" />
         </action>
-        <action id="x00a0">
+        <action id="spce_x00a0">
           <when state="none"       output="&#x00a0;" />
           <when state="grave"      output="`" />
           <when state="acute"      output="'" />
@@ -1549,7 +1614,7 @@ def test_prog():
           <when state="tilde"      output="~" />
           <when state="diaeresis"  output="&#x0022;" />
         </action>
-        <action id="x202f">
+        <action id="spce_x202f">
           <when state="none"       output="&#x202f;" />
           <when state="grave"      output="`" />
           <when state="acute"      output="'" />
