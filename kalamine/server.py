@@ -3,6 +3,7 @@ import threading
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 import click
 from livereload import Server  # type: ignore
@@ -54,6 +55,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                     | <a href="/klc">klc</a>
                     | <a href="/xkb_keymap">xkb_keymap</a>
                     | <a href="/xkb_symbols">xkb_symbols</a>
+                    | <a href="/svg">svg</a>
                 </p>
             </body>
             </html>
@@ -93,6 +95,9 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                 send(xkb.xkb_keymap(kb_layout))
             elif self.path == "/xkb_symbols":
                 send(xkb.xkb_symbols(kb_layout))
+            elif self.path == "/svg":
+                utf8 = ET.tostring(web.svg(kb_layout).getroot(), encoding="unicode")
+                send(utf8, content="image/svg+xml")
             elif self.path == "/":
                 kb_layout = KeyboardLayout(load_layout(file_path), angle_mod)  # refresh
                 send(main_page(kb_layout, angle_mod), content="text/html")
