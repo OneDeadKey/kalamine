@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Type, TypeVar
 
+import click
 import tomli
 import yaml
 
@@ -12,7 +13,6 @@ from .utils import (
     LAYER_KEYS,
     ODK_ID,
     Layer,
-    lines_to_text,
     load_data,
     text_to_lines,
     upper_key,
@@ -46,8 +46,8 @@ def load_layout(layout_path: Path) -> Dict:
         return cfg
 
     except Exception as exc:
-        print("File could not be parsed.", err=True)
-        print(f"Error: {exc}.", err=True)
+        click.echo("File could not be parsed.", err=True)
+        click.echo(f"Error: {exc}.", err=True)
         sys.exit(1)
 
 
@@ -171,7 +171,7 @@ class KeyboardLayout:
                 # should bevome ['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04']
                 last_row.keys[:6] = [last_row.keys[5]] + last_row.keys[:5]
             else:
-                print(
+                click.echo(
                     "Warning: geometry does not support angle-mod; ignoring the --angle-mod argument"
                 )
 

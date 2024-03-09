@@ -9,6 +9,7 @@ from stat import S_IREAD, S_IWUSR
 
 from progress.bar import ChargingBar
 
+from .generators import klc
 from .help import dummy_layout
 from .layout import KeyboardLayout
 
@@ -78,12 +79,14 @@ class MsklcManager:
         return False
 
     def _create_dummy_layout(self) -> str:
-        return dummy_layout(
-            self._layout.geometry,
-            self._layout.has_altgr,
-            self._layout.has_1dk,
-            self._layout.meta,
-        ).klc
+        return klc.klc(
+            dummy_layout(
+                self._layout.geometry,
+                self._layout.has_altgr,
+                self._layout.has_1dk,
+                self._layout.meta,
+            )
+        )
 
     def build_msklc_installer(self) -> bool:
         def installer_exists(installer: Path) -> bool:
@@ -173,7 +176,7 @@ class MsklcManager:
         klc_file = self._working_dir / Path(f"{name8}.klc")
         with klc_file.open("w", encoding="utf-16le", newline="\r\n") as file:
             try:
-                file.write(self._layout.klc)
+                file.write(klc.klc(self._layout))
             except ValueError as err:
                 print(f"ERROR: {err}")
                 return False
@@ -184,12 +187,12 @@ class MsklcManager:
         self._progress.next()
         rc_file = klc_file.with_suffix(".RC")
         with rc_file.open("w", encoding="utf-16le", newline="\r\n") as file:
-            file.write(self._layout.klc_rc)
+            file.write(klc.klc_rc(self._layout))
 
         self._progress.next()
         c_file = klc_file.with_suffix(".C")
         with c_file.open("w", encoding="utf-16le", newline="\r\n") as file:
-            file.write(self._layout.klc_c)
+            file.write(klc.klc_c(self._layout))
 
         c_files = [".C", ".RC", ".H", ".DEF"]
 

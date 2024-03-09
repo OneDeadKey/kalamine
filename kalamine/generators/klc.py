@@ -11,7 +11,7 @@ because they are not recognized by KBDEdit (as of v19.8.0).
 """
 
 import re
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
