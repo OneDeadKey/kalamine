@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
-from kalamine.template import ahk_keymap, ahk_shortcuts
+from kalamine.generators.ahk import ahk_keymap, ahk_shortcuts
 
 from .util import get_layout_dict
 

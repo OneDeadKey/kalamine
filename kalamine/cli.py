@@ -8,6 +8,7 @@ from typing import Iterator, List, Literal, Union
 
 import click
 
+from .generators import ahk, keylayout, klc, web, xkb
 from .help import create_layout, user_guide
 from .layout import KeyboardLayout, load_layout
 from .server import keyboard_server
@@ -28,7 +29,7 @@ def pretty_json(layout: KeyboardLayout, output_path: Path) -> None:
         The output file path.
     """
     text = (
-        json.dumps(layout.json, indent=2, ensure_ascii=False)
+        json.dumps(web.json(layout), indent=2, ensure_ascii=False)
         .replace("\n      ", " ")
         .replace("\n    ]", " ]")
         .replace("\n    }", " }")
@@ -63,30 +64,30 @@ def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     with file_creation_context(".ahk") as ahk_path:
         with ahk_path.open("w", encoding="utf-8", newline="\n") as file:
             file.write("\uFEFF")  # AHK scripts require a BOM
-            file.write(layout.ahk)
+            file.write(ahk.ahk(layout))
 
     # Windows driver
     with file_creation_context(".klc") as klc_path:
         with klc_path.open("w", encoding="utf-16le", newline="\r\n") as file:
             try:
-                file.write(layout.klc)
+                file.write(klc.klc(layout))
             except ValueError as err:
                 print(err)
 
     # macOS driver
     with file_creation_context(".keylayout") as osx_path:
         with osx_path.open("w", encoding="utf-8", newline="\n") as file:
-            file.write(layout.keylayout)
+            file.write(keylayout.keylayout(layout))
 
     # Linux driver, user-space
     with file_creation_context(".xkb_keymap") as xkb_path:
         with xkb_path.open("w", encoding="utf-8", newline="\n") as file:
-            file.write(layout.xkb_keymap)
+            file.write(xkb.xkb_keymap(layout))
 
     # Linux driver, root
     with file_creation_context(".xkb_symbols") as xkb_custom_path:
         with xkb_custom_path.open("w", encoding="utf-8", newline="\n") as file:
-            file.write(layout.xkb_symbols.replace("//#", "//"))
+            file.write(xkb.xkb_symbols(layout))
 
     # JSON data
     with file_creation_context(".json") as json_path:
@@ -94,7 +95,7 @@ def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
 
     # SVG data
     with file_creation_context(".svg") as svg_path:
-        layout.svg.write(svg_path, encoding="utf-8", xml_declaration=True)
+        web.svg(layout).write(svg_path, encoding="utf-8", xml_declaration=True)
 
 
 @cli.command()
@@ -146,32 +147,32 @@ def build(
         if output_file.suffix == ".ahk":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
                 file.write("\uFEFF")  # AHK scripts require a BOM
-                file.write(layout.ahk)
+                file.write(ahk.ahk(layout))
 
         elif output_file.suffix == ".klc":
             with output_file.open("w", encoding="utf-16le", newline="\r\n") as file:
                 try:
-                    file.write(layout.klc)
+                    file.write(klc.klc(layout))
                 except ValueError as err:
                     print(err)
 
         elif output_file.suffix == ".keylayout":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
-                file.write(layout.keylayout)
+                file.write(keylayout.keylayout(layout))
 
         elif output_file.suffix == ".xkb_keymap":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
-                file.write(layout.xkb_keymap)
+                file.write(xkb.xkb_keymap(layout))
 
         elif output_file.suffix == ".xkb_symbols":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
-                file.write(layout.xkb_symbols.replace("//#", "//"))
+                file.write(xkb.xkb_symbols(layout))
 
         elif output_file.suffix == ".json":
             pretty_json(layout, output_file)
 
         elif output_file.suffix == ".svg":
-            layout.svg.write(output_file, encoding="utf-8", xml_declaration=True)
+            web.svg(layout).write(output_file, encoding="utf-8", xml_declaration=True)
 
         else:
             click.echo("Unsupported output format.", err=True)
@@ -200,9 +201,9 @@ def new(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     default=False,
     help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
 )
-def watch(filepath: Path) -> None:
+def watch(filepath: Path, angle_mod: bool) -> None:
     """Watch a layout description file and display it in a web browser."""
-    keyboard_server(filepath)
+    keyboard_server(filepath, angle_mod)
 
 
 @cli.command()

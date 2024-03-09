@@ -3,7 +3,7 @@
 all: format lint test
 
 dev:  ## Install a development environment
-	python3 -m pip install --user --upgrade .[dev]
+	python3 -m pip install --user --upgrade -e .[dev]
 	# python3 -m pip install --user --upgrade build
 	# python3 -m pip install --user --upgrade twine wheel
 

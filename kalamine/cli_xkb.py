@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Union
 
 import click
 
+from .generators import xkb
 from .layout import KeyboardLayout, load_layout
 from .xkb_manager import WAYLAND, KbdIndex, XKBManager
 
@@ -40,7 +41,7 @@ def apply(filepath: Path, angle_mod: bool) -> None:
     with tempfile.NamedTemporaryFile(
         mode="w+", suffix=".xkb_keymap", encoding="utf-8"
     ) as temp_file:
-        temp_file.write(layout.xkb_keymap)
+        temp_file.write(xkb.xkb_keymap(layout))
         os.system(f"xkbcomp -w0 {temp_file.name} $DISPLAY")
 
 

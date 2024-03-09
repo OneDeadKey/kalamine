@@ -13,6 +13,7 @@ from textwrap import dedent
 from typing import Dict, ItemsView, Optional
 from xml.etree import ElementTree as ET
 
+from .generators import xkb
 from .layout import KeyboardLayout
 
 
@@ -284,7 +285,7 @@ def update_symbols_locale(path: Path, named_layouts: KbdVariant) -> None:
                 symbols.write(mark["begin"])
                 symbols.write(
                     re.sub(  # drop lines starting with '//#'
-                        r"^//#.*\n", "", layout.xkb_symbols, flags=re.MULTILINE
+                        r"^//#.*\n", "", xkb.xkb_symbols(layout), flags=re.MULTILINE
                     ).rstrip()
                     + "\n"
                 )

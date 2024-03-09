@@ -3,10 +3,12 @@ import threading
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 import click
 from livereload import Server  # type: ignore
 
+from .generators import ahk, keylayout, klc, web, xkb
 from .layout import KeyboardLayout, load_layout
 
 
@@ -51,8 +53,11 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                     <a href="/json">json</a>
                     | <a href="/keylayout">keylayout</a>
                     | <a href="/klc">klc</a>
+                    | <a href="/rc">rc</a>
+                    | <a href="/c">c</a>
                     | <a href="/xkb_keymap">xkb_keymap</a>
                     | <a href="/xkb_symbols">xkb_symbols</a>
+                    | <a href="/svg">svg</a>
                 </p>
             </body>
             </html>
@@ -80,16 +85,25 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             if self.path == "/favicon.ico":
                 pass
             elif self.path == "/json":
-                send(json.dumps(kb_layout.json), content="application/json")
+                send(json.dumps(web.json(kb_layout)), content="application/json")
             elif self.path == "/keylayout":
-                # send(kb_layout.keylayout, content='application/xml')
-                send(kb_layout.keylayout)
+                # send(keylayout.keylayout(kb_layout), content='application/xml')
+                send(keylayout.keylayout(kb_layout))
+            elif self.path == "/ahk":
+                send(ahk.ahk(kb_layout))
             elif self.path == "/klc":
-                send(kb_layout.klc, charset="utf-16-le", content="text")
+                send(klc.klc(kb_layout), charset="utf-16-le", content="text")
+            elif self.path == "/rc":
+                send(klc.klc_rc(kb_layout), content="text")
+            elif self.path == "/c":
+                send(klc.klc_c(kb_layout), content="text")
             elif self.path == "/xkb_keymap":
-                send(kb_layout.xkb_keymap)
+                send(xkb.xkb_keymap(kb_layout))
             elif self.path == "/xkb_symbols":
-                send(kb_layout.xkb_symbols.replace("//#", "//"))
+                send(xkb.xkb_symbols(kb_layout))
+            elif self.path == "/svg":
+                utf8 = ET.tostring(web.svg(kb_layout).getroot(), encoding="unicode")
+                send(utf8, content="image/svg+xml")
             elif self.path == "/":
                 kb_layout = KeyboardLayout(load_layout(file_path), angle_mod)  # refresh
                 send(main_page(kb_layout, angle_mod), content="text/html")
