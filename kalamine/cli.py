@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import json
 from contextlib import contextmanager
 from importlib import metadata
 from pathlib import Path
@@ -16,25 +15,6 @@ from .server import keyboard_server
 
 @click.group()
 def cli() -> None: ...
-
-
-def pretty_json(layout: KeyboardLayout, output_path: Path) -> None:
-    """Pretty-print the JSON layout.
-
-    Parameters
-    ----------
-    layout : KeyboardLayout
-        The layout to be exported.
-    output_path : Path
-        The output file path.
-    """
-    text = (
-        json.dumps(web.json(layout), indent=2, ensure_ascii=False)
-        .replace("\n      ", " ")
-        .replace("\n    ]", " ]")
-        .replace("\n    }", " }")
-    )
-    output_path.write_text(text, encoding="utf8")
 
 
 def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
@@ -91,7 +71,7 @@ def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
 
     # JSON data
     with file_creation_context(".json") as json_path:
-        pretty_json(layout, json_path)
+        json_path.write_text(web.pretty_json(layout), encoding="utf8")
 
     # SVG data
     with file_creation_context(".svg") as svg_path:
@@ -169,7 +149,7 @@ def build(
                 file.write(xkb.xkb_symbols(layout))
 
         elif output_file.suffix == ".json":
-            pretty_json(layout, output_file)
+            output_file.write_text(web.pretty_json(layout), encoding="utf8")
 
         elif output_file.suffix == ".svg":
             web.svg(layout).write(output_file, encoding="utf-8", xml_declaration=True)

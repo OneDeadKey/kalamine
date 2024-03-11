@@ -4,6 +4,7 @@ To be used with the <x-keyboard> web component.
 https://github.com/OneDeadKey/x-keyboard
 """
 
+import json
 import pkgutil
 from typing import TYPE_CHECKING, Dict, List, Optional
 from xml.etree import ElementTree as ET
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 from ..utils import LAYER_KEYS, ODK_ID, SCAN_CODES, Layer, upper_key
 
 
-def json(layout: "KeyboardLayout") -> Dict:
+def raw_json(layout: "KeyboardLayout") -> Dict:
     """JSON layout descriptor"""
 
     # flatten the keymap: each key has an array of 2-4 characters
@@ -40,6 +41,17 @@ def json(layout: "KeyboardLayout") -> Dict:
         "altgr":       layout.has_altgr,
         # fmt: on
     }
+
+
+def pretty_json(layout: "KeyboardLayout") -> str:
+    """Pretty-print the JSON layout."""
+
+    return (
+        json.dumps(raw_json(layout), indent=2, ensure_ascii=False)
+        .replace("\n      ", " ")
+        .replace("\n    ]", " ]")
+        .replace("\n    }", " }")
+    )
 
 
 def svg(layout: "KeyboardLayout") -> ET.ElementTree:

@@ -1,4 +1,3 @@
-import json
 import threading
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -85,7 +84,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             if self.path == "/favicon.ico":
                 pass
             elif self.path == "/json":
-                send(json.dumps(web.json(kb_layout)), content="application/json")
+                send(web.pretty_json(kb_layout), content="application/json")
             elif self.path == "/keylayout":
                 # send(keylayout.keylayout(kb_layout), content='application/xml')
                 send(keylayout.keylayout(kb_layout))
