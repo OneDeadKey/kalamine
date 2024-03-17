@@ -56,7 +56,7 @@ def build(
 
     for input_file in layout_descriptors:
         layout = KeyboardLayout(load_layout(input_file), angle_mod, qwerty_shortcuts)
-        msklc_mgr = MsklcManager(layout, msklc, verbose=verbose)
+        msklc_mgr = MsklcManager(layout, msklc, install=False, verbose=verbose)
         if msklc_mgr.build_msklc_installer():
             if msklc_mgr.build_msklc_dll():
                 output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
@@ -65,6 +65,61 @@ def build(
                     f"Execute `{output_dir}setup.exe` to install.\n"
                     "Log out and log back in to apply the changes."
                 )
+
+
+@cli.command()
+@click.argument(
+    "layout_descriptors",
+    nargs=-1,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+)
+@click.option(
+    "--angle-mod/--no-angle-mod",
+    default=False,
+    help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
+)
+@click.option(
+    "--msklc",
+    default=DEFAULT_MSKLC_DIR,
+    type=click.Path(exists=True, file_okay=False, resolve_path=True),
+    help="Directory where MSKLC is installed",
+)
+@click.option(
+    "--qwerty-shortcuts",
+    default=False,
+    is_flag=True,
+    help="Keep shortcuts at their qwerty location",
+)
+@click.option("--verbose", "-v", is_flag=True, help="Verbose mode")
+def install(
+    layout_descriptors: List[Path],
+    angle_mod: bool,
+    msklc: Path,
+    qwerty_shortcuts: bool,
+    verbose: bool,
+) -> None:
+    """Convert TOML/YAML descriptions into Windows MSKLC keyboard drivers and install them."""
+
+    if platform.system() != "Windows":
+        sys.exit("This command is only compatible with Windows, sorry.")
+
+    for input_file in layout_descriptors:
+        layout = KeyboardLayout(load_layout(input_file), angle_mod, qwerty_shortcuts)
+        msklc_mgr = MsklcManager(layout, msklc, install=True, verbose=verbose)
+        if msklc_mgr.build_msklc_installer():
+            if msklc_mgr.build_msklc_dll():
+                if msklc_mgr.install():
+                    click.echo(
+                        "MSKLC drivers successfully built and installed.\n"
+                        "Log out and log back in to apply the changes."
+                    )
+                else:
+                    output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
+                    click.echo(
+                        "MSKLC drivers successfully built but failed to installed.\n"
+                        f"Execute `{output_dir}setup.exe` to install manually.\n"
+                        "Log out and log back in to apply the changes."
+                    )
 
 
 @cli.command()
