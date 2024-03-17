@@ -1,5 +1,6 @@
 import ctypes
 import os
+import platform
 import subprocess
 import sys
 import winreg
@@ -20,14 +21,18 @@ class MsklcManager:
         layout: "KeyboardLayout",
         msklc_dir: Path,
         working_dir: Path = Path(os.getcwd()),
+        install: bool = False,
         verbose: bool = False,
     ) -> None:
         self._layout = layout
         self._msklc_dir = msklc_dir
         self._verbose = verbose
         self._working_dir = working_dir
+        nb_steps = 14
+        if install:
+            nb_steps = 15
         self._progress = ChargingBar(
-            f"Creating MSKLC driver for `{layout.meta['name']}`", max=14
+            f"Creating MSKLC driver for `{layout.meta['name']}`", max=nb_steps
         )
 
     def create_c_files(self):
@@ -46,7 +51,6 @@ class MsklcManager:
     def _is_already_installed(self) -> bool:
         """Check if the keyboard driver is already installed,
         which would cause MSKLC to launch the GUI instead of creating the installer."""
-
         # check if the DLL is present
         sys32 = Path(os.environ["WINDIR"]) / Path("System32")
         sysWow = Path(os.environ["WINDIR"]) / Path("SysWOW64")
@@ -54,7 +58,7 @@ class MsklcManager:
         dll_exists = (sys32 / dll_name).exists() or (sysWow / Path(dll_name)).exists()
 
         if dll_exists:
-            print(f"Error: {dll_name} is already installed")
+            print(f"Warning: {dll_name} is already installed")
             return True
 
         if sys.platform != "win32":  # let mypy know this is win32-specific
@@ -236,3 +240,27 @@ class MsklcManager:
         os.chdir(prev)
         self._progress.finish()
         return True
+
+    def install(self) -> bool:
+        self._progress.message = "Installing drivers"
+        arch = platform.machine().lower()
+        valid_archs = ["i386", "amd64", "ia64", "wow64"]
+        if arch not in valid_archs:
+            print(f"Unsupported architecture: {arch}")
+            self._progress.finish()
+            return False
+        os.chdir(self._layout.meta["name8"])
+        msi = f'{self._layout.meta["name8"]}_{arch}.msi'
+        if not Path(msi).exists():
+            print(f"`{msi}` not found")
+            self._progress.finish()
+            return False
+        self._progress.next()
+        flag = "/i"
+        if self._is_already_installed():
+            flag = "/fa"
+        result = subprocess.run(
+            ["msiexec.exe", flag, msi], text=True, capture_output=not self._verbose
+        )
+        self._progress.finish()
+        return result.returncode == 0

@@ -41,12 +41,19 @@ DEFAULT_MSKLC_DIR = "C:\\Program Files (x86)\\Microsoft Keyboard Layout Creator 
     is_flag=True,
     help="Keep shortcuts at their qwerty location",
 )
+@click.option(
+    "--install",
+    "-i",
+    is_flag=True,
+    help="Install/Update the driver if the creation succeeded",
+)
 @click.option("--verbose", "-v", is_flag=True, help="Verbose mode")
 def build(
     layout_descriptors: List[Path],
     angle_mod: bool,
     msklc: Path,
     qwerty_shortcuts: bool,
+    install: bool,
     verbose: bool,
 ) -> None:
     """Convert TOML/YAML descriptions into Windows MSKLC keyboard drivers."""
@@ -56,15 +63,28 @@ def build(
 
     for input_file in layout_descriptors:
         layout = KeyboardLayout(load_layout(input_file), angle_mod, qwerty_shortcuts)
-        msklc_mgr = MsklcManager(layout, msklc, verbose=verbose)
+        msklc_mgr = MsklcManager(layout, msklc, install=install, verbose=verbose)
         if msklc_mgr.build_msklc_installer():
             if msklc_mgr.build_msklc_dll():
                 output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
-                click.echo(
-                    "MSKLC drivers successfully built.\n"
-                    f"Execute `{output_dir}setup.exe` to install.\n"
-                    "Log out and log back in to apply the changes."
-                )
+                if install:
+                    if msklc_mgr.install():
+                        click.echo(
+                            "MSKLC drivers successfully built and installed.\n"
+                            "Log out and log back in to apply the changes."
+                        )
+                    else:
+                        click.echo(
+                            "MSKLC drivers successfully built but failed to installed.\n"
+                            f"Execute `{output_dir}setup.exe` to install manually.\n"
+                            "Log out and log back in to apply the changes."
+                        )
+                else:
+                    click.echo(
+                        "MSKLC drivers successfully built.\n"
+                        f"Execute `{output_dir}setup.exe` to install.\n"
+                        "Log out and log back in to apply the changes."
+                    )
 
 
 @cli.command()
