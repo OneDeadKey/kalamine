@@ -47,6 +47,8 @@ def macos_keymap(layout: "KeyboardLayout") -> List[List[str]]:
         for key_name in LAYER_KEYS:
             if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
                 continue  # these two keys are not supported yet
+            if key_name not in SCAN_CODES['osx']:
+                continue
 
             if key_name.startswith("-"):
                 if output:

@@ -13,6 +13,7 @@ from .utils import (
     LAYER_KEYS,
     ODK_ID,
     Layer,
+    SpecialSymbol,
     load_data,
     text_to_lines,
     upper_key,
@@ -189,6 +190,16 @@ class KeyboardLayout:
                 self._parse_template(
                     text_to_lines(layout_data["altgr"]), rows, Layer.ALTGR
                 )
+
+        # Fill special symbols
+        special_symbols = frozenset(s.value for s in SpecialSymbol)
+        for key in LAYER_KEYS:
+            if base_symbol := self.layers[Layer.BASE].get(key):
+                if base_symbol not in special_symbols:
+                    continue
+                for keys in self.layers.values():
+                    if key not in keys:
+                        keys[key] = base_symbol
 
         # space bar
         spc = SPACEBAR.copy()

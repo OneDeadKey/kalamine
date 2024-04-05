@@ -44,8 +44,10 @@ def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
             output.append("")
             continue
 
-        if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
-            continue  # these two keys are not supported yet
+        # if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+        #     continue  # these two keys are not supported yet
+        if key_name not in SCAN_CODES['klc']:
+            continue
 
         sc = f"SC{SCAN_CODES['klc'][key_name]}"
         for i in (
@@ -89,8 +91,10 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
             output.append("")
             continue
 
-        if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
-            continue  # these two keys are not supported yet
+        # if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+        #     continue  # these two keys are not supported yet
+        if key_name not in SCAN_CODES['klc']:
+            continue
 
         scan_code = SCAN_CODES["klc"][key_name]
         for i in [Layer.BASE, Layer.SHIFT]:

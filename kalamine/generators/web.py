@@ -24,6 +24,8 @@ def raw_json(layout: "KeyboardLayout") -> Dict:
     for key_name in LAYER_KEYS:
         if key_name.startswith("-"):
             continue
+        if key_name not in SCAN_CODES['web']:
+            continue
         chars = list("")
         for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
             if key_name in layout.layers[i]:
@@ -92,6 +94,8 @@ def svg(layout: "KeyboardLayout") -> ET.ElementTree:
 
     for key_name in LAYER_KEYS:
         if key_name.startswith("-"):
+            continue
+        if key_name not in SCAN_CODES['web']:
             continue
 
         level = 0

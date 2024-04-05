@@ -1,6 +1,6 @@
 import pkgutil
 from dataclasses import dataclass
-from enum import IntEnum
+from enum import Enum, IntEnum, unique
 from typing import Dict, List, Optional
 
 import yaml
@@ -66,6 +66,10 @@ def upper_key(letter: Optional[str], blank_if_obvious: bool = True) -> str:
 
     if letter is None:
         return " "
+    
+    special_symbols = {s.value: s.value for s in SpecialSymbol}
+    if letter in special_symbols:
+        return special_symbols[letter]
 
     custom_alpha = {
         "\u00df": "\u1e9e",  # ß ẞ
@@ -108,6 +112,15 @@ for dk in DEAD_KEYS:
 SCAN_CODES = load_data("scan_codes")
 
 ODK_ID = "**"  # must match the value in dead_keys.yaml
+
+@unique
+class SpecialSymbol(Enum):
+    Alt = "⎇"
+    AltGr = "⇮"
+    CapsLock = "⇬"
+    Compose = "⎄"
+    Control = "⎈"
+    Shift = "⇧"
 
 LAYER_KEYS = [
     "- Digits",
@@ -167,4 +180,13 @@ LAYER_KEYS = [
     "lsgt",
     "- Space bar",
     "spce",
+    "menu",
+    "lfsh",
+    "rtsh",
+    "lalt",
+    "ralt",
+    "lctl",
+    "rctl",
+    "muhe",
+    "henk",
 ]

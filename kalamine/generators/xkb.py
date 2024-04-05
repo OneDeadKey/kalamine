@@ -10,9 +10,18 @@ if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
 from ..template import load_tpl, substitute_lines
-from ..utils import DK_INDEX, LAYER_KEYS, ODK_ID, hex_ord, load_data
+from ..utils import DK_INDEX, LAYER_KEYS, ODK_ID, SpecialSymbol, hex_ord, load_data
 
 XKB_KEY_SYM = load_data("key_sym")
+XKB_SPECIAL_KEYSYMS = {
+    SpecialSymbol.Alt.value: "Alt_L",
+    SpecialSymbol.AltGr.value: "ISO_Level3_Shift",
+    SpecialSymbol.CapsLock.value: "Caps_Lock",
+    SpecialSymbol.Compose.value: "Multi_key",
+    SpecialSymbol.Control.value: "Control_L",
+    SpecialSymbol.Shift.value: "Shift_L",
+}
+XKB_KEY_SYM.update(XKB_SPECIAL_KEYSYMS)
 
 
 def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
@@ -57,9 +66,18 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
             descs.append(desc)
             symbols.append(symbol.ljust(max_length))
 
+        key_type = ""
         key = "{{[ {0}, {1}, {2}, {3}]}}"  # 4-level layout by default
         description = "{0} {1} {2} {3}"
-        if layout.has_altgr and layout.has_1dk:
+        if all(s.startswith("VoidSymbol") for s in symbols):
+            continue
+        elif not symbols[0].startswith("VoidSymbol") and all(s == symbols[0] for s in symbols):
+            key = "{{{type}[{0}]}}"
+            description = "{0}"
+            key_type = "ONE_LEVEL"
+            symbols = [symbols[0]]
+            descs = [descs[0]]
+        elif layout.has_altgr and layout.has_1dk:
             # 6 layers are needed: they won't fit on the 4-level format.
             if xkbcomp:  # user-space XKB keymap file (standalone)
                 # standalone XKB files work best with a dual-group solution:
@@ -75,7 +93,9 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
             del descs[3]
             del descs[2]
 
-        line = f"key <{key_name.upper()}> {key.format(*symbols)};"
+        if key_type:
+            key_type = f"""type[Group1] = "{key_type}", """
+        line = f"key <{key_name.upper()}> {key.format(*symbols, type=key_type)};"
         if show_description:
             line += (" // " + description.format(*descs)).rstrip()
             if line.endswith("\\"):

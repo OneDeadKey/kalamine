@@ -107,6 +107,8 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
 
         if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
+        if key_name not in SCAN_CODES['klc']:
+            continue
 
         symbols = []
         description = "//"
@@ -235,6 +237,8 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
 
         if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
+        if key_name not in SCAN_CODES['klc']:
+            continue
 
         symbols = []
         dead_symbols = []

@@ -186,3 +186,9 @@ web:
   ac11: 'Quote'
   ab11: 'IntlRo'
   lsgt: 'IntlBackslash'
+
+  # Other
+  lalt: 'AltLeft'
+  ralt: 'AltRight'
+  muhe: 'NonConvert'
+  henk: 'Convert'
