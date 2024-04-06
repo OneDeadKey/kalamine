@@ -190,10 +190,10 @@ TYPEMATRIX:
     - offset: 2
       keys: [ tab,  ad01, ad02, ad03, ad04, ad05, ad06, ad07, ad08, ad09, ad10, ad11, ad12 ]
     - offset: 2
-      keys: [ lfsh, ac01, ac02, ac03, ac04, ac05, ac06, ac07, ac08, ac09, ac10, ac11 ]
+      keys: [ lfsh, ac01, ac02, ac03, ac04, ac05, ac06, ac07, ac08, ac09, ac10, ac11, rtsh ]
     - offset: 2
-      keys: [ lfsh, ab01, ab02, ab03, ab04, ab05, ab06, ab07, ab08, ab09, ab10, bksl ]
+      keys: [ lfsh, ab01, ab02, ab03, ab04, ab05, ab06, ab07, ab08, ab09, ab10, bksl, rtsh ]
     - offset: 2
-      keys: [ lctl, lsgt, menu, muhe, spce, spce, spce, spce, henk ]
+      keys: [ lctl, lsgt, menu, muhe, spce, xxxx, xxxx, spce, henk ]
     - offset: 20
       keys: [                   lalt, xxxx, xxxx, xxxx, xxxx, ralt ]

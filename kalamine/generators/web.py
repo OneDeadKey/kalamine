@@ -12,7 +12,7 @@ from xml.etree import ElementTree as ET
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
-from ..utils import LAYER_KEYS, ODK_ID, SCAN_CODES, Layer, upper_key
+from ..utils import LAYER_KEYS, ODK_ID, SCAN_CODES, Layer, pretty_upper_key
 
 
 def raw_json(layout: "KeyboardLayout") -> Dict:
@@ -83,7 +83,7 @@ def svg(layout: "KeyboardLayout") -> ET.ElementTree:
         low = layout.layers[lower]
         if key_name not in up or key_name not in low:
             return False
-        return up[key_name] == upper_key(low[key_name], blank_if_obvious=False)
+        return up[key_name] == pretty_upper_key(low[key_name], blank_if_obvious=False)
 
     # Parse the SVG template
     # res = pkgutil.get_data(__package__, "templates/x-keyboard.svg")

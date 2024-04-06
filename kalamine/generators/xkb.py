@@ -10,17 +10,22 @@ if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
 from ..template import load_tpl, substitute_lines
-from ..utils import DK_INDEX, LAYER_KEYS, ODK_ID, SpecialSymbol, hex_ord, load_data
+from ..utils import DK_INDEX, LAYER_KEYS, ODK_ID, SystemSymbol, hex_ord, load_data
 
 XKB_KEY_SYM = load_data("key_sym")
 XKB_SPECIAL_KEYSYMS = {
-    SpecialSymbol.Alt.value: "Alt_L",
-    SpecialSymbol.AltGr.value: "ISO_Level3_Shift",
-    SpecialSymbol.CapsLock.value: "Caps_Lock",
-    SpecialSymbol.Compose.value: "Multi_key",
-    SpecialSymbol.Control.value: "Control_L",
-    SpecialSymbol.Shift.value: "Shift_L",
+    SystemSymbol.Alt.value: "Alt_L",
+    SystemSymbol.AltGr.value: "ISO_Level3_Shift",
+    SystemSymbol.BackSpace.value: "BackSpace",
+    SystemSymbol.CapsLock.value: "Caps_Lock",
+    SystemSymbol.Compose.value: "Multi_key",
+    SystemSymbol.Control.value: "Control_L",
+    SystemSymbol.Escape.value: "Escape",
+    SystemSymbol.Return.value: "Return",
+    SystemSymbol.Shift.value: "Shift_L",
 }
+assert all(s.value in XKB_SPECIAL_KEYSYMS for s in SystemSymbol), \
+       tuple(s for s in SystemSymbol if s.value not in XKB_SPECIAL_KEYSYMS)
 XKB_KEY_SYM.update(XKB_SPECIAL_KEYSYMS)
 
 

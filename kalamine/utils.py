@@ -1,12 +1,13 @@
 import pkgutil
 from dataclasses import dataclass
 from enum import Enum, IntEnum, unique
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Self
 
 import yaml
 
 
 def hex_ord(char: str) -> str:
+    assert len(char) == 1, char
     return hex(ord(char))[2:].zfill(4)
 
 
@@ -47,6 +48,24 @@ class Layer(IntEnum):
     ALTGR = 4
     ALTGR_SHIFT = 5
 
+    @classmethod
+    def parse(cls, raw: str) -> Self | None:
+        match raw.casefold():
+            case "1dk":
+                return cls(cls.ODK)
+            case "1dk_shift":
+                return cls(cls.ODK_SHIFT)
+            case _:
+                for l in cls:
+                    if raw.casefold() == l.name.casefold():
+                        return l
+                    try:
+                        if int(raw, base=10) == l.value:
+                            return l
+                    except:
+                        pass
+                return None
+
     def next(self) -> "Layer":
         """The next layer in the layer ordering."""
         return Layer(int(self) + 1)
@@ -60,16 +79,13 @@ class Layer(IntEnum):
         return self
 
 
-def upper_key(letter: Optional[str], blank_if_obvious: bool = True) -> str:
-    """This is used for presentation purposes: in a key, the upper character
-    becomes blank if it's an obvious uppercase version of the base character."""
-
-    if letter is None:
-        return " "
+def upper_key(letter: Optional[str]) -> Optional[str]:
+    if not letter:
+        return None
     
-    special_symbols = {s.value: s.value for s in SpecialSymbol}
+    special_symbols = {s.value for s in SystemSymbol}
     if letter in special_symbols:
-        return special_symbols[letter]
+        return letter
 
     custom_alpha = {
         "\u00df": "\u1e9e",  # ß ẞ
@@ -81,16 +97,27 @@ def upper_key(letter: Optional[str], blank_if_obvious: bool = True) -> str:
         "\u2191": "\u21d1",  # ↑ ⇑
         "\u2192": "\u21d2",  # → ⇒
         "\u2193": "\u21d3",  # ↓ ⇓
-        "\u00b5": " ",  # µ (to avoid getting `Μ` as uppercase)
+        # FIXME: strange behavior
+        "\u00b5": None,      # µ (to avoid getting `Μ` as uppercase)
     }
     if letter in custom_alpha:
         return custom_alpha[letter]
 
     if len(letter) == 1 and letter.upper() != letter.lower():
         return letter.upper()
+    
+    return None
+
+
+def pretty_upper_key(letter: Optional[str], blank_if_obvious: bool = True) -> str:
+    """This is used for presentation purposes: in a key, the upper character
+    becomes blank if it's an obvious uppercase version of the base character."""
+
+    if (letterʹ := upper_key(letter)) is None:
+        return " "
 
     # dead key or non-letter character
-    return " " if blank_if_obvious else letter
+    return " " if blank_if_obvious else letterʹ
 
 
 @dataclass
@@ -114,13 +141,42 @@ SCAN_CODES = load_data("scan_codes")
 ODK_ID = "**"  # must match the value in dead_keys.yaml
 
 @unique
-class SpecialSymbol(Enum):
+class SystemSymbol(Enum):
     Alt = "⎇"
     AltGr = "⇮"
+    BackSpace = "⌫"
     CapsLock = "⇬"
     Compose = "⎄"
     Control = "⎈"
+    Escape = "⎋"
+    Return = "⏎"
     Shift = "⇧"
+
+@dataclass
+class SpecialSymbolEntry:
+    value: str
+    pretty: str
+
+class SpecialSymbol(Enum):
+    NarrowNoBreakSpace = SpecialSymbolEntry("\u202F", "n⍽")
+    NoBreakSpace = SpecialSymbolEntry("\u00A0", "⍽")
+    Space = SpecialSymbolEntry(" ", "␣")
+
+    @classmethod
+    def parse(cls, raw: str) -> str:
+        for s in cls:
+            if raw == s.value.pretty:
+                return s.value.value
+        else:
+            return raw
+        
+    @classmethod
+    def prettify(cls, raw: str) -> str:
+        for s in cls:
+            if raw == s.value.value:
+                return s.value.pretty
+        else:
+            return raw
 
 LAYER_KEYS = [
     "- Digits",
@@ -189,4 +245,9 @@ LAYER_KEYS = [
     "rctl",
     "muhe",
     "henk",
+    "- Miscellaneous",
+    "i172",
+    "rtrn",
+    "bksp",
+    "esc",
 ]

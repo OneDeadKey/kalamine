@@ -14,8 +14,10 @@ from .utils import (
     ODK_ID,
     Layer,
     SpecialSymbol,
+    SystemSymbol,
     load_data,
     text_to_lines,
+    pretty_upper_key,
     upper_key,
 )
 
@@ -191,21 +193,11 @@ class KeyboardLayout:
                     text_to_lines(layout_data["altgr"]), rows, Layer.ALTGR
                 )
 
-        # Fill special symbols
-        special_symbols = frozenset(s.value for s in SpecialSymbol)
-        for key in LAYER_KEYS:
-            if base_symbol := self.layers[Layer.BASE].get(key):
-                if base_symbol not in special_symbols:
-                    continue
-                for keys in self.layers.values():
-                    if key not in keys:
-                        keys[key] = base_symbol
-
         # space bar
         spc = SPACEBAR.copy()
         if "spacebar" in layout_data:
             for k in layout_data["spacebar"]:
-                spc[k] = layout_data["spacebar"][k]
+                spc[k] = self._parse_value(layout_data["spacebar"][k])
         self.layers[Layer.BASE]["spce"] = " "
         self.layers[Layer.SHIFT]["spce"] = spc["shift"]
         if True or self.has_1dk:  # XXX self.has_1dk is not defined yet
@@ -217,7 +209,49 @@ class KeyboardLayout:
             self.layers[Layer.ALTGR]["spce"] = spc["altgr"]
             self.layers[Layer.ALTGR_SHIFT]["spce"] = spc["altgr_shift"]
 
+        # Extra mapping
+        if mapping := layout_data.get("mapping"):
+            self._parse_mapping(mapping)
+
+        # Fill special symbols
+        special_symbols = frozenset(s.value for s in SystemSymbol)
+        for key in LAYER_KEYS:
+            if base_symbol := self.layers[Layer.BASE].get(key):
+                if base_symbol not in special_symbols:
+                    continue
+                for keys in self.layers.values():
+                    if key not in keys:
+                        keys[key] = base_symbol
+
         self._parse_dead_keys(spc)
+
+    def _parse_value(self, raw: str, strip=False) -> str:
+        return SpecialSymbol.parse(raw.strip() if strip else raw)
+
+    def _parse_mapping(self, mapping: Dict[str, str | Dict[str, str]]):
+        layer: Layer | None
+        for raw_key, levels in mapping.items():
+            # TODO: parse key in various ways (XKB, Linux keycode)
+            if raw_key not in LAYER_KEYS:
+                raise ValueError(f"Unknown key: “{raw_key}”")
+            key = raw_key
+            # Check for key clone
+            if isinstance(levels, str):
+                # Check for clone
+                if levels.startswith("(") and levels.endswith(")"):
+                    if (clone := levels[1:-1]) and clone in LAYER_KEYS:
+                        for layer, keys in self.layers.items():
+                            if value := keys.get(clone):
+                                self.layers[layer][key] = value
+                        continue
+                raise ValueError(f"Unsupported key mapping: {raw_key}: {levels}")
+            for raw_layer, raw_value in levels.items():
+                value = self._parse_value(raw_value)
+                if (layer := Layer.parse(raw_layer)) is None:
+                    raise ValueError(f"Cannot parse layer: “{raw_layer}”")
+                else:
+                    self.layers[layer][key] = value
+
 
     def _parse_dead_keys(self, spc: Dict[str, str]) -> None:
         """Build a deadkey dict."""
@@ -281,29 +315,29 @@ class KeyboardLayout:
             i = row.offset + col_offset
             keys = row.keys
 
-            base = list(template[2 + j * 3])
-            shift = list(template[1 + j * 3])
+            base = template[2 + j * 3]
+            shift = template[1 + j * 3]
 
             for key in keys:
-                base_key = ("*" if base[i - 1] == "*" else "") + base[i]
-                shift_key = ("*" if shift[i - 1] == "*" else "") + shift[i]
+                base_key: Optional[str] = self._parse_value(base[i-1:i+1], strip=True)
+                shift_key: Optional[str] = self._parse_value(shift[i-1:i+1], strip=True)
 
                 # in the BASE layer, if the base character is undefined, shift prevails
-                if base_key == " ":
-                    if layer_number == Layer.BASE:
+                if not base_key:
+                    if layer_number is Layer.BASE and shift_key:
                         base_key = shift_key.lower()
 
                 # in other layers, if the shift character is undefined, base prevails
-                elif shift_key == " ":
-                    if layer_number == Layer.ALTGR:
+                elif not shift_key:
+                    if layer_number is Layer.ALTGR:
                         shift_key = upper_key(base_key)
-                    elif layer_number == Layer.ODK:
+                    elif layer_number is Layer.ODK:
                         shift_key = upper_key(base_key)
                         # shift_key = upper_key(base_key, blank_if_obvious=False)
 
-                if base_key != " ":
+                if base_key:
                     self.layers[layer_number][key] = base_key
-                if shift_key != " ":
+                if shift_key:
                     self.layers[layer_number.next()][key] = shift_key
 
                 for dk in DEAD_KEYS:
@@ -338,33 +372,24 @@ class KeyboardLayout:
             shift = list(template[1 + j * 3])
 
             for key in keys:
+                indexes = slice(i - 1, i + 1)
+
                 base_key = " "
                 if key in self.layers[layer_number]:
-                    base_key = self.layers[layer_number][key]
+                    base_key = SpecialSymbol.prettify(self.layers[layer_number][key])
 
                 shift_key = " "
                 if key in self.layers[layer_number.next()]:
-                    shift_key = self.layers[layer_number.next()][key]
-
-                dead_base = len(base_key) == 2 and base_key[0] == "*"
-                dead_shift = len(shift_key) == 2 and shift_key[0] == "*"
+                    shift_key = SpecialSymbol.prettify(self.layers[layer_number.next()][key])
 
                 if shift_prevails:
-                    shift[i] = shift_key[-1]
-                    if dead_shift:
-                        shift[i - 1] = "*"
-                    if upper_key(base_key) != shift_key:
-                        base[i] = base_key[-1]
-                        if dead_base:
-                            base[i - 1] = "*"
+                    shift[indexes] = shift_key.rjust(2)
+                    if pretty_upper_key(base_key, blank_if_obvious=False) != shift_key:
+                        base[indexes] = base_key.rjust(2)
                 else:
-                    base[i] = base_key[-1]
-                    if dead_base:
-                        base[i - 1] = "*"
-                    if upper_key(base_key) != shift_key:
-                        shift[i] = shift_key[-1]
-                        if dead_shift:
-                            shift[i - 1] = "*"
+                    base[indexes] = base_key.rjust(2)
+                    if pretty_upper_key(base_key, blank_if_obvious=False) != shift_key:
+                        shift[indexes] = shift_key.rjust(2)
 
                 i += 6
 
