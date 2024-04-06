@@ -7,7 +7,10 @@ import yaml
 
 
 def hex_ord(char: str) -> str:
-    assert len(char) == 1, char
+    # assert len(char) == 1, char
+    if len(char) != 1:
+        print(f"ERROR: hex_ord: “{char}”")
+        char = char[0]
     return hex(ord(char))[2:].zfill(4)
 
 
@@ -151,6 +154,14 @@ class SystemSymbol(Enum):
     Escape = "⎋"
     Return = "⏎"
     Shift = "⇧"
+
+    @classmethod
+    def parse(cls, raw: str) -> Self:
+        for s in cls:
+            if raw == s.value:
+                return s
+        else:
+            return None
 
 @dataclass
 class SpecialSymbolEntry:

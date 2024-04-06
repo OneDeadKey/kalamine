@@ -61,13 +61,11 @@ def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
 
     # Linux driver, user-space
     with file_creation_context(".xkb_keymap") as xkb_path:
-        with xkb_path.open("w", encoding="utf-8", newline="\n") as file:
-            file.write(xkb.xkb_keymap(layout))
+        xkb.xkb_write_files(xkb_path, xkb.xkb_keymap(layout))
 
     # Linux driver, root
     with file_creation_context(".xkb_symbols") as xkb_custom_path:
-        with xkb_custom_path.open("w", encoding="utf-8", newline="\n") as file:
-            file.write(xkb.xkb_symbols(layout))
+        xkb.xkb_write_files(xkb_custom_path, xkb.xkb_symbols(layout))
 
     # JSON data
     with file_creation_context(".json") as json_path:
@@ -141,12 +139,10 @@ def build(
                 file.write(keylayout.keylayout(layout))
 
         elif output_file.suffix == ".xkb_keymap":
-            with output_file.open("w", encoding="utf-8", newline="\n") as file:
-                file.write(xkb.xkb_keymap(layout))
+            xkb.xkb_write_files(output_file, xkb.xkb_keymap(layout))
 
         elif output_file.suffix == ".xkb_symbols":
-            with output_file.open("w", encoding="utf-8", newline="\n") as file:
-                file.write(xkb.xkb_symbols(layout))
+            xkb.xkb_write_files(output_file, xkb.xkb_symbols(layout))
 
         elif output_file.suffix == ".json":
             output_file.write_text(web.pretty_json(layout), encoding="utf8")

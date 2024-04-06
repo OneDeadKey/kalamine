@@ -4,7 +4,10 @@ GNU/Linux: XKB
 - xkb symbols/patch for XOrg (system-wide) & Wayland (system-wide/user-space)
 """
 
-from typing import TYPE_CHECKING, List
+from dataclasses import dataclass
+import itertools
+from pathlib import Path
+from typing import TYPE_CHECKING, Dict, Generator, List, Optional
 
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
@@ -28,8 +31,51 @@ assert all(s.value in XKB_SPECIAL_KEYSYMS for s in SystemSymbol), \
        tuple(s for s in SystemSymbol if s.value not in XKB_SPECIAL_KEYSYMS)
 XKB_KEY_SYM.update(XKB_SPECIAL_KEYSYMS)
 
+SPARE_KEYSYMS = (
+    "F20",
+    "F21",
+    "F22",
+    "F23",
+    "F24",
+    "F25",
+    "F26",
+    "F27",
+    "F28",
+    "F29",
+    "F30",
+    "F31",
+    "F32",
+    "F33",
+    "F34",
+    "F35",
+)
 
-def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
+
+@dataclass
+class XKB_Output:
+    symbols: str
+    compose: str
+
+
+def xkb_make_strings(layout: "KeyboardLayout") -> Dict[str, str]:
+    layoutSymbols = layout.symbols
+    forbiden = set(itertools.chain(layoutSymbols.strings, layoutSymbols.deadKeys))
+    spares = list(SPARE_KEYSYMS)
+    mapping = {}
+    for s in layoutSymbols.strings:
+        if len(s) >= 2:
+            # Try to use one of the characters of the string
+            if candidates := tuple((cʹ, keysym) for c in s for cʹ in (c.lower(), c.upper()) if len(cʹ) == 1 and cʹ not in forbiden and (keysym := XKB_KEY_SYM.get(cʹ))):
+                mapping[s] = candidates[0][1]
+                forbiden.add(candidates[0][0])
+            elif spares:
+                mapping[s] = spares.pop(0)
+            else:
+                raise ValueError(f"Cannot encode string: “{s}”")
+    return mapping
+
+
+def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, strings: Optional[Dict[str, str]]=None) -> List[str]:
     """GNU/Linux layout."""
 
     if layout.qwerty_shortcuts:
@@ -39,6 +85,9 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
     eight_level = layout.has_altgr and layout.has_1dk and not xkbcomp
     odk_symbol = "ISO_Level5_Latch" if eight_level else "ISO_Level3_Latch"
     max_length = 16  # `ISO_Level3_Latch` should be the longest symbol name
+
+    if strings is None:
+        strings = {}
 
     output: List[str] = []
     for key_name in LAYER_KEYS:
@@ -54,8 +103,10 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
             if key_name in layer:
                 keysym = layer[key_name]
                 desc = keysym
+                if keysymʹ := strings.get(keysym):
+                    symbol = keysymʹ
                 # dead key?
-                if keysym in DK_INDEX:
+                elif keysym in DK_INDEX:
                     name = DK_INDEX[keysym].name
                     desc = layout.dead_keys[keysym][keysym]
                     symbol = odk_symbol if keysym == ODK_ID else f"dead_{name}"
@@ -110,17 +161,58 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
     return output
 
 
-def xkb_keymap(self) -> str:  # will not work with Wayland
+def xkb_keymap(layout: "KeyboardLayout") -> XKB_Output:  # will not work with Wayland
     """GNU/Linux driver (standalone / user-space)"""
 
-    out = load_tpl(self, ".xkb_keymap")
-    out = substitute_lines(out, "LAYOUT", xkb_table(self, xkbcomp=True))
-    return out
+    strings = xkb_make_strings(layout)
+
+    symbols = load_tpl(layout, ".xkb_keymap")
+    symbols = substitute_lines(symbols, "LAYOUT", xkb_table(layout, xkbcomp=True, strings=strings))
+
+    compose = "\n".join(xcompose(strings)) if strings else ""
+
+    return XKB_Output(symbols, compose)
 
 
-def xkb_symbols(self) -> str:
+def xkb_symbols(layout: "KeyboardLayout") -> XKB_Output:
     """GNU/Linux driver (xkb patch, system or user-space)"""
 
-    out = load_tpl(self, ".xkb_symbols")
-    out = substitute_lines(out, "LAYOUT", xkb_table(self, xkbcomp=False))
-    return out.replace("//#", "//")
+    strings = xkb_make_strings(layout)
+
+    symbols = load_tpl(layout, ".xkb_symbols")
+    symbols = substitute_lines(symbols, "LAYOUT", xkb_table(layout, xkbcomp=False, strings=strings))
+
+    compose = "\n".join(xcompose(strings)) if strings else ""
+    
+    return XKB_Output(symbols.replace("//#", "//"), compose)
+
+
+def escapeString(s: str) -> Generator[str, None, None]:
+    for c in s:
+        if (cp := ord(c)) < 0x20:
+            yield f"\\x{cp:0>2x}"
+        match c:
+            case "\\":
+                yield "\\\\"
+            case "\"":
+                yield "\\\""
+            case _:
+                # FIXME escape all relevant chars
+                yield c
+
+
+def xcompose(strings: Dict[str, str]) -> Generator[str, None, None]:
+    for s, keysym in strings.items():
+        s = "".join(escapeString(s))
+        yield f"<{keysym}> : \"{s}\""
+    yield ""
+
+
+def xkb_write_files(path: Path, result: XKB_Output):
+    with path.open("w", encoding="utf-8", newline="\n") as file:
+        file.write(result.symbols)
+    if result.compose is None:
+        return
+    path = path.with_suffix(".xkb_compose")
+    with path.open("w", encoding="utf-8", newline="\n") as file:
+        file.write(result.compose)

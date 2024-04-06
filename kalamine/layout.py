@@ -125,6 +125,12 @@ GEOMETRY = {
 }
 
 
+@dataclass
+class LayoutSymbols:
+    strings: Set[str]
+    deadKeys: Set[str]
+
+
 ###
 # Main
 #
@@ -408,7 +414,7 @@ class KeyboardLayout:
         for i in layers:
             template = self._fill_template(template, rows, i)
         return template
-
+    
     @property
     def geometry(self) -> str:
         """ANSI, ISO, ERGO."""
@@ -436,3 +442,15 @@ class KeyboardLayout:
     def altgr(self) -> List[str]:
         """AltGr layer only."""
         return self._get_geometry([Layer.ALTGR])
+
+    @property
+    def symbols(self) -> LayoutSymbols:
+        strings = set()
+        deadKeys = set()
+        for levels in self.layers.values():
+            for value in levels.values():
+                if len(value) == 2 and value[0] == "*":
+                    deadKeys.add(value[1])
+                elif SystemSymbol.parse(value) is None:
+                    strings.add(value)
+        return LayoutSymbols(strings, deadKeys)
