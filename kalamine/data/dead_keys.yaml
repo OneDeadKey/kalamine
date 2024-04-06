@@ -31,7 +31,7 @@
 
 - char: '*‟' # there’s no “double grave accent” Unicode character :(
   name: doublegrave
-  base: AaEeIiOoRrUuѴѴ
+  base: AaEeIiOoRrUuѴѵ
   alt:  ȀȁȄȅȈȉȌȍȐȑȔȕѶѷ
   alt_space: '‟'  # U+201F HIGH REVERSED-9 QUOTATION MARK
   alt_self:  '‟'  # U+201F HIGH REVERSED-9 QUOTATION MARK

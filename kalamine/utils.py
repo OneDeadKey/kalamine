@@ -132,10 +132,21 @@ class DeadKeyDescr:
     alt_space: str
     alt_self: str
 
+    @staticmethod
+    def is_dead_key(raw: str) -> bool:
+        return len(raw) == 2 and raw[0] == "*"
+    
+    @staticmethod
+    def parse_dead_key(raw: str) -> Optional[str]:
+        if len(raw) == 2 and raw[0] == "*":
+            return raw
+        else:
+            return None
+
 
 DEAD_KEYS = [DeadKeyDescr(**data) for data in load_data("dead_keys")]
 
-DK_INDEX = {}
+DK_INDEX: Dict[str, DeadKeyDescr] = {}
 for dk in DEAD_KEYS:
     DK_INDEX[dk.char] = dk
 
@@ -156,7 +167,7 @@ class SystemSymbol(Enum):
     Shift = "⇧"
 
     @classmethod
-    def parse(cls, raw: str) -> Self:
+    def parse(cls, raw: str) -> Optional[Self]:
         for s in cls:
             if raw == s.value:
                 return s

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
 from ..template import load_tpl, substitute_lines, substitute_token
-from ..utils import DK_INDEX, LAYER_KEYS, SCAN_CODES, Layer, hex_ord, load_data
+from ..utils import LAYER_KEYS, SCAN_CODES, Layer, hex_ord, load_data
 
 
 # return the corresponding char for a symbol
@@ -181,12 +181,12 @@ def klc_deadkeys(layout: "KeyboardLayout") -> List[str]:
 
     output = []
 
-    for k in DK_INDEX:
+    for k in layout.custom_dead_keys:
         if k not in layout.dead_keys:
             continue
         dk = layout.dead_keys[k]
 
-        output.append(f"// DEADKEY: {DK_INDEX[k].name.upper()} //" + "{{{")
+        output.append(f"// DEADKEY: {layout.custom_dead_keys[k].name.upper()} //" + "{{{")
         output.append(f"DEADKEY\t{hex_ord(dk[' '])}")
 
         for base, alt in dk.items():
@@ -214,11 +214,11 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, dead key index."""
 
     output = []
-    for k in DK_INDEX:
+    for k in layout.custom_dead_keys:
         if k not in layout.dead_keys:
             continue
         dk = layout.dead_keys[k]
-        output.append(f"{hex_ord(dk[' '])}\t\"{DK_INDEX[k].name.upper()}\"")
+        output.append(f"{hex_ord(dk[' '])}\t\"{layout.custom_dead_keys[k].name.upper()}\"")
     return output
 
 
@@ -327,12 +327,12 @@ def c_deadkeys(layout: "KeyboardLayout") -> List[str]:
 
     output = []
 
-    for k in DK_INDEX:
+    for k in layout.custom_dead_keys:
         if k not in layout.dead_keys:
             continue
         dk = layout.dead_keys[k]
 
-        output.append(f"// DEADKEY: {DK_INDEX[k].name.upper()}")
+        output.append(f"// DEADKEY: {layout.custom_dead_keys[k].name.upper()}")
 
         for base, alt in dk.items():
             if base == k and alt in base:
@@ -361,11 +361,11 @@ def c_dk_index(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, dead key index."""
 
     output = []
-    for k in DK_INDEX:
+    for k in layout.custom_dead_keys:
         if k not in layout.dead_keys:
             continue
         term = layout.dead_keys[k][" "]
-        output.append(f'L"\\\\x{hex_ord(term)}"\tL"{DK_INDEX[k].name.upper()}",')
+        output.append(f'L"\\\\x{hex_ord(term)}"\tL"{layout.custom_dead_keys[k].name.upper()}",')
     return output
 
 

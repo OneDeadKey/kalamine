@@ -7,13 +7,13 @@ GNU/Linux: XKB
 from dataclasses import dataclass
 import itertools
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, Generator, List, Optional
+from typing import TYPE_CHECKING, Dict, Generator, List, Optional, Tuple
 
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
 from ..template import load_tpl, substitute_lines
-from ..utils import DK_INDEX, LAYER_KEYS, ODK_ID, SystemSymbol, hex_ord, load_data
+from ..utils import DK_INDEX, LAYER_KEYS, ODK_ID, DeadKeyDescr, SystemSymbol, hex_ord, load_data
 
 XKB_KEY_SYM = load_data("key_sym")
 XKB_SPECIAL_KEYSYMS = {
@@ -50,6 +50,11 @@ SPARE_KEYSYMS = (
     "F35",
 )
 
+@dataclass
+class XKB_Custom_Keysyms:
+    strings: Dict[str, str]
+    deadKeys: Dict[str, str]
+
 
 @dataclass
 class XKB_Output:
@@ -57,25 +62,45 @@ class XKB_Output:
     compose: str
 
 
-def xkb_make_strings(layout: "KeyboardLayout") -> Dict[str, str]:
+def xkb_make_custom_dead_keys_keysyms(layout: "KeyboardLayout") -> XKB_Custom_Keysyms:
     layoutSymbols = layout.symbols
     forbiden = set(itertools.chain(layoutSymbols.strings, layoutSymbols.deadKeys))
     spares = list(SPARE_KEYSYMS)
-    mapping = {}
+    strings = {}
+    deadKeys = {}
     for s in layoutSymbols.strings:
         if len(s) >= 2:
             # Try to use one of the characters of the string
             if candidates := tuple((cʹ, keysym) for c in s for cʹ in (c.lower(), c.upper()) if len(cʹ) == 1 and cʹ not in forbiden and (keysym := XKB_KEY_SYM.get(cʹ))):
-                mapping[s] = candidates[0][1]
+                strings[s] = candidates[0][1]
                 forbiden.add(candidates[0][0])
             elif spares:
-                mapping[s] = spares.pop(0)
+                strings[s] = spares.pop(0)
             else:
                 raise ValueError(f"Cannot encode string: “{s}”")
-    return mapping
+    for c in layoutSymbols.deadKeys:
+        dk = f"*{c}"
+        if dk in DK_INDEX:
+            continue
+        elif c not in forbiden and (keysym := XKB_KEY_SYM.get(c)):
+            deadKeys[dk] = keysym
+            forbiden.add(c)
+        elif spares:
+            deadKeys[dk] = spares.pop(0)
+        else:
+            raise ValueError(f"Cannot encode dead key: “{dk}”")
+
+    return XKB_Custom_Keysyms(strings, deadKeys)
 
 
-def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, strings: Optional[Dict[str, str]]=None) -> List[str]:
+def xkb_keysym(char: str, max_length: Optional[int] = None) -> str:
+    if char in XKB_KEY_SYM and (max_length is None or len(XKB_KEY_SYM[char]) <= max_length):
+        return XKB_KEY_SYM[char]
+    else:
+        return f"U{hex_ord(char).upper()}"
+
+
+def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: Optional[XKB_Custom_Keysyms]=None) -> List[str]:
     """GNU/Linux layout."""
 
     if layout.qwerty_shortcuts:
@@ -86,8 +111,8 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, strings: Optional
     odk_symbol = "ISO_Level5_Latch" if eight_level else "ISO_Level3_Latch"
     max_length = 16  # `ISO_Level3_Latch` should be the longest symbol name
 
-    if strings is None:
-        strings = {}
+    if customDeadKeys is None:
+        customDeadKeys = XKB_Custom_Keysyms({}, {})
 
     output: List[str] = []
     for key_name in LAYER_KEYS:
@@ -103,11 +128,15 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, strings: Optional
             if key_name in layer:
                 keysym = layer[key_name]
                 desc = keysym
-                if keysymʹ := strings.get(keysym):
+                if keysymʹ := customDeadKeys.strings.get(keysym):
                     symbol = keysymʹ
-                # dead key?
+                elif keysymʹ := customDeadKeys.deadKeys.get(keysym):
+                    name = layout.custom_dead_keys[keysym].name
+                    desc = layout.dead_keys[keysym][keysym]
+                    symbol = keysymʹ
+                # predefined dead key?
                 elif keysym in DK_INDEX:
-                    name = DK_INDEX[keysym].name
+                    name = layout.custom_dead_keys[keysym].name
                     desc = layout.dead_keys[keysym][keysym]
                     symbol = odk_symbol if keysym == ODK_ID else f"dead_{name}"
                 # regular key: use a keysym if possible, utf-8 otherwise
@@ -164,12 +193,12 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, strings: Optional
 def xkb_keymap(layout: "KeyboardLayout") -> XKB_Output:  # will not work with Wayland
     """GNU/Linux driver (standalone / user-space)"""
 
-    strings = xkb_make_strings(layout)
+    customDeadKeysKeysyms = xkb_make_custom_dead_keys_keysyms(layout)
 
     symbols = load_tpl(layout, ".xkb_keymap")
-    symbols = substitute_lines(symbols, "LAYOUT", xkb_table(layout, xkbcomp=True, strings=strings))
+    symbols = substitute_lines(symbols, "LAYOUT", xkb_table(layout, xkbcomp=True, customDeadKeys=customDeadKeysKeysyms))
 
-    compose = "\n".join(xcompose(strings)) if strings else ""
+    compose = "\n".join(xcompose(layout, customDeadKeysKeysyms)) if customDeadKeysKeysyms else ""
 
     return XKB_Output(symbols, compose)
 
@@ -177,12 +206,12 @@ def xkb_keymap(layout: "KeyboardLayout") -> XKB_Output:  # will not work with Wa
 def xkb_symbols(layout: "KeyboardLayout") -> XKB_Output:
     """GNU/Linux driver (xkb patch, system or user-space)"""
 
-    strings = xkb_make_strings(layout)
+    customDeadKeysKeysyms = xkb_make_custom_dead_keys_keysyms(layout)
 
     symbols = load_tpl(layout, ".xkb_symbols")
-    symbols = substitute_lines(symbols, "LAYOUT", xkb_table(layout, xkbcomp=False, strings=strings))
+    symbols = substitute_lines(symbols, "LAYOUT", xkb_table(layout, xkbcomp=False, customDeadKeys=customDeadKeysKeysyms))
 
-    compose = "\n".join(xcompose(strings)) if strings else ""
+    compose = "\n".join(xcompose(layout, customDeadKeysKeysyms)) if customDeadKeysKeysyms else ""
     
     return XKB_Output(symbols.replace("//#", "//"), compose)
 
@@ -201,12 +230,45 @@ def escapeString(s: str) -> Generator[str, None, None]:
                 yield c
 
 
-def xcompose(strings: Dict[str, str]) -> Generator[str, None, None]:
-    for s, keysym in strings.items():
+def _compose_sequences(dk: DeadKeyDescr) -> Generator[Tuple[str, str], None, None]:
+    yield from zip(dk.base, dk.alt)
+    yield (dk.char, dk.alt_self)
+    yield (" ", dk.alt_space)
+
+
+def xcompose(layout: "KeyboardLayout", customDeadKeys: XKB_Custom_Keysyms) -> Generator[str, None, None]:
+    # Strings
+    for s, keysym in customDeadKeys.strings.items():
         s = "".join(escapeString(s))
         yield f"<{keysym}> : \"{s}\""
+    # Dead keys sequences
+    for dk in layout.custom_dead_keys.values():
+        if dk.char == ODK_ID:
+            continue
+        # Predefined dk
+        if (dkʹ := DK_INDEX.get(dk.char)):
+            predefined = dict(_compose_sequences(dkʹ))
+        else:
+            predefined = {}
+        # Dead key keysym
+        if (dk_keysym := customDeadKeys.deadKeys.get(dk.char)) is None:
+            # dk_keysym = xkb_keysym(dk.char[-1])
+            dk_keysym = f"dead_{dk.name}"
+        # Sequences
+        for base, result in _compose_sequences(dk):
+            if predefined.get(base) == result:
+                # Skip predefined sequence
+                continue
+            print(dk.name, base, result)
+            # TODO: general chained dead keys?
+            if base == dk.char:
+                base_keysym = dk_keysym
+            else:
+                base_keysym = xkb_keysym(base)
+            result_keysym = xkb_keysym(result)
+            result_string = "".join(escapeString(result))
+            yield f"<{dk_keysym}> <{base_keysym}> : \"{result_string}\" {result_keysym}"
     yield ""
-
 
 def xkb_write_files(path: Path, result: XKB_Output):
     with path.open("w", encoding="utf-8", newline="\n") as file:

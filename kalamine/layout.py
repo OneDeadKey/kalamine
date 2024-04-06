@@ -1,8 +1,9 @@
 import copy
+import itertools
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Type, TypeVar
+from typing import Any, Dict, List, Optional, Set, Type, TypeVar
 
 import click
 import tomli
@@ -10,8 +11,10 @@ import yaml
 
 from .utils import (
     DEAD_KEYS,
+    DK_INDEX,
     LAYER_KEYS,
     ODK_ID,
+    DeadKeyDescr,
     Layer,
     SpecialSymbol,
     SystemSymbol,
@@ -170,6 +173,9 @@ class KeyboardLayout:
         )
         self.meta["fileName"] = self.meta["name8"].lower()
 
+        # Custom dead keys
+        self.custom_dead_keys = self._parse_dead_keys(layout_data.get("dead_keys", {}))
+
         # keyboard layers: self.layers & self.dead_keys
         rows = copy.deepcopy(GEOMETRY[self.meta["geometry"]].rows)
 
@@ -200,6 +206,7 @@ class KeyboardLayout:
                 )
 
         # space bar
+        # FIXME: dead key in space bar?
         spc = SPACEBAR.copy()
         if "spacebar" in layout_data:
             for k in layout_data["spacebar"]:
@@ -229,7 +236,43 @@ class KeyboardLayout:
                     if key not in keys:
                         keys[key] = base_symbol
 
-        self._parse_dead_keys(spc)
+        self._make_dead_keys(spc)
+
+    def _parse_dead_keys(self, raw: Dict[str, Any]) -> Dict[str, DeadKeyDescr]:
+        custom_dead_keys: Dict[str, DeadKeyDescr] = DK_INDEX.copy()
+        for dk_char, definition in raw.items():
+            if dk_char == ODK_ID:
+                raise ValueError("Cannot redefine 1dk")
+            name = definition.get("name")
+            base = definition.get("base")
+            alt = definition.get("alt")
+            alt_space = definition.get("alt_space")
+            alt_self = definition.get("alt_self")
+            if dk := DK_INDEX.get(dk_char):
+                # Redefine existing predefined dead key
+                mapping = dict(zip(dk.base, dk.alt))
+                if base and alt:
+                    mapping.update(dict(zip(base, alt)))
+                custom_dead_keys[dk_char] = DeadKeyDescr(
+                    char=dk_char,
+                    name=name or dk.name,
+                    base="".join(mapping.keys()),
+                    alt="".join(mapping.values()),
+                    alt_space=alt_space or dk.alt_space,
+                    alt_self=alt_self or dk.alt_self
+                )
+            elif not dk_char or not name or not base or not alt or not alt_space or not alt_self:
+                raise ValueError(f"Invalid custom dead key definition: {definition}")
+            else:
+                custom_dead_keys[dk_char] = DeadKeyDescr(
+                    char=dk_char,
+                    name=name,
+                    base=base,
+                    alt=alt,
+                    alt_space=alt_space,
+                    alt_self=alt_self
+                )
+        return custom_dead_keys
 
     def _parse_value(self, raw: str, strip=False) -> str:
         return SpecialSymbol.parse(raw.strip() if strip else raw)
@@ -258,8 +301,7 @@ class KeyboardLayout:
                 else:
                     self.layers[layer][key] = value
 
-
-    def _parse_dead_keys(self, spc: Dict[str, str]) -> None:
+    def _make_dead_keys(self, spc: Dict[str, str]) -> None:
         """Build a deadkey dict."""
 
         def layout_has_char(char: str) -> bool:
@@ -279,7 +321,7 @@ class KeyboardLayout:
                 all_spaces.append(space)
 
         self.dead_keys = {}
-        for dk in DEAD_KEYS:
+        for dk in itertools.chain(DEAD_KEYS, self.custom_dead_keys.values()):
             id = dk.char
             if id not in self.dk_set:
                 continue
@@ -343,12 +385,19 @@ class KeyboardLayout:
 
                 if base_key:
                     self.layers[layer_number][key] = base_key
+                    if DeadKeyDescr.is_dead_key(base_key):
+                        if (base_key in DK_INDEX) or (base_key in self.custom_dead_keys):
+                            self.dk_set.add(base_key)
+                        else:
+                            raise ValueError(f"Undefined dead key: {base_key}")
+
                 if shift_key:
                     self.layers[layer_number.next()][key] = shift_key
-
-                for dk in DEAD_KEYS:
-                    if base_key == dk.char or shift_key == dk.char:
-                        self.dk_set.add(dk.char)
+                    if DeadKeyDescr.is_dead_key(shift_key):
+                        if (shift_key in DK_INDEX) or (shift_key in self.custom_dead_keys):
+                            self.dk_set.add(shift_key)
+                        else:
+                            raise ValueError(f"Undefined dead key: {shift_key}")
 
                 i += 6
             j += 1

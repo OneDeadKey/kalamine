@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
 from ..template import load_tpl, substitute_lines
-from ..utils import DK_INDEX, LAYER_KEYS, SCAN_CODES, Layer, hex_ord
+from ..utils import LAYER_KEYS, SCAN_CODES, Layer, hex_ord
 
 
 def _xml_proof(char: str) -> str:
@@ -62,7 +62,7 @@ def macos_keymap(layout: "KeyboardLayout") -> List[List[str]]:
             if key_name in layer:
                 key = layer[key_name]
                 if key in layout.dead_keys:
-                    symbol = f"dead_{DK_INDEX[key].name}"
+                    symbol = f"dead_{layout.custom_dead_keys[key].name}"
                     final_key = False
                 else:
                     symbol = _xml_proof(key.upper() if caps else key)
@@ -89,7 +89,7 @@ def macos_actions(layout: "KeyboardLayout") -> List[str]:
     def when(state: str, action: str) -> str:
         state_attr = f'state="{state}"'.ljust(18)
         if action in layout.dead_keys:
-            action_attr = f'next="{DK_INDEX[action].name}"'
+            action_attr = f'next="{layout.custom_dead_keys[action].name}"'
         elif action.startswith("dead_"):
             action_attr = f'next="{action[5:]}"'
         else:
@@ -105,12 +105,12 @@ def macos_actions(layout: "KeyboardLayout") -> List[str]:
 
     # dead key definitions
     for key in layout.dead_keys:
-        name = DK_INDEX[key].name
+        name = layout.custom_dead_keys[key].name
         term = layout.dead_keys[key][key]
         ret_actions.append(f'<action id="dead_{name}">')
         ret_actions.append(f'  <when state="none" next="{name}" />')
         if name == "1dk" and term in layout.dead_keys:
-            nested_dk = DK_INDEX[term].name
+            nested_dk = layout.custom_dead_keys[term].name
             ret_actions.append(f'  <when state="1dk" next="{nested_dk}" />')
         ret_actions.append("</action>")
         continue
@@ -133,18 +133,18 @@ def macos_actions(layout: "KeyboardLayout") -> List[str]:
                 continue
 
             actions: List[Tuple[str, str]] = []
-            for k in DK_INDEX:
+            for k in layout.custom_dead_keys:
                 if k in layout.dead_keys:
                     if key in layout.dead_keys[k]:
-                        actions.append((DK_INDEX[k].name, layout.dead_keys[k][key]))
+                        actions.append((layout.custom_dead_keys[k].name, layout.dead_keys[k][key]))
             if actions:
                 append_actions(key_name, _xml_proof(key), actions)
 
     # spacebar actions
     actions = []
-    for k in DK_INDEX:
+    for k in layout.custom_dead_keys:
         if k in layout.dead_keys:
-            actions.append((DK_INDEX[k].name, layout.dead_keys[k][" "]))
+            actions.append((layout.custom_dead_keys[k].name, layout.dead_keys[k][" "]))
     append_actions("spce", "&#x0020;", actions)  # space
     append_actions("spce", "&#x00a0;", actions)  # no-break space
     append_actions("spce", "&#x202f;", actions)  # fine no-break space
@@ -156,11 +156,11 @@ def macos_terminators(layout: "KeyboardLayout") -> List[str]:
     """macOS layout, dead key terminators."""
 
     ret_terminators = []
-    for key in DK_INDEX:
+    for key in layout.custom_dead_keys:
         if key not in layout.dead_keys:
             continue
         dk = layout.dead_keys[key]
-        name = DK_INDEX[key].name
+        name = layout.custom_dead_keys[key].name
         term = dk[key]
         if name == "1dk" and term in layout.dead_keys:
             term = dk[" "]
