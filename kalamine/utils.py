@@ -47,6 +47,24 @@ class Layer(IntEnum):
     ALTGR = 4
     ALTGR_SHIFT = 5
 
+    @classmethod
+    def parse(cls, raw: str) -> Optional["Layer"]:
+        rawʹ = raw.casefold()
+        if rawʹ == "1dk":
+            return cls(cls.ODK)
+        elif rawʹ == "1dk_shift":
+            return cls(cls.ODK_SHIFT)
+        else:
+            for layer in cls:
+                if rawʹ == layer.name.casefold():
+                    return layer
+                try:
+                    if int(raw, base=10) == layer.value:
+                        return layer
+                except ValueError:
+                    pass
+            return None
+
     def next(self) -> "Layer":
         """The next layer in the layer ordering."""
         return Layer(int(self) + 1)
