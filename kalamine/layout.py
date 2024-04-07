@@ -371,7 +371,7 @@ class KeyboardLayout:
     ) -> None:
         """Extract a keyboard layer from a template."""
 
-        col_offset = 0 if layer_number == Layer.BASE else 2
+        col_offset = 0 if layer_number is Layer.BASE else 2
         for j, row in enumerate(rows):
             keys = row.keys
 
@@ -425,7 +425,7 @@ class KeyboardLayout:
 
         if layer_number is None:
             col_offset = 0
-        elif layer_number == Layer.BASE:
+        elif layer_number is Layer.BASE:
             col_offset = 0
             shift_prevails = True
         else:  # AltGr or 1dk
@@ -457,6 +457,13 @@ class KeyboardLayout:
                 shift_key = " "
                 if key in self.layers[layer_number.next()]:
                     shift_key = SpecialSymbol.prettify(self.layers[layer_number.next()][key])
+
+                # Do not display system symbols if they are identical to the first levels
+                if layer_number is not Layer.BASE:
+                    if SystemSymbol.is_system_symbol(base_key) and base_key == self.layers[Layer.BASE].get(key):
+                        base_key = " "
+                    if SystemSymbol.is_system_symbol(shift_key) and shift_key == self.layers[Layer.SHIFT].get(key):
+                        shift_key = " "
 
                 if shift_prevails:
                     shift[indexes] = shift_key.rjust(2)
