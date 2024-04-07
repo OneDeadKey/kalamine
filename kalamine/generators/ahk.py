@@ -6,13 +6,14 @@ FWIW, PKL and EPKL still rely on AHK 1.1, too.
 """
 
 import json
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
+from ..key import KEYS, KeyCategory
 from ..template import load_tpl, substitute_lines
-from ..utils import LAYER_KEYS, SCAN_CODES, Layer, load_data
+from ..utils import Layer, load_data
 
 
 def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
@@ -38,32 +39,34 @@ def ahk_keymap(layout: "KeyboardLayout", altgr: bool = False) -> List[str]:
         return actions
 
     output = []
-    for key_name in LAYER_KEYS:
-        if key_name.startswith("-"):
-            output.append(f"; {key_name[1:]}")
-            output.append("")
-            continue
-
-        # if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+    prev_category: Optional[KeyCategory] = None
+    for key in KEYS.values():
+        # TODO: delete test?
+        # if key.id in ["ae13", "ab11"]:  # ABNT / JIS keys
         #     continue  # these two keys are not supported yet
-        if key_name not in SCAN_CODES['klc']:
+        if key.windows is None:
             continue
 
-        sc = f"SC{SCAN_CODES['klc'][key_name]}"
+        if key.category is not prev_category:
+            output.append(f"; {key.category.description}")
+            output.append("")
+            prev_category = key.category
+
+        sc = f"SC{key.windows}"
         for i in (
             [Layer.ALTGR, Layer.ALTGR_SHIFT] if altgr else [Layer.BASE, Layer.SHIFT]
         ):
             layer = layout.layers[i]
-            if key_name not in layer:
+            if key.id not in layer:
                 continue
 
-            symbol = layer[key_name]
+            symbol = layer[key.id]
             sym = ahk_escape(symbol)
 
             if symbol in layout.dead_keys:
                 actions = {sym: layout.dead_keys[symbol][symbol]}
-            elif key_name == "spce":
-                actions = ahk_actions(key_name)
+            elif key.id == "spce":
+                actions = ahk_actions(key.id)
             else:
                 actions = ahk_actions(symbol)
 
@@ -85,24 +88,25 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
     qwerty_vk = load_data("qwerty_vk")
 
     output = []
-    for key_name in LAYER_KEYS:
-        if key_name.startswith("-"):
-            output.append(f"; {key_name[1:]}")
-            output.append("")
-            continue
-
+    prev_category: Optional[KeyCategory] = None
+    for key in KEYS.values():
         # if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
         #     continue  # these two keys are not supported yet
-        if key_name not in SCAN_CODES['klc']:
+        if key.windows is None:
             continue
 
-        scan_code = SCAN_CODES["klc"][key_name]
+        if key.category is not prev_category:
+            output.append(f"; {key.category.description}")
+            output.append("")
+            prev_category = key.category
+
+        scan_code = key.windows
         for i in [Layer.BASE, Layer.SHIFT]:
             layer = layout.layers[i]
-            if key_name not in layer:
+            if key.id not in layer:
                 continue
 
-            symbol = layer[key_name]
+            symbol = layer[key.id]
             if layout.qwerty_shortcuts:
                 symbol = qwerty_vk[scan_code]
             if symbol in enabled:

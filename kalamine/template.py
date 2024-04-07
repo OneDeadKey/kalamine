@@ -9,9 +9,6 @@ if TYPE_CHECKING:
     from .layout import KeyboardLayout
 
 
-SCAN_CODES = load_data("scan_codes")
-
-
 def substitute_lines(text: str, variable: str, lines: List[str]) -> str:
     prefix = "KALAMINE::"
     exp = re.compile(".*" + prefix + variable + ".*")

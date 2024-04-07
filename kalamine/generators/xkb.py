@@ -12,24 +12,37 @@ from typing import TYPE_CHECKING, Dict, Generator, List, Optional, Tuple
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
+from ..key import KEYS, Hand, KeyCategory
 from ..template import load_tpl, substitute_lines
-from ..utils import DK_INDEX, LAYER_KEYS, ODK_ID, DeadKeyDescr, SystemSymbol, hex_ord, load_data
+from ..utils import DK_INDEX, ODK_ID, DeadKeyDescr, SystemSymbol, hex_ord, load_data
 
 XKB_KEY_SYM = load_data("key_sym")
 XKB_SPECIAL_KEYSYMS = {
-    SystemSymbol.Alt.value: "Alt_L",
-    SystemSymbol.AltGr.value: "ISO_Level3_Shift",
-    SystemSymbol.BackSpace.value: "BackSpace",
-    SystemSymbol.CapsLock.value: "Caps_Lock",
-    SystemSymbol.Compose.value: "Multi_key",
-    SystemSymbol.Control.value: "Control_L",
-    SystemSymbol.Escape.value: "Escape",
-    SystemSymbol.Return.value: "Return",
-    SystemSymbol.Shift.value: "Shift_L",
+    SystemSymbol.Alt.value: {Hand.Left: "Alt_L", Hand.Right: "Alt_R"},
+    SystemSymbol.AltGr.value: {Hand.Left: "ISO_Level3_Shift"},
+    SystemSymbol.BackSpace.value: {Hand.Left: "BackSpace"},
+    SystemSymbol.CapsLock.value: {Hand.Left: "Caps_Lock"},
+    SystemSymbol.Compose.value: {Hand.Left: "Multi_key"},
+    SystemSymbol.Control.value: {Hand.Left: "Control_L", Hand.Right: "Control_R"},
+    SystemSymbol.Escape.value: {Hand.Left: "Escape"},
+    SystemSymbol.Return.value: {Hand.Left: "Return"},
+    SystemSymbol.Shift.value: {Hand.Left: "Shift_L", Hand.Right: "Shift_R"},
 }
 assert all(s.value in XKB_SPECIAL_KEYSYMS for s in SystemSymbol), \
        tuple(s for s in SystemSymbol if s.value not in XKB_SPECIAL_KEYSYMS)
-XKB_KEY_SYM.update(XKB_SPECIAL_KEYSYMS)
+
+def xkb_keysym(char: str, max_length: Optional[int] = None, hand: Optional[Hand]=None) -> str:
+    if char in XKB_SPECIAL_KEYSYMS:
+        keysyms = XKB_SPECIAL_KEYSYMS[char]
+        if hand in keysyms:
+            return keysyms[hand]
+        else:
+            return keysyms[Hand.Left]
+    elif char in XKB_KEY_SYM and (max_length is None or len(XKB_KEY_SYM[char]) <= max_length):
+        return XKB_KEY_SYM[char]
+    else:
+        return f"U{hex_ord(char).upper()}"
+
 
 SPARE_KEYSYMS = (
     "F20",
@@ -71,7 +84,13 @@ def xkb_make_custom_dead_keys_keysyms(layout: "KeyboardLayout") -> XKB_Custom_Ke
     for s in layoutSymbols.strings:
         if len(s) >= 2:
             # Try to use one of the characters of the string
-            if candidates := tuple((cʹ, keysym) for c in s for cʹ in (c.lower(), c.upper()) if len(cʹ) == 1 and cʹ not in forbiden and (keysym := XKB_KEY_SYM.get(cʹ))):
+            candidates = tuple(
+                (cʹ, keysym) 
+                for c in s
+                for cʹ in (c.lower(), c.upper())
+                if len(cʹ) == 1 and cʹ not in forbiden and (keysym := XKB_KEY_SYM.get(cʹ))
+            )
+            if candidates:
                 strings[s] = candidates[0][1]
                 forbiden.add(candidates[0][0])
             elif spares:
@@ -93,13 +112,6 @@ def xkb_make_custom_dead_keys_keysyms(layout: "KeyboardLayout") -> XKB_Custom_Ke
     return XKB_Custom_Keysyms(strings, deadKeys)
 
 
-def xkb_keysym(char: str, max_length: Optional[int] = None) -> str:
-    if char in XKB_KEY_SYM and (max_length is None or len(XKB_KEY_SYM[char]) <= max_length):
-        return XKB_KEY_SYM[char]
-    else:
-        return f"U{hex_ord(char).upper()}"
-
-
 def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: Optional[XKB_Custom_Keysyms]=None) -> List[str]:
     """GNU/Linux layout."""
 
@@ -115,18 +127,19 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
         customDeadKeys = XKB_Custom_Keysyms({}, {})
 
     output: List[str] = []
-    for key_name in LAYER_KEYS:
-        if key_name.startswith("-"):  # separator
+    prev_category: Optional[KeyCategory] = None
+    for key in KEYS.values():
+        if key.category is not prev_category:
             if output:
                 output.append("")
-            output.append("//" + key_name[1:])
-            continue
+            output.append("// " + key.category.description)
+            prev_category = key.category
 
         descs = []
         symbols = []
         for layer in layout.layers.values():
-            if key_name in layer:
-                keysym = layer[key_name]
+            if key.id in layer:
+                keysym = layer[key.id]
                 desc = keysym
                 if keysymʹ := customDeadKeys.strings.get(keysym):
                     symbol = keysymʹ
@@ -140,10 +153,8 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
                     desc = layout.dead_keys[keysym][keysym]
                     symbol = odk_symbol if keysym == ODK_ID else f"dead_{name}"
                 # regular key: use a keysym if possible, utf-8 otherwise
-                elif keysym in XKB_KEY_SYM and len(XKB_KEY_SYM[keysym]) <= max_length:
-                    symbol = XKB_KEY_SYM[keysym]
                 else:
-                    symbol = f"U{hex_ord(keysym).upper()}"
+                    symbol = xkb_keysym(keysym, max_length=max_length, hand=key.hand)
             else:
                 desc = " "
                 symbol = "VoidSymbol"
@@ -152,12 +163,12 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
             symbols.append(symbol.ljust(max_length))
 
         key_type = ""
-        key = "{{[ {0}, {1}, {2}, {3}]}}"  # 4-level layout by default
+        key_template = "{{[ {0}, {1}, {2}, {3}]}}"  # 4-level layout by default
         description = "{0} {1} {2} {3}"
         if all(s.startswith("VoidSymbol") for s in symbols):
             continue
         elif not symbols[0].startswith("VoidSymbol") and all(s == symbols[0] for s in symbols):
-            key = "{{{type}[{0}]}}"
+            key_template = "{{{type}[{0}]}}"
             description = "{0}"
             key_type = "ONE_LEVEL"
             symbols = [symbols[0]]
@@ -167,10 +178,10 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
             if xkbcomp:  # user-space XKB keymap file (standalone)
                 # standalone XKB files work best with a dual-group solution:
                 # one 4-level group for base+1dk, one two-level group for AltGr
-                key = "{{[ {}, {}, {}, {}],[ {}, {}]}}"
+                key_template = "{{[ {}, {}, {}, {}],[ {}, {}]}}"
                 description = "{} {} {} {} {} {}"
             else:  # eight_level XKB symbols (Neo-like)
-                key = "{{[ {0}, {1}, {4}, {5}, {2}, {3}]}}"
+                key_template = "{{[ {0}, {1}, {4}, {5}, {2}, {3}]}}"
                 description = "{0} {1} {4} {5} {2} {3}"
         elif layout.has_altgr:
             del symbols[3]
@@ -180,7 +191,7 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
 
         if key_type:
             key_type = f"""type[Group1] = "{key_type}", """
-        line = f"key <{key_name.upper()}> {key.format(*symbols, type=key_type)};"
+        line = f"key <{key.xkb.upper()}> {key_template.format(*symbols, type=key_type)};"
         if show_description:
             line += (" // " + description.format(*descs)).rstrip()
             if line.endswith("\\"):
@@ -238,7 +249,7 @@ def _compose_sequences(dk: DeadKeyDescr) -> Generator[Tuple[str, str], None, Non
 
 def xcompose(layout: "KeyboardLayout", customDeadKeys: XKB_Custom_Keysyms) -> Generator[str, None, None]:
     # Strings
-    for s, keysym in customDeadKeys.strings.items():
+    for s, keysym in sorted(customDeadKeys.strings.items(), key=lambda x: x[1]):
         s = "".join(escapeString(s))
         yield f"<{keysym}> : \"{s}\""
     # Dead keys sequences

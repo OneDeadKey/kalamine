@@ -1,8 +1,9 @@
 from pathlib import Path
 from typing import Dict, List
 
+from kalamine.key import KEYS
+
 from .layout import KeyboardLayout
-from .template import SCAN_CODES
 from .utils import Layer, load_data
 
 SEPARATOR = (
@@ -93,10 +94,10 @@ def dummy_layout(
     layout.geometry = geometry
 
     # ensure there is no empty keys (XXX maybe this should be in layout.py)
-    for key in SCAN_CODES["web"].keys():
-        if key not in layout.layers[Layer.BASE].keys():
-            layout.layers[Layer.BASE][key] = "\\"
-            layout.layers[Layer.SHIFT][key] = "|"
+    for key_ in KEYS.values():
+        if key_.alphanum and key_.id not in layout.layers[Layer.BASE].keys():
+            layout.layers[Layer.BASE][key_.id] = "\\"
+            layout.layers[Layer.SHIFT][key_.id] = "|"
 
     return layout
 

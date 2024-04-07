@@ -13,11 +13,13 @@ because they are not recognized by KBDEdit (as of v19.8.0).
 import re
 from typing import TYPE_CHECKING, List
 
+
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
+from ..key import KEYS
 from ..template import load_tpl, substitute_lines, substitute_token
-from ..utils import LAYER_KEYS, SCAN_CODES, Layer, hex_ord, load_data
+from ..utils import Layer, hex_ord, load_data
 
 
 # return the corresponding char for a symbol
@@ -101,13 +103,11 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     output = []
     qwerty_vk = load_data("qwerty_vk")
 
-    for key_name in LAYER_KEYS:
-        if key_name.startswith("-"):
-            continue
-
-        if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+    for key in KEYS.values():
+        if key.id in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
-        if key_name not in SCAN_CODES['klc']:
+        if key.windows is None:
+            # TODO: warning
             continue
 
         symbols = []
@@ -117,8 +117,8 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
         for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
             layer = layout.layers[i]
 
-            if key_name in layer:
-                symbol = layer[key_name]
+            if key.id in layer:
+                symbol = layer[key.id]
                 desc = symbol
                 if symbol in layout.dead_keys:
                     desc = layout.dead_keys[symbol][" "]
@@ -134,7 +134,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbols.append("-1")
             description += " " + desc
 
-        scan_code = SCAN_CODES["klc"][key_name]
+        scan_code = key.windows
 
         virtual_key = qwerty_vk[scan_code]
         if not layout.qwerty_shortcuts:
@@ -231,13 +231,11 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
     global oem_idx
     oem_idx = 0  # Python trick to do equivalent of C static variable
     output = []
-    for key_name in LAYER_KEYS:
-        if key_name.startswith("-"):
-            continue
-
-        if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+    for key in KEYS.values():
+        if key.id in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
-        if key_name not in SCAN_CODES['klc']:
+        if key.windows is None:
+            # TODO: warning
             continue
 
         symbols = []
@@ -248,8 +246,8 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
         for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
             layer = layout.layers[i]
 
-            if key_name in layer:
-                symbol = layer[key_name]
+            if key.id in layer:
+                symbol = layer[key.id]
                 desc = symbol
                 dead = "WCH_NONE"
                 if symbol in layout.dead_keys:
@@ -269,7 +267,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbols.append("WCH_NONE")
                 dead_symbols.append("WCH_NONE")
 
-        scan_code = SCAN_CODES["klc"][key_name]
+        scan_code = key.windows
 
         virtual_key = qwerty_vk[scan_code]
         if not layout.qwerty_shortcuts:

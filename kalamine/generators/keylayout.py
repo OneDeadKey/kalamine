@@ -3,13 +3,14 @@ macOS: keylayout output
 https://developer.apple.com/library/content/technotes/tn2056/
 """
 
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple
 
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
+from ..key import KEYS, KeyCategory
 from ..template import load_tpl, substitute_lines
-from ..utils import LAYER_KEYS, SCAN_CODES, Layer, hex_ord
+from ..utils import Layer, hex_ord
 
 
 def _xml_proof(char: str) -> str:
@@ -44,37 +45,39 @@ def macos_keymap(layout: "KeyboardLayout") -> List[List[str]]:
             return False
 
         output: List[str] = []
-        for key_name in LAYER_KEYS:
-            if key_name in ["ae13", "ab11"]:  # ABNT / JIS keys
+        prev_category: Optional[KeyCategory] = None
+        for key in KEYS.values():
+            # TODO: remove test and use only next?
+            if key.id in ["ae13", "ab11"]:  # ABNT / JIS keys
                 continue  # these two keys are not supported yet
-            if key_name not in SCAN_CODES['osx']:
+            if key.macos is None:
                 continue
 
-            if key_name.startswith("-"):
+            if key.category is not prev_category:
                 if output:
                     output.append("")
-                output.append("<!--" + key_name[1:] + " -->")
-                continue
+                output.append("<!-- " + key.category.description + " -->")
+                prev_category = key.category
 
             symbol = "&#x0010;"
             final_key = True
 
-            if key_name in layer:
-                key = layer[key_name]
-                if key in layout.dead_keys:
-                    symbol = f"dead_{layout.custom_dead_keys[key].name}"
+            if key.id in layer:
+                value = layer[key.id]
+                if value in layout.dead_keys:
+                    symbol = f"dead_{layout.custom_dead_keys[value].name}"
                     final_key = False
                 else:
-                    symbol = _xml_proof(key.upper() if caps else key)
-                    final_key = not has_dead_keys(key.upper())
+                    symbol = _xml_proof(value.upper() if caps else value)
+                    final_key = not has_dead_keys(value.upper())
 
-            char = f"code=\"{SCAN_CODES['osx'][key_name]}\"".ljust(10)
+            char = f"code=\"{key.macos}\"".ljust(10)
             if final_key:
                 action = f'output="{symbol}"'
             elif symbol.startswith("dead_"):
                 action = f'action="{_xml_proof_id(symbol)}"'
             else:
-                action = f'action="{key_name}_{_xml_proof_id(symbol)}"'
+                action = f'action="{key.id}_{_xml_proof_id(symbol)}"'
             output.append(f"<key {char} {action} />")
 
         ret_str.append(output)
@@ -96,17 +99,17 @@ def macos_actions(layout: "KeyboardLayout") -> List[str]:
             action_attr = f'output="{_xml_proof(action)}"'
         return f"  <when {state_attr} {action_attr} />"
 
-    def append_actions(key: str, symbol: str, actions: List[Tuple[str, str]]) -> None:
-        ret_actions.append(f'<action id="{key}_{_xml_proof_id(symbol)}">')
+    def append_actions(id: str, symbol: str, actions: List[Tuple[str, str]]) -> None:
+        ret_actions.append(f'<action id="{id}_{_xml_proof_id(symbol)}">')
         ret_actions.append(when("none", symbol))
         for state, out in actions:
             ret_actions.append(when(state, out))
         ret_actions.append("</action>")
 
     # dead key definitions
-    for key in layout.dead_keys:
-        name = layout.custom_dead_keys[key].name
-        term = layout.dead_keys[key][key]
+    for dk in layout.dead_keys:
+        name = layout.custom_dead_keys[dk].name
+        term = layout.dead_keys[dk][dk]
         ret_actions.append(f'<action id="dead_{name}">')
         ret_actions.append(f'  <when state="none" next="{name}" />')
         if name == "1dk" and term in layout.dead_keys:
@@ -116,29 +119,30 @@ def macos_actions(layout: "KeyboardLayout") -> List[str]:
         continue
 
     # normal key actions
-    for key_name in LAYER_KEYS:
-        if key_name.startswith("-"):
+    prev_category: Optional[KeyCategory] = None
+    for key in KEYS.values():
+        if key.category is not prev_category:
             ret_actions.append("")
-            ret_actions.append(f"<!--{key_name[1:]} -->")
-            continue
+            ret_actions.append(f"<!-- {key.category.description} -->")
+            prev_category = key.category
 
         for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
-            if key_name == "spce" or key_name not in layout.layers[i]:
+            if key.id == "spce" or key.id not in layout.layers[i]:
                 continue
 
-            key = layout.layers[i][key_name]
-            if i and key == layout.layers[Layer.BASE][key_name]:
+            value = layout.layers[i][key.id]
+            if i and value == layout.layers[Layer.BASE][key.id]:
                 continue
-            if key in layout.dead_keys:
+            if value in layout.dead_keys:
                 continue
 
             actions: List[Tuple[str, str]] = []
             for k in layout.custom_dead_keys:
                 if k in layout.dead_keys:
-                    if key in layout.dead_keys[k]:
-                        actions.append((layout.custom_dead_keys[k].name, layout.dead_keys[k][key]))
+                    if value in layout.dead_keys[k]:
+                        actions.append((layout.custom_dead_keys[k].name, layout.dead_keys[k][value]))
             if actions:
-                append_actions(key_name, _xml_proof(key), actions)
+                append_actions(key.id, _xml_proof(value), actions)
 
     # spacebar actions
     actions = []

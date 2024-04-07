@@ -9,10 +9,10 @@ import click
 import tomli
 import yaml
 
+from .key import KEYS
 from .utils import (
     DEAD_KEYS,
     DK_INDEX,
-    LAYER_KEYS,
     ODK_ID,
     DeadKeyDescr,
     Layer,
@@ -228,13 +228,13 @@ class KeyboardLayout:
 
         # Fill special symbols
         special_symbols = frozenset(s.value for s in SystemSymbol)
-        for key in LAYER_KEYS:
-            if base_symbol := self.layers[Layer.BASE].get(key):
+        for key in KEYS.values():
+            if base_symbol := self.layers[Layer.BASE].get(key.id):
                 if base_symbol not in special_symbols:
                     continue
                 for keys in self.layers.values():
-                    if key not in keys:
-                        keys[key] = base_symbol
+                    if key.id not in keys:
+                        keys[key.id] = base_symbol
 
         self._make_dead_keys(spc)
 
@@ -281,14 +281,14 @@ class KeyboardLayout:
         layer: Layer | None
         for raw_key, levels in mapping.items():
             # TODO: parse key in various ways (XKB, Linux keycode)
-            if raw_key not in LAYER_KEYS:
+            if raw_key not in KEYS:
                 raise ValueError(f"Unknown key: “{raw_key}”")
             key = raw_key
             # Check for key clone
             if isinstance(levels, str):
                 # Check for clone
                 if levels.startswith("(") and levels.endswith(")"):
-                    if (clone := levels[1:-1]) and clone in LAYER_KEYS:
+                    if (clone := levels[1:-1]) and clone in KEYS:
                         for layer, keys in self.layers.items():
                             if value := keys.get(clone):
                                 self.layers[layer][key] = value
@@ -332,9 +332,7 @@ class KeyboardLayout:
 
             if id == ODK_ID:
                 self.has_1dk = True
-                for key_name in LAYER_KEYS:
-                    if key_name.startswith("-"):
-                        continue
+                for key_name in KEYS:
                     for layer in [Layer.ODK_SHIFT, Layer.ODK]:
                         if key_name in self.layers[layer]:
                             deadkey[self.layers[layer.necromance()][key_name]] = (
