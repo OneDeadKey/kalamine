@@ -97,16 +97,17 @@ def svg(layout: "KeyboardLayout") -> ET.ElementTree:
             # TODO: warning
             continue
 
-        level = 0
-        for i in [
-            Layer.BASE,
-            Layer.SHIFT,
-            Layer.ALTGR,
-            Layer.ALTGR_SHIFT,
-            Layer.ODK,
-            Layer.ODK_SHIFT,
-        ]:
-            level += 1
+        for level, i in enumerate(
+            (
+                Layer.BASE,
+                Layer.SHIFT,
+                Layer.ALTGR,
+                Layer.ALTGR_SHIFT,
+                Layer.ODK,
+                Layer.ODK_SHIFT,
+            ),
+            start=1,
+        ):
             if key.id not in layout.layers[i]:
                 continue
             if level == 1 and same_symbol(key.id, Layer.BASE, Layer.SHIFT):
