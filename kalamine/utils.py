@@ -85,7 +85,7 @@ class Layer(IntEnum):
 def upper_key(letter: Optional[str]) -> Optional[str]:
     if not letter:
         return None
-    
+
     special_symbols = {s.value for s in SystemSymbol}
     if letter in special_symbols:
         return letter
@@ -108,7 +108,7 @@ def upper_key(letter: Optional[str]) -> Optional[str]:
 
     if len(letter) == 1 and letter.upper() != letter.lower():
         return letter.upper()
-    
+
     return None
 
 
@@ -117,10 +117,10 @@ def pretty_upper_key(letter: Optional[str], blank_if_obvious: bool = True) -> st
     becomes blank if it's an obvious uppercase version of the base character."""
 
     if (letterʹ := upper_key(letter)) is None:
-        return " "
+        return "" if blank_if_obvious else (letter or "")
 
     # dead key or non-letter character
-    return " " if blank_if_obvious else letterʹ
+    return "" if blank_if_obvious else letterʹ
 
 
 @dataclass
@@ -135,7 +135,7 @@ class DeadKeyDescr:
     @staticmethod
     def is_dead_key(raw: str) -> bool:
         return len(raw) == 2 and raw[0] == "*"
-    
+
     @staticmethod
     def parse_dead_key(raw: str) -> Optional[str]:
         if len(raw) == 2 and raw[0] == "*":
@@ -189,7 +189,7 @@ class SpecialSymbol(Enum):
                 return s.value.value
         else:
             return raw
-        
+
     @classmethod
     def prettify(cls, raw: str) -> str:
         for s in cls:

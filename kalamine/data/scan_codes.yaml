@@ -325,8 +325,8 @@ InputMethod:
 - xkb: "henk"
   web: "Convert"
   windows: null
-  macos: Right
-  hand: null
+  macos: null
+  hand: Right
 # Miscellaneous
 Miscellaneous:
 - xkb: "i172"

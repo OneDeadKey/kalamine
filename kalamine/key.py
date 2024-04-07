@@ -40,7 +40,7 @@ class KeyCategory(Flag):
                 return kc
         else:
             raise ValueError(f"Cannot parse key category: “{raw}”")
-    
+
     @property
     def description(self) -> str:
         match self:
@@ -85,7 +85,7 @@ class Key:
             for category, keys in data.items()
             for key in (cls.parse(category=category, **entry) for entry in keys)
         }
-    
+
     @classmethod
     def parse(cls, category: str, xkb: str, web: Optional[str], windows: Optional[str], macos: Optional[str], hand: Optional[str]) -> Self:
         return cls(
@@ -100,7 +100,7 @@ class Key:
     @property
     def id(self) -> str:
         return self.xkb
-    
+
     @property
     def alphanum(self) -> bool:
         return bool(self.category & KeyCategory.AlphaNum)

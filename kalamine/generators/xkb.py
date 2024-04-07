@@ -99,7 +99,7 @@ def xkb_make_custom_dead_keys_keysyms(layout: "KeyboardLayout") -> XKB_Custom_Ke
         if len(s) >= 2:
             # Try to use one of the characters of the string
             candidates = tuple(
-                (cʹ, keysym) 
+                (cʹ, keysym)
                 for c in s
                 for cʹ in (c.lower(), c.upper())
                 if len(cʹ) == 1 and cʹ not in forbiden and (keysym := XKB_KEY_SYM.get(cʹ))
@@ -143,14 +143,9 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
     output: List[str] = []
     prev_category: Optional[KeyCategory] = None
     for key in KEYS.values():
-        if key.category is not prev_category:
-            if output:
-                output.append("")
-            output.append("// " + key.category.description)
-            prev_category = key.category
-
         descs = []
         symbols = []
+        defined = False
         for layer in layout.layers.values():
             if key.id in layer:
                 keysym = layer[key.id]
@@ -169,6 +164,7 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
                 # regular key: use a keysym if possible, utf-8 otherwise
                 else:
                     symbol = xkb_keysym(keysym, max_length=max_length, hand=key.hand)
+                defined = True
             else:
                 desc = " "
                 symbol = "VoidSymbol"
@@ -176,12 +172,19 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
             descs.append(desc)
             symbols.append(symbol.ljust(max_length))
 
+        if not symbols or not defined:
+            continue
+
+        if key.category is not prev_category:
+            if output:
+                output.append("")
+            output.append("// " + key.category.description)
+            prev_category = key.category
+
         key_type = ""
         key_template = "{{[ {0}, {1}, {2}, {3}]}}"  # 4-level layout by default
         description = "{0} {1} {2} {3}"
-        if all(s.startswith("VoidSymbol") for s in symbols):
-            continue
-        elif not symbols[0].startswith("VoidSymbol") and all(s == symbols[0] for s in symbols):
+        if not symbols[0].startswith("VoidSymbol") and all(s == symbols[0] for s in symbols):
             key_template = "{{{type}[{0}]}}"
             description = "{0}"
             key_type = "ONE_LEVEL"
@@ -237,7 +240,7 @@ def xkb_symbols(layout: "KeyboardLayout") -> XKB_Output:
     symbols = substitute_lines(symbols, "LAYOUT", xkb_table(layout, xkbcomp=False, customDeadKeys=customDeadKeysKeysyms))
 
     compose = "\n".join(xcompose(layout, customDeadKeysKeysyms)) if customDeadKeysKeysyms else ""
-    
+
     return XKB_Output(symbols.replace("//#", "//"), compose)
 
 
@@ -298,7 +301,7 @@ def xcompose(layout: "KeyboardLayout", customDeadKeys: XKB_Custom_Keysyms) -> Ge
 def xkb_write_files(path: Path, result: XKB_Output):
     with path.open("w", encoding="utf-8", newline="\n") as file:
         file.write(result.symbols)
-    if result.compose is None:
+    if not result.compose:
         return
     path = path.with_suffix(".xkb_compose")
     with path.open("w", encoding="utf-8", newline="\n") as file:

@@ -121,6 +121,9 @@ def macos_actions(layout: "KeyboardLayout") -> List[str]:
     # normal key actions
     prev_category: Optional[KeyCategory] = None
     for key in KEYS.values():
+        if key.macos is None:
+            continue
+
         if key.category is not prev_category:
             ret_actions.append("")
             ret_actions.append(f"<!-- {key.category.description} -->")

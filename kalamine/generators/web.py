@@ -9,7 +9,6 @@ import pkgutil
 from typing import TYPE_CHECKING, Dict, List, Optional
 from xml.etree import ElementTree as ET
 
-
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
@@ -82,9 +81,8 @@ def svg(layout: "KeyboardLayout") -> ET.ElementTree:
     def same_symbol(key_name: str, lower: Layer, upper: Layer):
         up = layout.layers[upper]
         low = layout.layers[lower]
-        if key_name not in up or key_name not in low:
-            return False
-        return up[key_name] == pretty_upper_key(low[key_name], blank_if_obvious=False)
+        return key_name in up and key_name in low and \
+               up[key_name] == pretty_upper_key(low[key_name], blank_if_obvious=False)
 
     # Parse the SVG template
     # res = pkgutil.get_data(__package__, "templates/x-keyboard.svg")
@@ -98,16 +96,14 @@ def svg(layout: "KeyboardLayout") -> ET.ElementTree:
             # TODO: warning
             continue
 
-        level = 0
-        for i in [
+        for level, i in enumerate((
             Layer.BASE,
             Layer.SHIFT,
             Layer.ALTGR,
             Layer.ALTGR_SHIFT,
             Layer.ODK,
             Layer.ODK_SHIFT,
-        ]:
-            level += 1
+        ), start=1):
             if key.id not in layout.layers[i]:
                 continue
             if level == 1 and same_symbol(key.id, Layer.BASE, Layer.SHIFT):

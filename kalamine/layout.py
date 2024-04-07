@@ -224,7 +224,7 @@ class KeyboardLayout:
 
         # Extra mapping
         if mapping := layout_data.get("mapping"):
-            self._parse_mapping(mapping)
+            self._parse_extra_mapping(mapping)
 
         # Fill special symbols
         special_symbols = frozenset(s.value for s in SystemSymbol)
@@ -277,7 +277,7 @@ class KeyboardLayout:
     def _parse_value(self, raw: str, strip=False) -> str:
         return SpecialSymbol.parse(raw.strip() if strip else raw)
 
-    def _parse_mapping(self, mapping: Dict[str, str | Dict[str, str]]):
+    def _parse_extra_mapping(self, mapping: Dict[str, str | Dict[str, str]]):
         layer: Layer | None
         for raw_key, levels in mapping.items():
             # TODO: parse key in various ways (XKB, Linux keycode)
@@ -461,7 +461,7 @@ class KeyboardLayout:
         for i in layers:
             template = self._fill_template(template, rows, i)
         return template
-    
+
     @property
     def geometry(self) -> str:
         """ANSI, ISO, ERGO."""
