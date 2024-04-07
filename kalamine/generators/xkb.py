@@ -5,7 +5,9 @@ GNU/Linux: XKB
 """
 
 from dataclasses import dataclass
+import functools
 import itertools
+import locale
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, Generator, List, Optional, Tuple
 
@@ -75,13 +77,25 @@ class XKB_Output:
     compose: str
 
 
+def _collate(s1: str, s2: str) -> int:
+    s1ʹ = s1.casefold()
+    s2ʹ = s2.casefold()
+    if s1ʹ < s2ʹ:
+        return -1
+    elif s1ʹ > s2ʹ:
+        return +1
+    else:
+        # Note: inverted on purpose, to get lower case before upper case
+        return locale.strcoll(s2, s1)
+
+
 def xkb_make_custom_dead_keys_keysyms(layout: "KeyboardLayout") -> XKB_Custom_Keysyms:
     layoutSymbols = layout.symbols
     forbiden = set(itertools.chain(layoutSymbols.strings, layoutSymbols.deadKeys))
     spares = list(SPARE_KEYSYMS)
     strings = {}
     deadKeys = {}
-    for s in layoutSymbols.strings:
+    for s in sorted(layoutSymbols.strings, key=functools.cmp_to_key(_collate)):
         if len(s) >= 2:
             # Try to use one of the characters of the string
             candidates = tuple(
@@ -97,7 +111,7 @@ def xkb_make_custom_dead_keys_keysyms(layout: "KeyboardLayout") -> XKB_Custom_Ke
                 strings[s] = spares.pop(0)
             else:
                 raise ValueError(f"Cannot encode string: “{s}”")
-    for c in layoutSymbols.deadKeys:
+    for c in sorted(layoutSymbols.deadKeys, key=functools.cmp_to_key(_collate)):
         dk = f"*{c}"
         if dk in DK_INDEX:
             continue
