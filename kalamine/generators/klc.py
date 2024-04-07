@@ -123,7 +123,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                     desc = layout.dead_keys[symbol][" "]
                     symbol = hex_ord(desc) + "@"
                 else:
-                    if i == Layer.BASE:
+                    if i is Layer.BASE:
                         is_alpha = symbol.upper() != symbol
                     if symbol not in supported_symbols:
                         symbol = hex_ord(symbol)
@@ -255,7 +255,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
                     dead = hex_ord(desc)
                     has_dead_key = True
                 else:
-                    if i == Layer.BASE:
+                    if i is Layer.BASE:
                         is_alpha = symbol.upper() != symbol
                     if symbol not in supported_symbols:
                         symbol = hex_ord(symbol)

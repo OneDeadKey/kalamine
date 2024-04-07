@@ -71,9 +71,9 @@ class Layer(IntEnum):
 
     def necromance(self) -> "Layer":
         """Remove the effect of the dead key if any."""
-        if self == Layer.ODK:
+        if self is Layer.ODK:
             return Layer.BASE
-        elif self == Layer.ODK_SHIFT:
+        elif self is Layer.ODK_SHIFT:
             return Layer.SHIFT
         return self
 
