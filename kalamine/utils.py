@@ -160,9 +160,23 @@ class SystemSymbol(Enum):
     CapsLock = "⇬"
     Compose = "⎄"
     Control = "⎈"
+    Delete = "⌦"
     Escape = "⎋"
     Return = "⏎"
     Shift = "⇧"
+    Super = "◆"
+    Tab = "↹"
+    RightTab = "⇥"
+    LeftTab = "⇤"
+    ArrowUp = "⬆"
+    ArrowDown = "⬇"
+    ArrowLeft = "⬅"
+    ArrowRight = "➡"
+    PageUp = "⎗"
+    PageDown = "⎘"
+    Home = "⇱"
+    End = "⇲"
+    Menu = "≣"
 
     @classmethod
     def parse(cls, raw: str) -> Optional[Self]:
@@ -171,6 +185,10 @@ class SystemSymbol(Enum):
                 return s
         else:
             return None
+        
+    @classmethod
+    def is_system_symbol(cls, raw: str) -> bool:
+        return cls.parse(raw) is not None
 
 @dataclass
 class SpecialSymbolEntry:

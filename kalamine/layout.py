@@ -115,6 +115,7 @@ T = TypeVar("T", bound="GeometryDescr")
 class GeometryDescr:
     template: str
     rows: List[RowDescr]
+    digit_row: int = 0
 
     @classmethod
     def from_dict(cls: Type[T], src: Dict) -> T:
@@ -132,6 +133,10 @@ GEOMETRY = {
 class LayoutSymbols:
     strings: Set[str]
     deadKeys: Set[str]
+
+
+TEMPLATE_DUMMY_KEY = "xxxx"
+TEMPLATE_KEY_WIDTH = 6
 
 
 ###
@@ -181,7 +186,7 @@ class KeyboardLayout:
 
         # Angle Mod permutation
         if angle_mod:
-            last_row = rows[3]
+            last_row = rows[GEOMETRY[self.meta["geometry"]].digit_row + 3]
             if last_row.keys[0] == "lsgt":
                 # should bevome ['ab05', 'lsgt', 'ab01', 'ab02', 'ab03', 'ab04']
                 last_row.keys[:6] = [last_row.keys[5]] + last_row.keys[:5]
@@ -227,14 +232,16 @@ class KeyboardLayout:
             self._parse_extra_mapping(mapping)
 
         # Fill special symbols
-        special_symbols = frozenset(s.value for s in SystemSymbol)
         for key in KEYS.values():
             if base_symbol := self.layers[Layer.BASE].get(key.id):
-                if base_symbol not in special_symbols:
+                if not SystemSymbol.is_system_symbol(base_symbol):
                     continue
-                for keys in self.layers.values():
+                shift_symbol = self.layers[Layer.SHIFT].get(key.id, "")
+                if not SystemSymbol.is_system_symbol(shift_symbol):
+                    shift_symbol = base_symbol
+                for layer, keys in self.layers.items():
                     if key.id not in keys:
-                        keys[key.id] = base_symbol
+                        keys[key.id] = base_symbol if layer.value % 2 == 0 else shift_symbol
 
         self._make_dead_keys(spc)
 
@@ -277,6 +284,13 @@ class KeyboardLayout:
     def _parse_value(self, raw: str, strip=False) -> str:
         return SpecialSymbol.parse(raw.strip() if strip else raw)
 
+    @staticmethod
+    def _parse_key_ref(raw: str) -> Optional[str]:
+        if raw.startswith("(") and raw.endswith(")"):
+            if (clone := raw[1:-1]) and clone in KEYS:
+                return clone
+        return None
+
     def _parse_extra_mapping(self, mapping: Dict[str, str | Dict[str, str]]):
         layer: Layer | None
         for raw_key, levels in mapping.items():
@@ -287,19 +301,21 @@ class KeyboardLayout:
             # Check for key clone
             if isinstance(levels, str):
                 # Check for clone
-                if levels.startswith("(") and levels.endswith(")"):
-                    if (clone := levels[1:-1]) and clone in KEYS:
-                        for layer, keys in self.layers.items():
-                            if value := keys.get(clone):
-                                self.layers[layer][key] = value
-                        continue
+                if clone := self._parse_key_ref(levels):
+                    for layer, keys in self.layers.items():
+                        if value := keys.get(clone):
+                            self.layers[layer][key] = value
+                    continue
                 raise ValueError(f"Unsupported key mapping: {raw_key}: {levels}")
             for raw_layer, raw_value in levels.items():
-                value = self._parse_value(raw_value)
                 if (layer := Layer.parse(raw_layer)) is None:
                     raise ValueError(f"Cannot parse layer: “{raw_layer}”")
+                if clone := self._parse_key_ref(raw_value):
+                    if (value := self.layers[layer].get(clone)) is None:
+                        continue
                 else:
-                    self.layers[layer][key] = value
+                    value = self._parse_value(raw_value)
+                self.layers[layer][key] = value
 
     def _make_dead_keys(self, spc: Dict[str, str]) -> None:
         """Build a deadkey dict."""
@@ -355,16 +371,17 @@ class KeyboardLayout:
     ) -> None:
         """Extract a keyboard layer from a template."""
 
-        j = 0
         col_offset = 0 if layer_number == Layer.BASE else 2
-        for row in rows:
-            i = row.offset + col_offset
+        for j, row in enumerate(rows):
             keys = row.keys
 
             base = template[2 + j * 3]
             shift = template[1 + j * 3]
 
-            for key in keys:
+            for i, key in zip(itertools.count(row.offset + col_offset, TEMPLATE_KEY_WIDTH), keys):
+                if key == TEMPLATE_DUMMY_KEY:
+                    continue
+
                 base_key: Optional[str] = self._parse_value(base[i-1:i+1], strip=True)
                 shift_key: Optional[str] = self._parse_value(shift[i-1:i+1], strip=True)
 
@@ -397,9 +414,6 @@ class KeyboardLayout:
                         else:
                             raise ValueError(f"Undefined dead key: {shift_key}")
 
-                i += 6
-            j += 1
-
     ###
     # Geometry: base, full, altgr
     #
@@ -416,15 +430,16 @@ class KeyboardLayout:
             col_offset = 2
             shift_prevails = False
 
-        j = 0
-        for row in rows:
-            i = row.offset + col_offset
+        for j, row in enumerate(rows):
             keys = row.keys
 
             base = list(template[2 + j * 3])
             shift = list(template[1 + j * 3])
 
-            for key in keys:
+            for i, key in zip(itertools.count(row.offset + col_offset, TEMPLATE_KEY_WIDTH), keys):
+                if key == TEMPLATE_DUMMY_KEY:
+                    continue
+
                 indexes = slice(i - 1, i + 1)
 
                 base_key = " "
@@ -444,11 +459,8 @@ class KeyboardLayout:
                     if pretty_upper_key(base_key, blank_if_obvious=False) != shift_key:
                         shift[indexes] = shift_key.rjust(2)
 
-                i += 6
-
             template[2 + j * 3] = "".join(base)
             template[1 + j * 3] = "".join(shift)
-            j += 1
 
         return template
 

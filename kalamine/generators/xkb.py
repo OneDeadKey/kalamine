@@ -26,9 +26,23 @@ XKB_SPECIAL_KEYSYMS = {
     SystemSymbol.CapsLock.value: {Hand.Left: "Caps_Lock"},
     SystemSymbol.Compose.value: {Hand.Left: "Multi_key"},
     SystemSymbol.Control.value: {Hand.Left: "Control_L", Hand.Right: "Control_R"},
+    SystemSymbol.Delete.value: {Hand.Left: "Delete"},
     SystemSymbol.Escape.value: {Hand.Left: "Escape"},
     SystemSymbol.Return.value: {Hand.Left: "Return"},
     SystemSymbol.Shift.value: {Hand.Left: "Shift_L", Hand.Right: "Shift_R"},
+    SystemSymbol.Super.value: {Hand.Left: "Super_L", Hand.Right: "Super_R"},
+    SystemSymbol.Tab.value: {Hand.Left: "Tab"},
+    SystemSymbol.RightTab.value: {Hand.Left: "Tab"},
+    SystemSymbol.LeftTab.value: {Hand.Left: "ISO_Left_Tab"},
+    SystemSymbol.ArrowUp.value: {Hand.Left: "Up"},
+    SystemSymbol.ArrowDown.value: {Hand.Left: "Down"},
+    SystemSymbol.ArrowLeft.value: {Hand.Left: "Left"},
+    SystemSymbol.ArrowRight.value: {Hand.Left: "Right"},
+    SystemSymbol.PageUp.value: {Hand.Left: "Prior"},
+    SystemSymbol.PageDown.value: {Hand.Left: "Next"},
+    SystemSymbol.Home.value: {Hand.Left: "Home"},
+    SystemSymbol.End.value: {Hand.Left: "End"},
+    SystemSymbol.Menu.value: {Hand.Left: "Menu"},
 }
 assert all(s.value in XKB_SPECIAL_KEYSYMS for s in SystemSymbol), \
        tuple(s for s in SystemSymbol if s.value not in XKB_SPECIAL_KEYSYMS)
@@ -146,9 +160,12 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
         descs = []
         symbols = []
         defined = False
-        for layer in layout.layers.values():
-            if key.id in layer:
-                keysym = layer[key.id]
+        for layer, keys in layout.layers.items():
+            if key.id in keys:
+                keysym = keys[key.id]
+                # Hack for Tab
+                if layer.value % 2 == 1 and keysym in ("↹", "⇥"):
+                    keysym = "⇤"
                 desc = keysym
                 if keysymʹ := customDeadKeys.strings.get(keysym):
                     symbol = keysymʹ
@@ -181,15 +198,18 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
             output.append("// " + key.category.description)
             prev_category = key.category
 
-        key_type = ""
         key_template = "{{[ {0}, {1}, {2}, {3}]}}"  # 4-level layout by default
         description = "{0} {1} {2} {3}"
-        if not symbols[0].startswith("VoidSymbol") and all(s == symbols[0] for s in symbols):
-            key_template = "{{{type}[{0}]}}"
+        if all(s == symbols[0] for s in symbols):
+            key_template = """{{type[Group1] = \"ONE_LEVEL\",\n                [ {0} ]}}"""
             description = "{0}"
-            key_type = "ONE_LEVEL"
-            symbols = [symbols[0]]
-            descs = [descs[0]]
+            symbols = symbols[0:1]
+            descs = descs[0:1]
+        elif all((i % 2 == 0 and s == symbols[0]) or (i % 2 == 1 and s == symbols[1]) for i, s in enumerate(symbols)):
+            key_template = """{{type[Group1] = \"TWO_LEVEL\",\n                [ {0}, {1} ]}}"""
+            description = "{0} {1}"
+            symbols = symbols[:2]
+            descs = descs[:2]
         elif layout.has_altgr and layout.has_1dk:
             # 6 layers are needed: they won't fit on the 4-level format.
             if xkbcomp:  # user-space XKB keymap file (standalone)
@@ -206,9 +226,8 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False, customDeadKeys: O
             del descs[3]
             del descs[2]
 
-        if key_type:
-            key_type = f"""type[Group1] = "{key_type}", """
-        line = f"key <{key.xkb.upper()}> {key_template.format(*symbols, type=key_type)};"
+        keycode = f"<{key.xkb.upper()}>"
+        line = f"key {keycode: <6} {key_template.format(*symbols)};"
         if show_description:
             line += (" // " + description.format(*descs)).rstrip()
             if line.endswith("\\"):
@@ -287,7 +306,6 @@ def xcompose(layout: "KeyboardLayout", customDeadKeys: XKB_Custom_Keysyms) -> Ge
             if predefined.get(base) == result:
                 # Skip predefined sequence
                 continue
-            print(dk.name, base, result)
             # TODO: general chained dead keys?
             if base == dk.char:
                 base_keysym = dk_keysym
