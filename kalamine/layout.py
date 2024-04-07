@@ -419,11 +419,13 @@ class KeyboardLayout:
     #
 
     def _fill_template(
-        self, template: List[str], rows: List[RowDescr], layer_number: Layer
+        self, template: List[str], rows: List[RowDescr], layer_number: Optional[Layer]
     ) -> List[str]:
         """Fill a template with a keyboard layer."""
 
-        if layer_number == Layer.BASE:
+        if layer_number is None:
+            col_offset = 0
+        elif layer_number == Layer.BASE:
             col_offset = 0
             shift_prevails = True
         else:  # AltGr or 1dk
@@ -438,6 +440,12 @@ class KeyboardLayout:
 
             for i, key in zip(itertools.count(row.offset + col_offset, TEMPLATE_KEY_WIDTH), keys):
                 if key == TEMPLATE_DUMMY_KEY:
+                    continue
+
+                if layer_number is None:
+                    indexes = slice(i - 1, i + 3)
+                    base[indexes] = "    "
+                    shift[indexes] = "    "
                     continue
 
                 indexes = slice(i - 1, i + 1)
@@ -470,6 +478,8 @@ class KeyboardLayout:
 
         rows = GEOMETRY[self.geometry].rows
         template = GEOMETRY[self.geometry].template.split("\n")[:-1]
+        # Clear template
+        template = self._fill_template(template, rows, None)
         for i in layers:
             template = self._fill_template(template, rows, i)
         return template
