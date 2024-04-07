@@ -1,188 +1,471 @@
-klc:
-  spce: '39'
-
-  # digits
-  ae01: '02'
-  ae02: '03'
-  ae03: '04'
-  ae04: '05'
-  ae05: '06'
-  ae06: '07'
-  ae07: '08'
-  ae08: '09'
-  ae09: '0a'
-  ae10: '0b'
-
-  # letters, first row
-  ad01: '10'
-  ad02: '11'
-  ad03: '12'
-  ad04: '13'
-  ad05: '14'
-  ad06: '15'
-  ad07: '16'
-  ad08: '17'
-  ad09: '18'
-  ad10: '19'
-
-  # letters, second row
-  ac01: '1e'
-  ac02: '1f'
-  ac03: '20'
-  ac04: '21'
-  ac05: '22'
-  ac06: '23'
-  ac07: '24'
-  ac08: '25'
-  ac09: '26'
-  ac10: '27'
-
-  # letters, third row
-  ab01: '2c'
-  ab02: '2d'
-  ab03: '2e'
-  ab04: '2f'
-  ab05: '30'
-  ab06: '31'
-  ab07: '32'
-  ab08: '33'
-  ab09: '34'
-  ab10: '35'
-
-  # pinky keys
-  tlde: '29'
-  ae11: '0c'
-  ae12: '0d'
-  ae13: '0d' # XXX FIXME
-  ad11: '1a'
-  ad12: '1b'
-  ac11: '28'
-  ab11: '28'  # XXX FIXME
-  bksl: '2b'
-  lsgt: '56'
- 
-osx:
-  spce: 49
-
-  # digits
-  ae01: 18  # 1
-  ae02: 19  # 2
-  ae03: 20  # 3
-  ae04: 21  # 4
-  ae05: 23  # 5
-  ae06: 22  # 6
-  ae07: 26  # 7
-  ae08: 28  # 8
-  ae09: 25  # 9
-  ae10: 29  # 0
-
-  # letters, first row
-  ad01: 12  # Q
-  ad02: 13  # W
-  ad03: 14  # E
-  ad04: 15  # R
-  ad05: 17  # T
-  ad06: 16  # Y
-  ad07: 32  # U
-  ad08: 34  # I
-  ad09: 31  # O
-  ad10: 35  # P
-
-  # letters, second row
-  ac01:  0  # A
-  ac02:  1  # S
-  ac03:  2  # D
-  ac04:  3  # F
-  ac05:  5  # G
-  ac06:  4  # H
-  ac07: 38  # J
-  ac08: 40  # K
-  ac09: 37  # L
-  ac10: 41  # ★
-
-  # letters, third row
-  ab01:  6  # Z
-  ab02:  7  # X
-  ab03:  8  # C
-  ab04:  9  # V
-  ab05: 11  # B
-  ab06: 45  # N
-  ab07: 46  # M
-  ab08: 43  # ,
-  ab09: 47  # .
-  ab10: 44  # /
-
-  # pinky keys
-  tlde: 50  # ~
-  ae11: 27  # -
-  ae12: 24  # =
-  ae13: 42  # XXX FIXME
-  ad11: 33  # [
-  ad12: 30  # ]
-  ac11: 39  # '
-  ab11: 39  # XXX FIXME
-  bksl: 42  # \
-  lsgt: 10  # <
-
-web:
-  spce: 'Space'
-
-  # digits
-  ae01: 'Digit1'
-  ae02: 'Digit2'
-  ae03: 'Digit3'
-  ae04: 'Digit4'
-  ae05: 'Digit5'
-  ae06: 'Digit6'
-  ae07: 'Digit7'
-  ae08: 'Digit8'
-  ae09: 'Digit9'
-  ae10: 'Digit0'
-
-  # letters, 1st row
-  ad01: 'KeyQ'
-  ad02: 'KeyW'
-  ad03: 'KeyE'
-  ad04: 'KeyR'
-  ad05: 'KeyT'
-  ad06: 'KeyY'
-  ad07: 'KeyU'
-  ad08: 'KeyI'
-  ad09: 'KeyO'
-  ad10: 'KeyP'
-
-  # letters, 2nd row
-  ac01: 'KeyA'
-  ac02: 'KeyS'
-  ac03: 'KeyD'
-  ac04: 'KeyF'
-  ac05: 'KeyG'
-  ac06: 'KeyH'
-  ac07: 'KeyJ'
-  ac08: 'KeyK'
-  ac09: 'KeyL'
-  ac10: 'Semicolon'
-
-  # letters, 3rd row
-  ab01: 'KeyZ'
-  ab02: 'KeyX'
-  ab03: 'KeyC'
-  ab04: 'KeyV'
-  ab05: 'KeyB'
-  ab06: 'KeyN'
-  ab07: 'KeyM'
-  ab08: 'Comma'
-  ab09: 'Period'
-  ab10: 'Slash'
-
-  # pinky keys
-  tlde: 'Backquote'
-  ae11: 'Minus'
-  ae12: 'Equal'
-  ae13: 'IntlYen'
-  ad11: 'BracketLeft'
-  ad12: 'BracketRight'
-  bksl: 'Backslash'
-  ac11: 'Quote'
-  ab11: 'IntlRo'
-  lsgt: 'IntlBackslash'
+digits:
+- xkb: "ae01"
+  web: "Digit1"
+  windows: "02"
+  macos: "18"
+  hand: null
+- xkb: "ae02"
+  web: "Digit2"
+  windows: "03"
+  macos: "19"
+  hand: null
+- xkb: "ae03"
+  web: "Digit3"
+  windows: "04"
+  macos: "20"
+  hand: null
+- xkb: "ae04"
+  web: "Digit4"
+  windows: "05"
+  macos: "21"
+  hand: null
+- xkb: "ae05"
+  web: "Digit5"
+  windows: "06"
+  macos: "23"
+  hand: null
+- xkb: "ae06"
+  web: "Digit6"
+  windows: "07"
+  macos: "22"
+  hand: null
+- xkb: "ae07"
+  web: "Digit7"
+  windows: "08"
+  macos: "26"
+  hand: null
+- xkb: "ae08"
+  web: "Digit8"
+  windows: "09"
+  macos: "28"
+  hand: null
+- xkb: "ae09"
+  web: "Digit9"
+  windows: "0a"
+  macos: "25"
+  hand: null
+- xkb: "ae10"
+  web: "Digit0"
+  windows: "0b"
+  macos: "29"
+  hand: null
+# Letters, first row
+Letters1:
+- xkb: "ad01"
+  web: "KeyQ"
+  windows: "10"
+  macos: "12"
+  hand: null
+- xkb: "ad02"
+  web: "KeyW"
+  windows: "11"
+  macos: "13"
+  hand: null
+- xkb: "ad03"
+  web: "KeyE"
+  windows: "12"
+  macos: "14"
+  hand: null
+- xkb: "ad04"
+  web: "KeyR"
+  windows: "13"
+  macos: "15"
+  hand: null
+- xkb: "ad05"
+  web: "KeyT"
+  windows: "14"
+  macos: "17"
+  hand: null
+- xkb: "ad06"
+  web: "KeyY"
+  windows: "15"
+  macos: "16"
+  hand: null
+- xkb: "ad07"
+  web: "KeyU"
+  windows: "16"
+  macos: "32"
+  hand: null
+- xkb: "ad08"
+  web: "KeyI"
+  windows: "17"
+  macos: "34"
+  hand: null
+- xkb: "ad09"
+  web: "KeyO"
+  windows: "18"
+  macos: "31"
+  hand: null
+- xkb: "ad10"
+  web: "KeyP"
+  windows: "19"
+  macos: "35"
+  hand: null
+# Letters, second row
+Letters2:
+- xkb: "ac01"
+  web: "KeyA"
+  windows: "1e"
+  macos: "0"
+  hand: null
+- xkb: "ac02"
+  web: "KeyS"
+  windows: "1f"
+  macos: "1"
+  hand: null
+- xkb: "ac03"
+  web: "KeyD"
+  windows: "20"
+  macos: "2"
+  hand: null
+- xkb: "ac04"
+  web: "KeyF"
+  windows: "21"
+  macos: "3"
+  hand: null
+- xkb: "ac05"
+  web: "KeyG"
+  windows: "22"
+  macos: "5"
+  hand: null
+- xkb: "ac06"
+  web: "KeyH"
+  windows: "23"
+  macos: "4"
+  hand: null
+- xkb: "ac07"
+  web: "KeyJ"
+  windows: "24"
+  macos: "38"
+  hand: null
+- xkb: "ac08"
+  web: "KeyK"
+  windows: "25"
+  macos: "40"
+  hand: null
+- xkb: "ac09"
+  web: "KeyL"
+  windows: "26"
+  macos: "37"
+  hand: null
+- xkb: "ac10"
+  web: "Semicolon"
+  windows: "27"
+  macos: "41"
+  hand: null
+# Letters, third row
+Letters3:
+- xkb: "ab01"
+  web: "KeyZ"
+  windows: "2c"
+  macos: "6"
+  hand: null
+- xkb: "ab02"
+  web: "KeyX"
+  windows: "2d"
+  macos: "7"
+  hand: null
+- xkb: "ab03"
+  web: "KeyC"
+  windows: "2e"
+  macos: "8"
+  hand: null
+- xkb: "ab04"
+  web: "KeyV"
+  windows: "2f"
+  macos: "9"
+  hand: null
+- xkb: "ab05"
+  web: "KeyB"
+  windows: "30"
+  macos: "11"
+  hand: null
+- xkb: "ab06"
+  web: "KeyN"
+  windows: "31"
+  macos: "45"
+  hand: null
+- xkb: "ab07"
+  web: "KeyM"
+  windows: "32"
+  macos: "46"
+  hand: null
+- xkb: "ab08"
+  web: "Comma"
+  windows: "33"
+  macos: "43"
+  hand: null
+- xkb: "ab09"
+  web: "Period"
+  windows: "34"
+  macos: "47"
+  hand: null
+- xkb: "ab10"
+  web: "Slash"
+  windows: "35"
+  macos: "44"
+  hand: null
+# Pinky keys
+PinkyKeys:
+- xkb: "ae11"
+  web: "Minus"
+  windows: "0c"
+  macos: "27"
+  hand: null
+- xkb: "ae12"
+  web: "Equal"
+  windows: "0d"
+  macos: "24"
+  hand: null
+- xkb: "ae13"
+  web: "IntlYen"
+  windows: "0d"
+  macos: "42"
+  hand: null
+- xkb: "ad11"
+  web: "BracketLeft"
+  windows: "1a"
+  macos: "33"
+  hand: null
+- xkb: "ad12"
+  web: "BracketRight"
+  windows: "1b"
+  macos: "30"
+  hand: null
+- xkb: "ac11"
+  web: "Quote"
+  windows: "28"
+  macos: "39"
+  hand: null
+- xkb: "ab11"
+  web: "IntlRo"
+  windows: "28"
+  macos: "39"
+  hand: null
+- xkb: "tlde"
+  web: "Backquote"
+  windows: "29"
+  macos: "50"
+  hand: null
+- xkb: "bksl"
+  web: "Backslash"
+  windows: "2b"
+  macos: "42"
+  hand: null
+- xkb: "lsgt"
+  web: "IntlBackslash"
+  windows: "56"
+  macos: "10"
+  hand: null
+# Space bar row
+SpaceBar:
+- xkb: "spce"
+  web: "Space"
+  windows: "39"
+  macos: "49"
+  hand: null
+System:
+- xkb: "tab"
+  web: null
+  windows: null
+  macos: null
+  hand: Left
+- xkb: "rtrn"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "bksp"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "dele"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "esc"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "menu"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "home"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "up"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "end"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "pgup"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "left"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "down"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "rght"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "pgdn"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk01"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk02"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk03"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk04"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk05"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "dele"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk06"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk07"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk08"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk09"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk10"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk11"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "fk12"
+  web: null
+  windows: null
+  macos: null
+  hand: null
+Modifiers:
+- xkb: "lfsh"
+  web: null
+  windows: null
+  macos: null
+  hand: Left
+- xkb: "rtsh"
+  web: null
+  windows: null
+  macos: null
+  hand: Right
+- xkb: "caps"
+  web: null
+  windows: null
+  macos: null
+  hand: Left
+- xkb: "lalt"
+  web: "AltLeft"
+  windows: null
+  macos: null
+  hand: Left
+- xkb: "ralt"
+  web: "AltRight"
+  windows: null
+  macos: null
+  hand: Right
+- xkb: "lctl"
+  web: null
+  windows: null
+  macos: null
+  hand: Left
+- xkb: "rctl"
+  web: null
+  windows: null
+  macos: null
+  hand: Right
+InputMethod:
+- xkb: "muhe"
+  web: "NonConvert"
+  windows: null
+  macos: null
+  hand: Left
+- xkb: "henk"
+  web: "Convert"
+  windows: null
+  macos: null
+  hand: Right
+# Miscellaneous
+Miscellaneous:
+- xkb: "i148" # Calc
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "i163" # Mail
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "i172" # Play/Pause
+  web: null
+  windows: null
+  macos: null
+  hand: null
+- xkb: "i180" # Home page
+  web: null
+  windows: null
+  macos: null
+  hand: null

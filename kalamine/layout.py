@@ -8,15 +8,8 @@ import click
 import tomli
 import yaml
 
-from .utils import (
-    DEAD_KEYS,
-    LAYER_KEYS,
-    ODK_ID,
-    Layer,
-    load_data,
-    text_to_lines,
-    upper_key,
-)
+from .key import KEYS
+from .utils import DEAD_KEYS, ODK_ID, Layer, load_data, text_to_lines, upper_key
 
 ###
 # Helpers
@@ -239,9 +232,7 @@ class KeyboardLayout:
 
             if id == ODK_ID:
                 self.has_1dk = True
-                for key_name in LAYER_KEYS:
-                    if key_name.startswith("-"):
-                        continue
+                for key_name in KEYS:
                     for layer in [Layer.ODK_SHIFT, Layer.ODK]:
                         if key_name in self.layers[layer]:
                             deadkey[self.layers[layer.necromance()][key_name]] = (

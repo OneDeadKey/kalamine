@@ -3,13 +3,10 @@ import pkgutil
 import re
 from typing import TYPE_CHECKING, List
 
-from .utils import lines_to_text, load_data
+from .utils import lines_to_text
 
 if TYPE_CHECKING:
     from .layout import KeyboardLayout
-
-
-SCAN_CODES = load_data("scan_codes")
 
 
 def substitute_lines(text: str, variable: str, lines: List[str]) -> str:
