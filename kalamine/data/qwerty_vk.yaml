@@ -1,61 +1,130 @@
 # Scancodes <-> Virtual Keys as in qwerty
 # this is to keep shortcuts at their qwerty location
-'39': 'SPACE'
+'T39': 'SPACE'
 
 # digits
-'02': '1'
-'03': '2'
-'04': '3'
-'05': '4'
-'06': '5'
-'07': '6'
-'08': '7'
-'09': '8'
-'0a': '9'
-'0b': '0'
+'T02': '1'
+'T03': '2'
+'T04': '3'
+'T05': '4'
+'T06': '5'
+'T07': '6'
+'T08': '7'
+'T09': '8'
+'T0A': '9'
+'T0B': '0'
 
 # letters, first row
-'10': 'Q'
-'11': 'W'
-'12': 'E'
-'13': 'R'
-'14': 'T'
-'15': 'Y'
-'16': 'U'
-'17': 'I'
-'18': 'O'
-'19': 'P'
-  
+'T10': 'Q'
+'T11': 'W'
+'T12': 'E'
+'T13': 'R'
+'T14': 'T'
+'T15': 'Y'
+'T16': 'U'
+'T17': 'I'
+'T18': 'O'
+'T19': 'P'
+
 # letters, second row
-'1e': 'A'
-'1f': 'S'
-'20': 'D'
-'21': 'F'
-'22': 'G'
-'23': 'H'
-'24': 'J'
-'25': 'K'
-'26': 'L'
-'27': 'OEM_1'
+'T1E': 'A'
+'T1F': 'S'
+'T20': 'D'
+'T21': 'F'
+'T22': 'G'
+'T23': 'H'
+'T24': 'J'
+'T25': 'K'
+'T26': 'L'
+'T27': 'OEM_1'
 
 # letters, third row
-'2c': 'Z'
-'2d': 'X'
-'2e': 'C'
-'2f': 'V'
-'30': 'B'
-'31': 'N'
-'32': 'M'
-'33': 'OEM_COMMA'
-'34': 'OEM_PERIOD'
-'35': 'OEM_2'
+'T2C': 'Z'
+'T2D': 'X'
+'T2E': 'C'
+'T2F': 'V'
+'T30': 'B'
+'T31': 'N'
+'T32': 'M'
+'T33': 'OEM_COMMA'
+'T34': 'OEM_PERIOD'
+'T35': 'OEM_2'
 
 # pinky keys
-'29': 'OEM_3'
-'0c': 'OEM_MINUS'
-'0d': 'OEM_PLUS'
-'1a': 'OEM_4'
-'1b': 'OEM_6'
-'28': 'OEM_7'
-'2b': 'OEM_5'
-'56': 'OEM_102'
+'T29': 'OEM_3'
+'T0C': 'OEM_MINUS'
+'T0D': 'OEM_PLUS'
+'T1A': 'OEM_4'
+'T1B': 'OEM_6'
+'T28': 'OEM_7'
+'T2B': 'OEM_5'
+'T56': 'OEM_102'
+
+# Numpad
+'T52': 'NUMPAD0'
+'T4F': 'NUMPAD1'
+'T50': 'NUMPAD2'
+'T51': 'NUMPAD3'
+'T4B': 'NUMPAD4'
+'T4C': 'NUMPAD5'
+'T4D': 'NUMPAD6'
+'T47': 'NUMPAD7'
+'T48': 'NUMPAD8'
+'T49': 'NUMPAD9'
+'T37': 'MULTIPLY'
+'T4E': 'ADD'
+'T4A': 'SUBTRACT'
+'X35': 'DIVIDE'
+'T53': 'DECIMAL'
+# 'X1C': ''         # NumpadEnter (maps to Return)
+# 'T59': 'VK_CLEAR' # NumpadEqual (VK not mappable)
+'T7E': 'VK_ABNT_C2' # NumadComma
+# 'T45': 'NUMLOCK'  # (VK not mappable)
+
+# System
+'T0F': 'TAB'
+'T1C': 'RETURN'
+'T0E': 'BACK'     # Backspace
+# 'X52': 'INSERT' # (VK not mappable)
+# 'X53': 'DELETE' # (VK not mappable)
+# 'T3B': 'F1'     # (VK not mappable)
+# 'T3C': 'F2'     # (VK not mappable)
+# 'T3D': 'F3'     # (VK not mappable)
+# 'T3E': 'F4'     # (VK not mappable)
+# 'T3F': 'F5'     # (VK not mappable)
+# 'T40': 'F6'     # (VK not mappable)
+# 'T41': 'F7'     # (VK not mappable)
+# 'T42': 'F8'     # (VK not mappable)
+# 'T43': 'F9'     # (VK not mappable)
+# 'T44': 'F10'    # (VK not mappable)
+# 'T57': 'F11'    # (VK not mappable)
+# 'T58': 'F12'    # (VK not mappable)
+# 'X47': 'HOME'   # (VK not mappable)
+# 'X4F': 'END'    # (VK not mappable)
+# 'X49': 'PRIOR'  # PageUp (VK not mappable)
+# 'X51': 'NEXT'   # PageDown (VK not mappable)
+# 'T01': 'ESCAPE' # (VK not mappable)
+# 'X48': 'UP'     # (VK not mappable)
+# 'X50': 'DOWN'   # (VK not mappable)
+# 'X4B': 'LEFT'   # (VK not mappable)
+# 'X4D': 'RIGHT'  # (VK not mappable)
+# 'X5D': 'APPS'   # ContextMenu (VK not mappable)
+
+# Modifiers
+# 'T2A': 'LSHIFT'    # ShiftLeft (VK not mappable)
+# 'T36': 'RSHIFT'    # ShiftRight (VK not mappable)
+# 'T3A': 'CAPITAL'   # CapsLock (VK not mappable)
+# 'T1D': 'LCONTROL'  # ControlLeft (VK not mappable)
+# 'X1D': 'RCONTROL'  # ControlRight (VK not mappable)
+# 'T38': 'LMENU'     # AltLeft (VK not mappable)
+# 'X38': 'RMENU'     # AltRight (VK not mappable)
+# 'X5B': 'LWIN'      # MetaLeft (VK not mappable)
+# 'X5C': 'RWIN'      # MetaRight (VK not mappable)
+
+# Input method
+# 'T7B': 'NONCONVERT' # Muhenkan (VK not mappable)
+# 'T79': 'CONVERT'    # Henkan (VK not mappable)
+
+# Miscellaneous
+# 'X22': 'MEDIA_PLAY_PAUSE' # (VK not mappable)
+# 'X32': 'BROWSER_HOME'     # (VK not mappable)

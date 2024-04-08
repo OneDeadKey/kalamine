@@ -80,8 +80,7 @@ def test_ansi_deadkeys():
 
 def test_intl_keymap():
     keymap = klc_keymap(LAYOUTS["intl"])
-    assert len(keymap) == 49
-    assert keymap == split(
+    keymap_ref = split(
         """
         02	1	0	1	0021	-1	-1	// 1 !
         03	2	0	2	0040	-1	-1	// 2 @
@@ -134,6 +133,32 @@ def test_intl_keymap():
         39	SPACE	0	0020	0020	-1	-1	//
         """
     )
+    assert len(keymap) == len(keymap_ref)
+    assert keymap == keymap_ref
+
+    extraMapping = {
+        # NOTE: redefine level
+        "ae01": {"shift": "?"},
+        # TODO
+        # # NOTE: test case variants and ODK alias
+        # "kppt": {"base": ",", "sHiFt": ";", "1dk": ".", "ODk_shiFt": ":"},
+        # NOTE: clone level
+        "esc": {"base": "\x1b", "shift": "(ae11)"},
+        # NOTE: clone key
+        "henk": "(lsgt)",
+    }
+
+    extraSymbols = [
+        "01	ESCAPE	0	001b	005f	-1	-1	// \x1b _",
+        "79	OEM_8	0	005c	007c	-1	-1	// \\ |",
+    ]
+    keymap_extra_ref = keymap_ref + extraSymbols
+    keymap_extra_ref[0] = "02	1	0	1	003f	-1	-1	// 1 ?"
+
+    layout = KeyboardLayout(get_layout_dict("intl", extraMapping))
+    keymap = klc_keymap(layout)
+    assert len(keymap) == len(keymap_extra_ref)
+    assert keymap == keymap_extra_ref
 
 
 def test_intl_deadkeys():

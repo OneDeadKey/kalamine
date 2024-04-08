@@ -48,38 +48,62 @@ def _get_langid(locale: str) -> str:
 oem_idx = 0
 
 
-def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> str:
-    if scan_code == "56":
+def check_virtual_key_symbols(
+    virtual_keys: Dict[str, List[str]], vk: str, symbols: List[str]
+):
+    return (symbolsʹ := virtual_keys.get(vk)) is None or symbolsʹ == symbols
+
+
+def klc_virtual_key(
+    layout: "KeyboardLayout",
+    symbols: list,
+    scan_code: str,
+    virtual_keys: Dict[str, List[str]],
+) -> str:
+    if scan_code == "T56":
         # manage the ISO key (between shift and Z on ISO keyboards).
         # We're assuming that its scancode is always 56
         # https://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
         return "OEM_102"
 
+    # Check that the target VK is not already assigned to different symbols
+    def check(vk: str):
+        return check_virtual_key_symbols(virtual_keys, vk, symbols)
+
+    # TODO: add support for Numpad keys
     base = _get_chr(symbols[0])
     shifted = _get_chr(symbols[1])
 
     # Can’t use `isdigit()` because `²` is a digit but we don't want that as a VK
     allowed_digit = "0123456789"
     # We assume that digit row always have digit as VK
-    if base in allowed_digit:
+    if base in allowed_digit and check(base):
         return base
-    elif shifted in allowed_digit:
+    elif shifted in allowed_digit and check(shifted):
         return shifted
 
     if shifted.isascii() and shifted.isalpha():
         return shifted
 
     # VK_OEM_* case
-    if base == "," or shifted == ",":
+    if (base == "," or shifted == ",") and check("OEM_COMMA"):
         return "OEM_COMMA"
-    elif base == "." or shifted == ".":
+    elif (base == "." or shifted == ".") and check("OEM_PERIOD"):
         return "OEM_PERIOD"
-    elif base == "+" or shifted == "+":
+    elif (base == "+" or shifted == "+") and check("OEM_PLUS"):
         return "OEM_PLUS"
-    elif base == "-" or shifted == "-":
+    elif (base == "-" or shifted == "-") and check("OEM_MINUS"):
         return "OEM_MINUS"
-    elif base == " ":
+    elif base == " " and check("SPACE"):
         return "SPACE"
+    elif base == "\t" and check("TAB"):
+        return "TAB"
+    elif base == "\r" and check("RETURN"):
+        return "RETURN"
+    elif base == "\b" and check("BACK"):
+        return "BACK"
+    elif base == "\x1b" and check("ESCAPE"):
+        return "ESCAPE"
     else:
         MAX_OEM = 8
         # We affect abitrary OEM VK and it will not match the one
@@ -103,6 +127,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     output = []
     qwerty_vk = load_data("qwerty_vk")
     layers = (Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT)
+    virtual_keys: Dict[str, List[str]] = {}
 
     for key in KEYS.values():
         if key.id in ["ae13", "ab11"]:  # ABNT / JIS keys
@@ -141,9 +166,15 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
 
         scan_code = key.windows[1:].lower()
 
-        virtual_key = qwerty_vk[scan_code]
-        if not layout.qwerty_shortcuts:
-            virtual_key = klc_virtual_key(layout, symbols, scan_code)
+        if (
+            layout.qwerty_shortcuts
+            and key.windows in qwerty_vk
+            and check_virtual_key_symbols(virtual_keys, qwerty_vk[key.windows], symbols)
+        ):
+            virtual_key = qwerty_vk[key.windows]
+        else:
+            virtual_key = klc_virtual_key(layout, symbols, key.windows, virtual_keys)
+        virtual_keys[virtual_key] = symbols
 
         if layout.has_altgr:
             output.append(
@@ -237,6 +268,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
     supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     qwerty_vk = load_data("qwerty_vk")
     layers = (Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT)
+    virtual_keys: Dict[str, List[str]] = {}
 
     global oem_idx
     oem_idx = 0  # Python trick to do equivalent of C static variable
@@ -282,11 +314,17 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbols.append("WCH_NONE")
                 dead_symbols.append("WCH_NONE")
 
-        scan_code = key.windows[1:].lower()
+        # scan_code = key.windows[1:].lower()
 
-        virtual_key = qwerty_vk[scan_code]
-        if not layout.qwerty_shortcuts:
-            virtual_key = klc_virtual_key(layout, symbols, scan_code)
+        if (
+            layout.qwerty_shortcuts
+            and key.windows in qwerty_vk
+            and check_virtual_key_symbols(virtual_keys, qwerty_vk[key.windows], symbols)
+        ):
+            virtual_key = qwerty_vk[key.windows]
+        else:
+            virtual_key = klc_virtual_key(layout, symbols, key.windows, virtual_keys)
+        virtual_keys[virtual_key] = symbols
 
         if len(virtual_key) == 1:
             virtual_key_id = f"'{virtual_key}'"

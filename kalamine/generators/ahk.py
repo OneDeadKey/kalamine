@@ -118,7 +118,7 @@ def ahk_shortcuts(layout: "KeyboardLayout") -> List[str]:
 
             symbol = layer[key.id]
             if layout.qwerty_shortcuts:
-                symbol = qwerty_vk[scan_code]
+                symbol = qwerty_vk[key.windows]
             if symbol in enabled:
                 output.append(f"{prefixes[i]}SC{scan_code}::Send {prefixes[i]}{symbol}")
 
