@@ -70,14 +70,11 @@ def test_ansi():
         // Pinky keys
         key <AE11> {[ minus           , underscore      , VoidSymbol      , VoidSymbol      ]}; // - _
         key <AE12> {[ equal           , plus            , VoidSymbol      , VoidSymbol      ]}; // = +
-        key <AE13> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <AD11> {[ bracketleft     , braceleft       , VoidSymbol      , VoidSymbol      ]}; // [ {
         key <AD12> {[ bracketright    , braceright      , VoidSymbol      , VoidSymbol      ]}; // ] }
         key <AC11> {[ apostrophe      , quotedbl        , VoidSymbol      , VoidSymbol      ]}; // ' "
-        key <AB11> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <TLDE> {[ grave           , asciitilde      , VoidSymbol      , VoidSymbol      ]}; // ` ~
         key <BKSL> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
-        key <LSGT> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
 
         // Space bar
         key <SPCE> {[ space           , space           , apostrophe      , apostrophe      ]}; //     ' '
@@ -149,11 +146,9 @@ def test_intl():
         // Pinky keys
         key <AE11> {[ minus           , underscore      , VoidSymbol      , VoidSymbol      ]}; // - _
         key <AE12> {[ equal           , plus            , VoidSymbol      , VoidSymbol      ]}; // = +
-        key <AE13> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <AD11> {[ bracketleft     , braceleft       , VoidSymbol      , VoidSymbol      ]}; // [ {
         key <AD12> {[ bracketright    , braceright      , VoidSymbol      , VoidSymbol      ]}; // ] }
         key <AC11> {[ ISO_Level3_Latch, dead_diaeresis  , apostrophe      , VoidSymbol      ]}; // ' ¨ '
-        key <AB11> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <TLDE> {[ dead_grave      , dead_tilde      , VoidSymbol      , VoidSymbol      ]}; // ` ~
         key <BKSL> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
         key <LSGT> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
@@ -228,14 +223,11 @@ def test_prog():
         // Pinky keys
         key <AE11> {[ minus           , underscore      , VoidSymbol      , VoidSymbol      ]}; // - _
         key <AE12> {[ equal           , plus            , VoidSymbol      , VoidSymbol      ]}; // = +
-        key <AE13> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <AD11> {[ bracketleft     , braceleft       , VoidSymbol      , VoidSymbol      ]}; // [ {
         key <AD12> {[ bracketright    , braceright      , VoidSymbol      , VoidSymbol      ]}; // ] }
         key <AC11> {[ apostrophe      , quotedbl        , dead_acute      , dead_diaeresis  ]}; // ' " ´ ¨
-        key <AB11> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <TLDE> {[ grave           , asciitilde      , dead_grave      , dead_tilde      ]}; // ` ~ ` ~
         key <BKSL> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
-        key <LSGT> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
 
         // Space bar
         key <SPCE> {[ space           , space           , space           , space           ]}; //
