@@ -27,6 +27,7 @@ class KeyCategory(Flag):
     Letters3 = auto()
     PinkyKeys = auto()
     SpaceBar = auto()
+    Numpad = auto()
     System = auto()
     Modifiers = auto()
     InputMethod = auto()
@@ -36,36 +37,30 @@ class KeyCategory(Flag):
     @classmethod
     def parse(cls, raw: str) -> Self:
         for kc in cls:
-            if kc.name.casefold() == raw.casefold():
+            if kc.name and kc.name.casefold() == raw.casefold():
                 return kc
         else:
             raise ValueError(f"Cannot parse key category: “{raw}”")
 
     @property
     def description(self) -> str:
-        match self:
-            case KeyCategory.Digits:
-                return "Digits"
-            case KeyCategory.Letters1:
-                return "Letters, first row"
-            case KeyCategory.Letters2:
-                return "Letters, second row"
-            case KeyCategory.Letters3:
-                return "Letters, third row"
-            case KeyCategory.PinkyKeys:
-                return "Pinky keys"
-            case KeyCategory.SpaceBar:
-                return "Space bar"
-            case KeyCategory.System:
-                return "System"
-            case KeyCategory.Modifiers:
-                return "Modifiers"
-            case KeyCategory.InputMethod:
-                return "Input method"
-            case KeyCategory.Miscellaneous:
-                return "Miscellaneous"
-            case _:
-                raise ValueError(f"No description ofr KeyCategory: {self}")
+        descriptions = {
+            KeyCategory.Digits: "Digits",
+            KeyCategory.Letters1: "Letters, first row",
+            KeyCategory.Letters2: "Letters, second row",
+            KeyCategory.Letters3: "Letters, third row",
+            KeyCategory.PinkyKeys: "Pinky keys",
+            KeyCategory.SpaceBar: "Space bar",
+            KeyCategory.Numpad: "Numeric pad",
+            KeyCategory.System: "System",
+            KeyCategory.Modifiers: "Modifiers",
+            KeyCategory.InputMethod: "Input method",
+            KeyCategory.Miscellaneous: "Miscellaneous",
+        }
+        if d := descriptions.get(self):
+            return d
+        else:
+            raise ValueError(f"No description ofr KeyCategory: {self}")
 
 
 @dataclass
