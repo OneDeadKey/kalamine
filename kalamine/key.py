@@ -27,6 +27,7 @@ class KeyCategory(Flag):
     Letters3 = auto()
     PinkyKeys = auto()
     SpaceBar = auto()
+    Numpad = auto()
     System = auto()
     Modifiers = auto()
     InputMethod = auto()
@@ -50,6 +51,7 @@ class KeyCategory(Flag):
             KeyCategory.Letters3: "Letters, third row",
             KeyCategory.PinkyKeys: "Pinky keys",
             KeyCategory.SpaceBar: "Space bar",
+            KeyCategory.Numpad: "Numeric pad",
             KeyCategory.System: "System",
             KeyCategory.Modifiers: "Modifiers",
             KeyCategory.InputMethod: "Input method",

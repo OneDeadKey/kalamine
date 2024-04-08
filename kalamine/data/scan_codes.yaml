@@ -264,155 +264,246 @@ SpaceBar:
   windows: "39"
   macos: "49"
   hand: null
+Numpad:
+- xkb: kp0
+  web: Numpad0
+  windows: null
+  macos: null
+  hand: null
+- xkb: kp1
+  web: Numpad1
+  windows: null
+  macos: null
+  hand: null
+- xkb: kp2
+  web: Numpad2
+  windows: null
+  macos: null
+  hand: null
+- xkb: kp3
+  web: Numpad3
+  windows: null
+  macos: null
+  hand: null
+- xkb: kp4
+  web: Numpad4
+  windows: null
+  macos: null
+  hand: null
+- xkb: kp5
+  web: Numpad5
+  windows: null
+  macos: null
+  hand: null
+- xkb: kp6
+  web: Numpad6
+  windows: null
+  macos: null
+  hand: null
+- xkb: kp7
+  web: Numpad7
+  windows: null
+  macos: null
+  hand: null
+- xkb: kp8
+  web: Numpad8
+  windows: null
+  macos: null
+  hand: null
+- xkb: kp9
+  web: Numpad9
+  windows: null
+  macos: null
+  hand: null
+- xkb: kpen
+  web: NumpadEnter
+  windows: null
+  macos: null
+  hand: null
+- xkb: kpeq
+  web: NumpadEqual
+  windows: null
+  macos: null
+  hand: null
+- xkb: kpdl
+  web: NumpadDecimal
+  windows: null
+  macos: null
+  hand: null
+- xkb: kppt
+  web: NumpadComma
+  windows: null
+  macos: null
+  hand: null
+- xkb: kpdv
+  web: NumpadDivide
+  windows: null
+  macos: null
+  hand: null
+- xkb: kpmu
+  web: NumpadMultiply
+  windows: null
+  macos: null
+  hand: null
+- xkb: kpsu
+  web: NumpadSubtract
+  windows: null
+  macos: null
+  hand: null
+- xkb: kpad
+  web: NumpadAdd
+  windows: null
+  macos: null
+  hand: null
+- xkb: nmlk
+  web: NumLock
+  windows: null
+  macos: null
+  hand: null
 System:
 - xkb: "tab"
-  web: null
+  web: Tab
   windows: null
   macos: null
   hand: Left
 - xkb: "rtrn"
-  web: null
+  web: Enter
   windows: null
   macos: null
   hand: null
 - xkb: "bksp"
-  web: null
+  web: Backspace
   windows: null
   macos: null
   hand: null
 - xkb: "dele"
-  web: null
+  web: Delete
   windows: null
   macos: null
   hand: null
 - xkb: "esc"
-  web: null
+  web: Escape
   windows: null
   macos: null
   hand: null
 - xkb: "menu"
-  web: null
+  web: ContextMenu
   windows: null
   macos: null
   hand: null
 - xkb: "home"
-  web: null
-  windows: null
-  macos: null
-  hand: null
-- xkb: "up"
-  web: null
+  web: Home
   windows: null
   macos: null
   hand: null
 - xkb: "end"
-  web: null
+  web: End
   windows: null
   macos: null
   hand: null
-- xkb: "pgup"
-  web: null
-  windows: null
-  macos: null
-  hand: null
-- xkb: "left"
-  web: null
+- xkb: "up"
+  web: ArrowUp
   windows: null
   macos: null
   hand: null
 - xkb: "down"
-  web: null
+  web: ArrowDown
+  windows: null
+  macos: null
+  hand: null
+- xkb: "left"
+  web: ArrowLeft
   windows: null
   macos: null
   hand: null
 - xkb: "rght"
-  web: null
+  web: ArrowDown
+  windows: null
+  macos: null
+  hand: null
+- xkb: "pgup"
+  web: PageUp
   windows: null
   macos: null
   hand: null
 - xkb: "pgdn"
-  web: null
+  web: PageDown
   windows: null
   macos: null
   hand: null
 - xkb: "fk01"
-  web: null
+  web: F1
   windows: null
   macos: null
   hand: null
 - xkb: "fk02"
-  web: null
+  web: F2
   windows: null
   macos: null
   hand: null
 - xkb: "fk03"
-  web: null
+  web: F3
   windows: null
   macos: null
   hand: null
 - xkb: "fk04"
-  web: null
+  web: F4
   windows: null
   macos: null
   hand: null
 - xkb: "fk05"
-  web: null
-  windows: null
-  macos: null
-  hand: null
-- xkb: "dele"
-  web: null
+  web: F5
   windows: null
   macos: null
   hand: null
 - xkb: "fk06"
-  web: null
+  web: F6
   windows: null
   macos: null
   hand: null
 - xkb: "fk07"
-  web: null
+  web: F7
   windows: null
   macos: null
   hand: null
 - xkb: "fk08"
-  web: null
+  web: F8
   windows: null
   macos: null
   hand: null
 - xkb: "fk09"
-  web: null
+  web: F9
   windows: null
   macos: null
   hand: null
 - xkb: "fk10"
-  web: null
+  web: F10
   windows: null
   macos: null
   hand: null
 - xkb: "fk11"
-  web: null
+  web: F11
   windows: null
   macos: null
   hand: null
 - xkb: "fk12"
-  web: null
+  web: F12
   windows: null
   macos: null
   hand: null
 Modifiers:
 - xkb: "lfsh"
-  web: null
+  web: ShiftLeft
   windows: null
   macos: null
   hand: Left
 - xkb: "rtsh"
-  web: null
+  web: ShiftRight
   windows: null
   macos: null
   hand: Right
 - xkb: "caps"
-  web: null
+  web: CapsLock
   windows: null
   macos: null
   hand: Left
@@ -427,12 +518,22 @@ Modifiers:
   macos: null
   hand: Right
 - xkb: "lctl"
-  web: null
+  web: ControlLeft
   windows: null
   macos: null
   hand: Left
 - xkb: "rctl"
-  web: null
+  web: ControlRight
+  windows: null
+  macos: null
+  hand: Right
+- xkb: lwin
+  web: MetaLeft
+  windows: null
+  macos: null
+  hand: Left
+- xkb: rwin
+  web: MetaRight
   windows: null
   macos: null
   hand: Right
@@ -460,12 +561,12 @@ Miscellaneous:
   macos: null
   hand: null
 - xkb: "i172" # Play/Pause
-  web: null
+  web: MediaPlayPause
   windows: null
   macos: null
   hand: null
 - xkb: "i180" # Home page
-  web: null
+  web: BrowserHome
   windows: null
   macos: null
   hand: null
