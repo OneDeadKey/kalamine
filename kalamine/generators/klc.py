@@ -11,7 +11,7 @@ because they are not recognized by KBDEdit (as of v19.8.0).
 """
 
 import re
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 from ..key import KEYS
 from ..template import load_tpl, substitute_lines, substitute_token
-from ..utils import Layer, hex_ord, load_data
+from ..utils import Layer, SystemSymbol, hex_ord, load_data
 
 
 # return the corresponding char for a symbol
@@ -117,6 +117,33 @@ def klc_virtual_key(
             raise Exception("Too many OEM keys")
 
 
+SYSTEM_SYMBOLS: Dict[str, Optional[str]] = {
+    SystemSymbol.Alt.value: None,
+    SystemSymbol.AltGr.value: None,
+    SystemSymbol.BackSpace.value: "\b",
+    SystemSymbol.CapsLock.value: None,
+    SystemSymbol.Compose.value: None,
+    SystemSymbol.Control.value: None,
+    SystemSymbol.Delete.value: None,
+    SystemSymbol.Escape.value: "\x1b",
+    SystemSymbol.Return.value: "\r",
+    SystemSymbol.Shift.value: None,
+    SystemSymbol.Super.value: None,
+    SystemSymbol.Tab.value: "\t",
+    SystemSymbol.RightTab.value: None,
+    SystemSymbol.LeftTab.value: None,
+    SystemSymbol.ArrowUp.value: None,
+    SystemSymbol.ArrowDown.value: None,
+    SystemSymbol.ArrowLeft.value: None,
+    SystemSymbol.ArrowRight.value: None,
+    SystemSymbol.PageUp.value: None,
+    SystemSymbol.PageDown.value: None,
+    SystemSymbol.Home.value: None,
+    SystemSymbol.End.value: None,
+    SystemSymbol.Menu.value: None,
+}
+
+
 def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     """Windows layout, main part."""
 
@@ -143,6 +170,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
         symbols = []
         description = "//"
         is_alpha = False
+        base_system_action_error = False
 
         for i in layers:
             layer = layout.layers[i]
@@ -153,6 +181,18 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                 if symbol in layout.dead_keys:
                     desc = layout.dead_keys[symbol][" "]
                     symbol = hex_ord(desc) + "@"
+                elif symbol in SYSTEM_SYMBOLS:
+                    symbolʹ = SYSTEM_SYMBOLS[symbol]
+                    if symbolʹ is None:
+                        print(
+                            f"Warning: unsupported system action for key {key.id}: {symbol}"
+                        )
+                        if i is Layer.BASE:
+                            base_system_action_error = True
+                        symbol = "-1"
+                    else:
+                        symbol = hex_ord(symbolʹ)
+                        desc = symbol
                 else:
                     if i is Layer.BASE:
                         is_alpha = symbol.upper() != symbol
@@ -163,6 +203,10 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                 desc = " "
                 symbols.append("-1")
             description += " " + desc
+
+        if base_system_action_error:
+            print(f"Warning: cannot map non-system action on system key: {key.id}")
+            continue
 
         scan_code = key.windows[1:].lower()
 
@@ -289,6 +333,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
         dead_symbols = []
         is_alpha = False
         has_dead_key = False
+        base_system_action_error = False
 
         for i in layers:
             layer = layout.layers[i]
@@ -302,6 +347,18 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
                     symbol = "WCH_DEAD"
                     dead = hex_ord(desc)
                     has_dead_key = True
+                elif symbol in SYSTEM_SYMBOLS:
+                    symbolʹ = SYSTEM_SYMBOLS[symbol]
+                    if symbolʹ is None:
+                        print(
+                            f"Warning: unsupported system action for key {key.id}: {symbol}"
+                        )
+                        if i is Layer.BASE:
+                            base_system_action_error = True
+                        symbol = "-1"
+                    else:
+                        symbol = hex_ord(symbolʹ)
+                        desc = symbol
                 else:
                     if i is Layer.BASE:
                         is_alpha = symbol.upper() != symbol
@@ -313,6 +370,10 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
                 desc = " "
                 symbols.append("WCH_NONE")
                 dead_symbols.append("WCH_NONE")
+
+        if base_system_action_error:
+            print(f"Warning: cannot map non-system action on system key: {key.id}")
+            continue
 
         # scan_code = key.windows[1:].lower()
 
