@@ -102,19 +102,24 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
     oem_idx = 0  # Python trick to do equivalent of C static variable
     output = []
     qwerty_vk = load_data("qwerty_vk")
+    layers = (Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT)
 
     for key in KEYS.values():
         if key.id in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
-        if key.windows is None:
+        if key.windows is None or not key.windows.startswith("T"):
             # TODO: warning
+            continue
+
+        # Skip key if not defined and is not alphanumeric
+        if not any(key.id in layout.layers[i] for i in layers) and not key.alphanum:
             continue
 
         symbols = []
         description = "//"
         is_alpha = False
 
-        for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
+        for i in layers:
             layer = layout.layers[i]
 
             if key.id in layer:
@@ -134,7 +139,7 @@ def klc_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbols.append("-1")
             description += " " + desc
 
-        scan_code = key.windows
+        scan_code = key.windows[1:].lower()
 
         virtual_key = qwerty_vk[scan_code]
         if not layout.qwerty_shortcuts:
@@ -186,7 +191,9 @@ def klc_deadkeys(layout: "KeyboardLayout") -> List[str]:
             continue
         dk = layout.dead_keys[k]
 
-        output.append(f"// DEADKEY: {layout.custom_dead_keys[k].name.upper()} //" + "{{{")
+        output.append(
+            f"// DEADKEY: {layout.custom_dead_keys[k].name.upper()} //" + "{{{"
+        )
         output.append(f"DEADKEY\t{hex_ord(dk[' '])}")
 
         for base, alt in dk.items():
@@ -218,7 +225,9 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
         if k not in layout.dead_keys:
             continue
         dk = layout.dead_keys[k]
-        output.append(f"{hex_ord(dk[' '])}\t\"{layout.custom_dead_keys[k].name.upper()}\"")
+        output.append(
+            f"{hex_ord(dk[' '])}\t\"{layout.custom_dead_keys[k].name.upper()}\""
+        )
     return output
 
 
@@ -227,6 +236,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
 
     supported_symbols = "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     qwerty_vk = load_data("qwerty_vk")
+    layers = (Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT)
 
     global oem_idx
     oem_idx = 0  # Python trick to do equivalent of C static variable
@@ -234,8 +244,13 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
     for key in KEYS.values():
         if key.id in ["ae13", "ab11"]:  # ABNT / JIS keys
             continue  # these two keys are not supported yet
-        if key.windows is None:
+        # TODO: add support for all scan codes
+        if key.windows is None or not key.windows.startswith("T"):
             # TODO: warning
+            continue
+
+        # Skip key if not defined and is not alphanumeric
+        if not any(key.id in layout.layers[i] for i in layers) and not key.alphanum:
             continue
 
         symbols = []
@@ -243,7 +258,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
         is_alpha = False
         has_dead_key = False
 
-        for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
+        for i in layers:
             layer = layout.layers[i]
 
             if key.id in layer:
@@ -267,7 +282,7 @@ def c_keymap(layout: "KeyboardLayout") -> List[str]:
                 symbols.append("WCH_NONE")
                 dead_symbols.append("WCH_NONE")
 
-        scan_code = key.windows
+        scan_code = key.windows[1:].lower()
 
         virtual_key = qwerty_vk[scan_code]
         if not layout.qwerty_shortcuts:
@@ -363,7 +378,9 @@ def c_dk_index(layout: "KeyboardLayout") -> List[str]:
         if k not in layout.dead_keys:
             continue
         term = layout.dead_keys[k][" "]
-        output.append(f'L"\\\\x{hex_ord(term)}"\tL"{layout.custom_dead_keys[k].name.upper()}",')
+        output.append(
+            f'L"\\\\x{hex_ord(term)}"\tL"{layout.custom_dead_keys[k].name.upper()}",'
+        )
     return output
 
 
