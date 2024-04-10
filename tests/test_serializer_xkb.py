@@ -159,17 +159,19 @@ def test_intl():
         """
     )
 
+    # Extra mapping section
     extraMapping = {
-        # NOTE: redefine level
+        # Redefine level of key previously defined in ASCII art
         "ae01": {"shift": "?"},
-        # NOTE: test case variants and ODK alias
+        # Test layer case variants and ODK alias
         "menu": {"base": "a", "sHiFt": "A", "1dk": "æ", "ODk_shiFt": "Æ"},
-        # NOTE: clone level
+        # Clone level of another key previously defined in ASCII art
         "esc": {"base": "(ae11)"},
-        # NOTE: clone key
+        # Clone whole key previously defined
         "i172": "(lsgt)",
     }
 
+    # Extra mapping keymap
     extraSymbols = [
         "",
         "// System",
@@ -179,7 +181,6 @@ def test_intl():
         "// Miscellaneous",
         "key <I172> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |",
     ]
-
     extraExpected = expected + extraSymbols
     extraExpected[1] = (
         "key <AE01> {[ 1               , question        , VoidSymbol      , VoidSymbol      ]}; // 1 ?"

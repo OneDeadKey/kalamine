@@ -50,14 +50,18 @@ class Layer(IntEnum):
     @classmethod
     def parse(cls, raw: str) -> Optional["Layer"]:
         rawʹ = raw.casefold()
+        # Parse alternate names
         if rawʹ == "1dk":
             return cls(cls.ODK)
         elif rawʹ == "1dk_shift":
             return cls(cls.ODK_SHIFT)
+        # Parse native values
         else:
             for layer in cls:
+                # Parse native names
                 if rawʹ == layer.name.casefold():
                     return layer
+                # Parse numeric values
                 try:
                     if int(raw, base=10) == layer.value:
                         return layer

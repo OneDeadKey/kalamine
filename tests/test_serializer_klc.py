@@ -136,18 +136,20 @@ def test_intl_keymap():
     assert len(keymap) == len(keymap_ref)
     assert keymap == keymap_ref
 
+    # Extra mapping section
     extraMapping = {
-        # NOTE: redefine level
+        # Redefine level of key previously defined in ASCII art
         "ae01": {"shift": "?"},
         # TODO
-        # # NOTE: test case variants and ODK alias
+        # Test layer case variants and ODK alias
         # "kppt": {"base": ",", "sHiFt": ";", "1dk": ".", "ODk_shiFt": ":"},
-        # NOTE: clone level
+        # Clone level of another key previously defined in ASCII art
         "esc": {"base": "\x1b", "shift": "(ae11)"},
-        # NOTE: clone key
+        # Clone whole key previously defined
         "henk": "(lsgt)",
     }
 
+    # Resulting klc keymap
     extraSymbols = [
         "01	ESCAPE	0	001b	005f	-1	-1	// \x1b _",
         "79	OEM_8	0	005c	007c	-1	-1	// \\ |",
