@@ -75,7 +75,7 @@ class MetaDescr:
 class SpacebarDescr:
     shift:       str = " "
     altgr:       str = " "
-    altgt_shift: str = " "
+    altgr_shift: str = " "
     odk:         str = "'"
     odk_shift:   str = "'"
 # fmt: on
