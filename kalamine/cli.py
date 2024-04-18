@@ -9,7 +9,7 @@ import click
 
 from .generators import ahk, keylayout, klc, web, xkb
 from .help import create_layout, user_guide
-from .layout import KeyboardLayout, load_layout
+from .layout import GEOMETRY_NAMES, KeyboardLayout, load_layout
 from .server import keyboard_server
 
 
@@ -162,12 +162,25 @@ def build(
         click.echo(f"... {output_file}")
 
 
-# TODO: Provide geometry choices
 @cli.command()
 @click.argument("output_file", nargs=1, type=click.Path(exists=False, path_type=Path))
-@click.option("--geometry", default="ISO", help="Specify keyboard geometry.")
-@click.option("--altgr/--no-altgr", default=False, help="Set an AltGr layer.")
-@click.option("--1dk/--no-1dk", "odk", default=False, help="Set a custom dead key.")
+@click.option(
+    "--geometry",
+    default="ISO",
+    type=click.Choice(GEOMETRY_NAMES, case_sensitive=False),
+    help="Specify keyboard geometry (defaults to ISO).",
+)
+@click.option(
+    "--altgr/--no-altgr",
+    default=False,
+    help="Set an AltGr layer (defaults to --no-altgr).",
+)
+@click.option(
+    "--1dk/--no-1dk",
+    "odk",
+    default=False,
+    help="Set a custom dead key (defaults to --no-1dk).",
+)
 def new(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     """Create a new TOML layout description."""
     create_layout(output_file, geometry, altgr, odk)

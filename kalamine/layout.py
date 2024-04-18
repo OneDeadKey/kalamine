@@ -121,6 +121,8 @@ GEOMETRY = {
     key: GeometryDescr.from_dict(val) for key, val in load_data("geometry").items()
 }
 
+GEOMETRY_NAMES = list(map(str, GEOMETRY.keys()))
+
 
 ###
 # Main
@@ -375,14 +377,15 @@ class KeyboardLayout:
 
     @property
     def geometry(self) -> str:
-        """ANSI, ISO, ERGO."""
+        """ANSI, ISO, ABNT, JIS, ALT, ERGO."""
         return self.meta["geometry"].upper()
 
     @geometry.setter
     def geometry(self, value: str) -> None:
-        """ANSI, ISO, ERGO."""
+        """ANSI, ISO, ABNT, JIS, ALT, ERGO."""
         shape = value.upper()
-        if shape not in ["ANSI", "ISO", "ERGO"]:
+        if shape not in GEOMETRY_NAMES:
+            click.echo(f"Unsupported geometry '{shape}', falling back to 'ISO'")
             shape = "ISO"
         self.meta["geometry"] = shape
 
