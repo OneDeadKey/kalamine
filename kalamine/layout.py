@@ -146,6 +146,7 @@ class KeyboardLayout:
         self.has_altgr = False
         self.has_1dk = False
         self.qwerty_shortcuts = qwerty_shortcuts
+        self.angle_mod = angle_mod
 
         # metadata: self.meta
         for k in layout_data:
@@ -174,6 +175,7 @@ class KeyboardLayout:
                 click.echo(
                     "Warning: geometry does not support angle-mod; ignoring the --angle-mod argument"
                 )
+                self.angle_mod = False
 
         if "full" in layout_data:
             full = text_to_lines(layout_data["full"])
