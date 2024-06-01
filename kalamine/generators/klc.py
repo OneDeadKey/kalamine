@@ -82,7 +82,6 @@ def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> 
     elif base == " ":
         return "SPACE"
     else:
-        print("OEM")
         MAX_OEM = 9
         # We affect abitrary OEM VK and it will not match the one
         # in distributed layout. It can cause issue if a application
