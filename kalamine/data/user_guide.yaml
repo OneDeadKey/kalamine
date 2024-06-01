@@ -37,14 +37,14 @@ Dead_Keys:
 
                            +-----+
             shift -------> |*"   |  = dead diaeresis
-            base --------> |*'   |  = dead acute accent
+            base --------> |*´   |  = dead acute accent
                            +-----+
 
         … as well as in the `altgr` layer:
 
                            +-----+
             shift = " ---> | "*" | <----- altgr+shift+key = dead diaeresis
-            base = ' ----> | '*' | <----- altgt+key       = dead acute accent
+            base = ' ----> | '*´ | <----- altgt+key       = dead acute accent
                            +-----+
 
     Standard_Dead_Keys: |
