@@ -1,11 +1,13 @@
 .PHONY: all dev test lint publish format clean
 
+PYTHON3?=python3
+
 all: format lint test
 
 dev:  ## Install a development environment
-	python3 -m pip install --user --upgrade -e .[dev]
-	# python3 -m pip install --user --upgrade build
-	# python3 -m pip install --user --upgrade twine wheel
+	$(PYTHON3) -m pip install --user --upgrade -e .[dev]
+	# $(PYTHON3) -m pip install --user --upgrade build
+	# $(PYTHON3) -m pip install --user --upgrade twine wheel
 
 format:  ## Format sources
 	black kalamine
@@ -18,13 +20,13 @@ lint:  ## Lint sources
 	mypy kalamine
 
 test:  ## Run tests
-	python3 -m kalamine.cli guide > docs/README.md
-	python3 -m kalamine.cli build layouts/*.toml
-	pytest
+	$(PYTHON3) -m kalamine.cli guide > docs/README.md
+	$(PYTHON3) -m kalamine.cli build layouts/*.toml
+	$(PYTHON3) -m pytest
 
 publish: test  ## Publish package
 	rm -rf dist/*
-	python3 -m build
+	$(PYTHON3) -m build
 	twine check dist/*
 	twine upload dist/*
 
