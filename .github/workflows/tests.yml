@@ -62,7 +62,7 @@ jobs:
         run: isort kalamine --check
 
       - name: Run ruff
-        run: ruff kalamine
+        run: ruff check kalamine
 
       - name: Run mypy
         run: mypy kalamine

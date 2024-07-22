@@ -14,7 +14,7 @@ format:  ## Format sources
 lint:  ## Lint sources
 	black --check --quiet kalamine
 	isort --check --quiet kalamine
-	ruff kalamine
+	ruff check kalamine
 	mypy kalamine
 
 test:  ## Run tests
