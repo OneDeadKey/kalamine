@@ -83,7 +83,7 @@ Dead keys are preceded by a `*` sign. They can be used in the `base` layer:
 
                    +-----+
     shift = " ---> | "*" | <----- altgr+shift+key = dead diaeresis
-    base = ' ----> | '*' | <----- altgt+key       = dead acute accent
+    base = ' ----> | '*' | <----- altgr+key       = dead acute accent
                    +-----+
 
 

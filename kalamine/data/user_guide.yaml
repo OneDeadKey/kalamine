@@ -44,7 +44,7 @@ Dead_Keys:
 
                            +-----+
             shift = " ---> | "*" | <----- altgr+shift+key = dead diaeresis
-            base = ' ----> | '*' | <----- altgt+key       = dead acute accent
+            base = ' ----> | '*' | <----- altgr+key       = dead acute accent
                            +-----+
 
     Standard_Dead_Keys: |
