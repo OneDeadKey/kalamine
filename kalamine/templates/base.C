@@ -1,14 +1,3 @@
-/***************************************************************************\
-* Module Name: ${name8}.C
-*
-* keyboard layout
-*
-* Copyright (c) 1985-2001, Microsoft Corporation
-*
-* History:
-* KBDTOOL v3.40 - Created  Fri Feb 16 21:54:03 2024
-\***************************************************************************/
-
 #include <windows.h>
 #include "kbd.h"
 #include "${name8}.h"
