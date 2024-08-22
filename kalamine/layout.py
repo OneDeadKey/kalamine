@@ -43,6 +43,17 @@ def load_layout(layout_path: Path) -> Dict:
             ext = load_descriptor(parent_path)
             ext.update(cfg)
             cfg = ext
+        if "version" in cfg:
+            version_check = cfg["version"].split(".")
+            if len(version_check) > 3:
+                raise Exception(
+                    f"Layout version number **must** follow `x.y.z` format\nCurrently got `version={cfg['version']}`"
+                )
+            missing_digits = (3 - len(version_check)) * ["0"]
+            cfg["version"] = ".".join(version_check + missing_digits)
+        else:
+            cfg["version"] = MetaDescr.version
+
         return cfg
 
     except Exception as exc:
