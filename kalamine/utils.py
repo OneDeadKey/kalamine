@@ -47,15 +47,37 @@ class Layer(IntEnum):
     ALTGR = 4
     ALTGR_SHIFT = 5
 
+    @classmethod
+    def parse(cls, raw: str) -> Optional["Layer"]:
+        rawʹ = raw.casefold()
+        # Parse alternate names
+        if rawʹ == "1dk":
+            return cls(cls.ODK)
+        elif rawʹ == "1dk_shift":
+            return cls(cls.ODK_SHIFT)
+        # Parse native values
+        else:
+            for layer in cls:
+                # Parse native names
+                if rawʹ == layer.name.casefold():
+                    return layer
+                # Parse numeric values
+                try:
+                    if int(raw, base=10) == layer.value:
+                        return layer
+                except ValueError:
+                    pass
+            return None
+
     def next(self) -> "Layer":
         """The next layer in the layer ordering."""
         return Layer(int(self) + 1)
 
     def necromance(self) -> "Layer":
         """Remove the effect of the dead key if any."""
-        if self == Layer.ODK:
+        if self is Layer.ODK:
             return Layer.BASE
-        elif self == Layer.ODK_SHIFT:
+        elif self is Layer.ODK_SHIFT:
             return Layer.SHIFT
         return self
 
@@ -105,66 +127,4 @@ DK_INDEX = {}
 for dk in DEAD_KEYS:
     DK_INDEX[dk.char] = dk
 
-SCAN_CODES = load_data("scan_codes")
-
 ODK_ID = "**"  # must match the value in dead_keys.yaml
-
-LAYER_KEYS = [
-    "- Digits",
-    "ae01",
-    "ae02",
-    "ae03",
-    "ae04",
-    "ae05",
-    "ae06",
-    "ae07",
-    "ae08",
-    "ae09",
-    "ae10",
-    "- Letters, first row",
-    "ad01",
-    "ad02",
-    "ad03",
-    "ad04",
-    "ad05",
-    "ad06",
-    "ad07",
-    "ad08",
-    "ad09",
-    "ad10",
-    "- Letters, second row",
-    "ac01",
-    "ac02",
-    "ac03",
-    "ac04",
-    "ac05",
-    "ac06",
-    "ac07",
-    "ac08",
-    "ac09",
-    "ac10",
-    "- Letters, third row",
-    "ab01",
-    "ab02",
-    "ab03",
-    "ab04",
-    "ab05",
-    "ab06",
-    "ab07",
-    "ab08",
-    "ab09",
-    "ab10",
-    "- Pinky keys",
-    "ae11",
-    "ae12",
-    "ae13",
-    "ad11",
-    "ad12",
-    "ac11",
-    "ab11",
-    "tlde",
-    "bksl",
-    "lsgt",
-    "- Space bar",
-    "spce",
-]

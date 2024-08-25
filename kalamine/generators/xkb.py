@@ -4,13 +4,14 @@ GNU/Linux: XKB
 - xkb symbols/patch for XOrg (system-wide) & Wayland (system-wide/user-space)
 """
 
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
+from ..key import KEYS, KeyCategory
 from ..template import load_tpl, substitute_lines
-from ..utils import DK_INDEX, LAYER_KEYS, ODK_ID, hex_ord, load_data
+from ..utils import DK_INDEX, ODK_ID, hex_ord, load_data
 
 XKB_KEY_SYM = load_data("key_sym")
 
@@ -27,18 +28,14 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
     max_length = 16  # `ISO_Level3_Latch` should be the longest symbol name
 
     output: List[str] = []
-    for key_name in LAYER_KEYS:
-        if key_name.startswith("-"):  # separator
-            if output:
-                output.append("")
-            output.append("//" + key_name[1:])
-            continue
-
+    prev_category: Optional[KeyCategory] = None
+    for key in KEYS.values():
         descs = []
         symbols = []
-        for layer in layout.layers.values():
-            if key_name in layer:
-                keysym = layer[key_name]
+        has_symbols = False
+        for keys in layout.layers.values():
+            if key.id in keys:
+                keysym = keys[key.id]
                 desc = keysym
                 # dead key?
                 if keysym in DK_INDEX:
@@ -50,6 +47,7 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
                     symbol = XKB_KEY_SYM[keysym]
                 else:
                     symbol = f"U{hex_ord(keysym).upper()}"
+                has_symbols = True
             else:
                 desc = " "
                 symbol = "VoidSymbol"
@@ -57,17 +55,26 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
             descs.append(desc)
             symbols.append(symbol.ljust(max_length))
 
-        key = "{{[ {0}, {1}, {2}, {3}]}}"  # 4-level layout by default
+        if not has_symbols:
+            continue
+
+        if key.category is not prev_category:
+            if output:
+                output.append("")
+            output.append("// " + key.category.description)
+            prev_category = key.category
+
+        key_template = "{{[ {0}, {1}, {2}, {3}]}}"  # 4-level layout by default
         description = "{0} {1} {2} {3}"
         if layout.has_altgr and layout.has_1dk:
             # 6 layers are needed: they won't fit on the 4-level format.
             if xkbcomp:  # user-space XKB keymap file (standalone)
                 # standalone XKB files work best with a dual-group solution:
                 # one 4-level group for base+1dk, one two-level group for AltGr
-                key = "{{[ {}, {}, {}, {}],[ {}, {}]}}"
+                key_template = "{{[ {}, {}, {}, {}],[ {}, {}]}}"
                 description = "{} {} {} {} {} {}"
             else:  # eight_level XKB symbols (Neo-like)
-                key = "{{[ {0}, {1}, {4}, {5}, {2}, {3}]}}"
+                key_template = "{{[ {0}, {1}, {4}, {5}, {2}, {3}]}}"
                 description = "{0} {1} {4} {5} {2} {3}"
         elif layout.has_altgr:
             del symbols[3]
@@ -75,7 +82,8 @@ def xkb_table(layout: "KeyboardLayout", xkbcomp: bool = False) -> List[str]:
             del descs[3]
             del descs[2]
 
-        line = f"key <{key_name.upper()}> {key.format(*symbols)};"
+        keycode = f"<{key.xkb.upper()}>"
+        line = f"key {keycode: <6} {key_template.format(*symbols)};"
         if show_description:
             line += (" // " + description.format(*descs)).rstrip()
             if line.endswith("\\"):
