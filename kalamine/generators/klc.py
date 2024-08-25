@@ -59,7 +59,10 @@ def klc_virtual_key(
     scan_code: str,
     virtual_keys: Dict[str, List[str]],
 ) -> str:
-    if scan_code == "T56":
+    oem_102_scan_code = "T56"
+    if layout.angle_mod:
+        oem_102_scan_code = "T30"
+    if scan_code == oem_102_scan_code:
         # manage the ISO key (between shift and Z on ISO keyboards).
         # We're assuming that its scancode is always 56
         # https://www.win.tue.nl/~aeb/linux/kbd/scancodes.html
@@ -104,7 +107,7 @@ def klc_virtual_key(
     elif base == "\x1b" and check("ESCAPE"):
         return "ESCAPE"
     else:
-        MAX_OEM = 8
+        MAX_OEM = 9
         # We affect abitrary OEM VK and it will not match the one
         # in distributed layout. It can cause issue if a application
         # is awaiting a particular OEM_ for a hotkey

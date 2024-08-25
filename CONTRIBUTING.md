@@ -53,7 +53,7 @@ We rely on [ruff][3] and [mypy][4] for that, with their default configurations:
 ```bash
 black --check --quiet kalamine
 isort --check --quiet kalamine
-ruff kalamine
+ruff check kalamine
 mypy kalamine
 ```
 
@@ -66,7 +66,7 @@ make lint
 Many linting errors can be fixed automatically:
 
 ```bash
-ruff --fix kalamine
+ruff check --fix kalamine
 ```
 
 [3]: https://docs.astral.sh/ruff/
