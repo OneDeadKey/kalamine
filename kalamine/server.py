@@ -26,21 +26,28 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                 <meta charset="utf-8" />
                 <title>Kalamine</title>
                 <link rel="stylesheet" type="text/css" href="style.css" />
+                <link rel="stylesheet" type="text/css" href="heatmap.css" />
                 <script src="x-keyboard.js" type="module"></script>
                 <script src="http://{host_name}:{lr_server_port}/livereload.js"></script>
                 <script src="demo.js" type="text/javascript"></script>
+                <script src="collapsable-table.js" type="module"></script>
+                <script src="stats-canvas.js" type="module"></script>
+                <script src="layout-analyzer.js" type="text/javascript"></script>
+                <script src="keebs.js" type="text/javascript"></script>
                 <script>angle_mod = {"true" if angle_mod else "false"}; </script>
             </head>
             <body>
+                <h1>Kalamine</h1>
+
                 <p>
                     <a href="{layout.meta['url']}">{layout.meta['name']}</a>
                     <br /> {layout.meta['locale']}/{layout.meta['variant']}
                     <br /> {layout.meta['description']}
                 </p>
-                <input spellcheck="false" placeholder="" />
+                <input spellcheck="false" placeholder="zonne de saisie {layout.meta['name']}" />
                 <x-keyboard src="/json"></x-keyboard>
-                <p style="text-align: right;" {"hidden" if angle_mod else ""}>
-                    <select>
+                <p style="text-align: center;" {"hidden" if angle_mod else ""}>
+                    <select id="geometry">
                         <option value="iso">  ISO  </option>
                         <option value="ansi"> ANSI </option>
                         <option value="ol60"> ERGO </option>
@@ -58,6 +65,85 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                     | <a href="/xkb_symbols">xkb_symbols</a>
                     | <a href="/svg">svg</a>
                 </p>
+
+                <h1>Analyseur</h1>
+                <p id="imprecise-data">
+                    <strong>Attention :</strong> cette disposition
+                    ne supporte pas de nombreux caractères du corpus sélectionné.
+                    Les résultats ne sont proposés qu’à titre indicatif.
+                </p>
+                <div id="sticky-select" style="text-align: right;">
+                    <form>
+                        <select id="layout" style="display:none"> <option value="{layout.meta["variant"]}" selected>{layout.meta["name"]}</option></select>
+                        <select id="corpus">
+                            <option>en</option>
+                            <option selected>en+fr</option>
+                            <option>fr</option>
+                        </select>
+                    </form>
+                </div>
+                <h2>Métriques</h2>
+                <section id="load">
+                    <h3>Charge des doigts</h3>
+                    <small></small>
+                    <stats-canvas></stats-canvas>
+                </section>
+
+                <section id="sfu">
+                    <h3>Digrammes de même doigt/touche</h3>
+                    <small><span id="sfu-all"></span> / <span id="sku-all"></span></small>
+                    <stats-canvas></stats-canvas>
+                </section>
+
+                <collapsable-table id="Achoppements">
+                <small>
+                    <span id="unsupported-all"></span> /
+                    <span id="sfu-all"></span> /
+                    <span id="extensions-all"></span> /
+                    <span id="scisors-all"></span>
+                </small>
+                <table id="unsupported"></table>
+                <table id="sfu-digrams"></table>
+                <table id="extended-rolls"></table>
+                <table id="scisors"></table>
+                </collapsable-table>
+
+                <collapsable-table id="Digrammes">
+                <small>
+                    <span id="sku-all"></span> /
+                    <span id="inward-all"></span> /
+                    <span id="outward-all"></span>
+                </small>
+                <table id="sku-digrams"></table>
+                <table id="inward"></table>
+                <table id="outward"></table>
+                </collapsable-table>
+
+                <collapsable-table id="Trigrammes">
+                <small>
+                    <span id="almost-skb-all"></span> /
+                    <span id="almost-sfb-all"></span> /
+                    <span id="redirect-all"></span> /
+                    <span id="bad-redirect-all"></span>
+                </small>
+                <table id="almost-skbs"></table>
+                <table id="almost-sfbs"></table>
+                <table id="redirect"></table>
+                <table id="bad-redirect"></table>
+                </collapsable-table>
+
+
+                <h2>Glossaire</h2>
+                <p>»»» <a href="https://ergol.org/ressources/glossaire">Un glossaire est en cours d’élaboration ici.</a> «««</p>
+
+                <h2>Mise en garde</h2>
+                <p><strong>Ces métriques ne sont pas des cibles d’optimisation !</strong></p>
+
+                <blockquote cite="https://fr.wikipedia.org/wiki/Loi_de_Goodhart">
+                <p>Lorsqu’une métrique devient un objectif, elle cesse d’être une bonne métrique.</p>
+                <p style="text-align: right;">— <a
+                    href="https://fr.wikipedia.org/wiki/Loi_de_Goodhart">loi de Goodhart</a></p>
+                </blockquote>
             </body>
             </html>
         """
