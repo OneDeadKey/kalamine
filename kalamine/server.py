@@ -3,6 +3,8 @@ import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from xml.etree import ElementTree as ET
+from importlib import metadata
+
 
 import click
 from livereload import Server  # type: ignore
@@ -38,13 +40,28 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             </head>
             <body>
                 <h1>Kalamine</h1>
-
-                <p>
-                    <a href="{layout.meta['url']}">{layout.meta['name']}</a>
-                    <br /> {layout.meta['locale']}/{layout.meta['variant']}
-                    <br /> {layout.meta['description']}
-                </p>
-                <input spellcheck="false" placeholder="zonne de saisie {layout.meta['name']}" />
+                <table class="table-fill">
+	                <caption>Métadonnées</caption>
+                    <tbody class="table-hover">
+                        <tr>
+                            <td class="text-left">Disposition</td>
+                            <td class="text-right">{layout.meta['name']}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Locale</td>
+                            <td class="text-right">{layout.meta['locale']}/{layout.meta['variant']}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Description</td>
+                            <td class="text-right">{layout.meta['description']}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-left">Version</td>
+                            <td class="text-right">{layout.meta['version']}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <input spellcheck="false" placeholder="zone de saisie {layout.meta['name']}" />
                 <x-keyboard src="/json"></x-keyboard>
                 <p style="text-align: center;" {"hidden" if angle_mod else ""}>
                     <select id="geometry">
@@ -72,10 +89,10 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                     ne supporte pas de nombreux caractères du corpus sélectionné.
                     Les résultats ne sont proposés qu’à titre indicatif.
                 </p>
-                <div id="sticky-select" style="text-align: right;">
+                <div id="sticky-select" style="text-align: center;">
                     <form>
                         <select id="layout" style="display:none"> <option value="{layout.meta["variant"]}" selected>{layout.meta["name"]}</option></select>
-                        <select id="corpus">
+                        <select id="corpus" style="font-size: 1.2rem;text-align:center;">
                             <option>en</option>
                             <option selected>en+fr</option>
                             <option>fr</option>
@@ -144,6 +161,21 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                 <p style="text-align: right;">— <a
                     href="https://fr.wikipedia.org/wiki/Loi_de_Goodhart">loi de Goodhart</a></p>
                 </blockquote>
+                <blockquote>
+                    <p>Les chiffres sont aux analystes ce que les lampadaires sont aux ivrognes :
+                    ils fournissent bien plus un appui qu’un éclairage.
+                    <p style="text-align: right;">— Jean Dion</p>
+                    <!-- Le Devoir - 4 juin 1997 -->
+                </blockquote>
+
+                <p> Notre recommandation : utilisez ces métriques non pour mesurer les qualités
+                d’une disposition de clavier, mais pour essayer d’en évaluer le défaut le plus
+                gênant. Puis itérez sur votre layout jusqu’à ce que ce défaut soit
+                suffisamment réduit… sans en créer un pire ailleurs. </p>
+
+                <p> Et recommencez. :-) </p>
+                <br>
+                <p style="text-align:center;"> Fait avec ♥ grâce à <a href="https://github.com/OneDeadKey/kalamine">kalamine</a> v{metadata.version('kalamine')}</p>
             </body>
             </html>
         """
@@ -200,7 +232,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
 
     try:
         thread.start()
-        url = f"http://{host_name}:{webserver_port}"
+        url = f"http://{host_name}:{webserver_port}/#/{kb_layout.meta["variant"]}/ol60/en+fr"
         print(f"Server started: {url}")
         print("Hit Ctrl-C to stop.")
         webbrowser.open(url)
