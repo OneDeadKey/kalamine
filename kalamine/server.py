@@ -44,20 +44,20 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
 	                <caption>Métadonnées</caption>
                     <tbody class="table-hover">
                         <tr>
-                            <td class="text-left">Disposition</td>
-                            <td class="text-right">{layout.meta['name']}</td>
+                            <td class="col-left">Disposition</td>
+                            <td class="col-right">{layout.meta['name']}</td>
                         </tr>
                         <tr>
-                            <td class="text-left">Locale</td>
-                            <td class="text-right">{layout.meta['locale']}/{layout.meta['variant']}</td>
+                            <td class="col-left">Locale</td>
+                            <td class="col-right">{layout.meta['locale']}/{layout.meta['variant']}</td>
                         </tr>
                         <tr>
-                            <td class="text-left">Description</td>
-                            <td class="text-right">{layout.meta['description']}</td>
+                            <td class="col-left">Description</td>
+                            <td class="col-right">{layout.meta['description']}</td>
                         </tr>
                         <tr>
-                            <td class="text-left">Version</td>
-                            <td class="text-right">{layout.meta['version']}</td>
+                            <td class="col-left">Version</td>
+                            <td class="col-right">{layout.meta['version']}</td>
                         </tr>
                     </tbody>
                 </table>
