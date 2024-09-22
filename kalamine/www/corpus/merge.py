@@ -24,7 +24,7 @@ def merge(filenames, filecount):
     # sort the merged dictionary by symbol frequency (requires CPython 3.6+)
     def sort_by_frequency(table, precision=2):
         sorted_dict = {}
-        for (key, count) in sorted(table.items(), key=lambda x: -x[1]):
+        for key, count in sorted(table.items(), key=lambda x: -x[1]):
             freq = round(count, precision)
             if freq > 0:
                 sorted_dict[key] = freq

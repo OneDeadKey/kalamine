@@ -2,14 +2,14 @@
 """ Turn corpus texts into dictionaries of symbols and digrams. """
 
 import json
-from os import path, listdir
+from os import listdir, path
 from sys import argv
 
 IGNORED_CHARS = "1234567890 \t\r\n\ufeff"
 
 
 def parse_corpus(file_path):
-    """ Count symbols and digrams in a text file. """
+    """Count symbols and digrams in a text file."""
 
     symbols = {}
     digrams = {}
@@ -46,7 +46,7 @@ def parse_corpus(file_path):
     # sort the dictionary by symbol frequency (requires CPython 3.6+)
     def sort_by_frequency(table, precision=3):
         sorted_dict = {}
-        for (key, count) in sorted(table.items(), key=lambda x: -x[1]):
+        for key, count in sorted(table.items(), key=lambda x: -x[1]):
             freq = round(100 * count / char_count, precision)
             if freq > 0:
                 sorted_dict[key] = freq
