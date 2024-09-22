@@ -18,3 +18,44 @@ input, select { color-scheme: light dark; }
   html { background-color: #222; color: #ddd; }
   a { color: #99f; }
 }
+
+.table-fill {
+  border-radius:3px;
+  border-collapse: collapse;
+  height: 50px;
+  margin: 20px auto;
+  max-width: 400px;
+  padding:5px;
+  width: 100%;
+}
+
+ 
+caption {
+  color:#99f;;
+  border: solid ;
+  font-size:18px;
+  font-weight: 100;
+  padding:10px;
+  margin-bottom:5px;
+  text-align:center;
+  vertical-align:middle;
+}
+
+ 
+td {
+  padding:5px;
+  text-align:left;
+  vertical-align:middle;
+  font-weight:300;
+  font-size:14px;
+}
+
+td.col-left {
+  text-align: left;
+  padding-left:5%;
+}
+
+td.col-right {
+  text-align: left;
+  padding-left:15%
+}
