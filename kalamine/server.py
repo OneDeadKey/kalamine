@@ -1,10 +1,9 @@
 import threading
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from importlib import metadata
 from pathlib import Path
 from xml.etree import ElementTree as ET
-from importlib import metadata
-
 
 import click
 from livereload import Server  # type: ignore
