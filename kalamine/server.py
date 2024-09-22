@@ -232,7 +232,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
 
     try:
         thread.start()
-        url = f"http://{host_name}:{webserver_port}/#/{kb_layout.meta["variant"]}/ol60/en+fr"
+        url = f"http://{host_name}:{webserver_port}/#/{kb_layout.meta['variant']}/ol60/en+fr"
         print(f"Server started: {url}")
         print("Hit Ctrl-C to stop.")
         webbrowser.open(url)
