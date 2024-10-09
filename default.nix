@@ -1,8 +1,6 @@
+# A nix alternative to `make dev`, run `nix-build` to build Kalamine on NixOS.
+
 with import <nixpkgs> {};
-# { lib
-# , fetchPypi
-# , python3Packages
-# }:
 
 python3Packages.buildPythonApplication rec {
   pname = "kalamine";
@@ -30,7 +28,6 @@ python3Packages.buildPythonApplication rec {
     description = "A cross-platform Keyboard Layout Maker";
     homepage = "https://github.com/OneDeadKey/kalamine";
     license = licenses.mit;
-    # maintainers = with maintainers; [ marsam ];
     mainProgram = "kalamine";
   };
 }
