@@ -20,6 +20,10 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
     lr_server_port = 5500
 
     def main_page(layout: KeyboardLayout, angle_mod: bool = False) -> str:
+        layout_name_displayed = layout.meta['name']
+        if 'url' in layout.meta:
+            layout_name_displayed = f'<a href="{layout.meta['url']}">{layout.meta['name']} 🔗</a>'
+        
         return f"""
             <!DOCTYPE html>
             <html xmlns="http://www.w3.org/1999/xhtml">
@@ -40,10 +44,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             <body>
                 <h1>Kalamine</h1>
                 <table class="table-fill">
-	                <caption>{
-                        f'<a href="{layout.meta['url']}">{layout.meta['name']} 🔗</a>'
-                        if 'url' in layout.meta
-                        else layout.meta['name'] }</caption>
+	                <caption>{layout_name_displayed}</caption>
                     <tbody class="table-hover">
                         <tr>
                             <td class="col-left">Locale</td>
