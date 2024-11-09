@@ -1,5 +1,5 @@
-#!/bin/env python3
-""" Turn corpus texts into dictionaries of symbols and digrams. """
+#!/usr/bin/env python3
+"""Turn corpus texts into dictionaries of symbols and digrams."""
 
 import json
 from os import listdir, path
