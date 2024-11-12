@@ -46,7 +46,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             <body>
                 <h1>Kalamine</h1>
                 <table class="table-fill">
-	                <caption>{layout_name_displayed}</caption>
+	                <caption>{layout_ref}</caption>
                     <tbody class="table-hover">
                         <tr>
                             <td class="col-left">Locale</td>
