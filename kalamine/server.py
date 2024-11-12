@@ -22,7 +22,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
     def main_page(layout: KeyboardLayout, angle_mod: bool = False) -> str:
         layout_ref = layout.meta["name"]
         if "url" in layout.meta:
-            layout_name_displayed = (
+            layout_ref = (
                 f"""<a href="{layout.meta['url']}">{layout.meta['name']} 🔗</a>"""
             )
 
