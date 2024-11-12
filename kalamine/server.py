@@ -20,6 +20,12 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
     lr_server_port = 5500
 
     def main_page(layout: KeyboardLayout, angle_mod: bool = False) -> str:
+        layout_ref = layout.meta["name"]
+        if "url" in layout.meta:
+            layout_ref = (
+                f"""<a href="{layout.meta['url']}">{layout.meta['name']} 🔗</a>"""
+            )
+
         return f"""
             <!DOCTYPE html>
             <html xmlns="http://www.w3.org/1999/xhtml">
@@ -40,12 +46,8 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             <body>
                 <h1>Kalamine</h1>
                 <table class="table-fill">
-	                <caption>Métadonnées</caption>
+	                <caption>{layout_ref}</caption>
                     <tbody class="table-hover">
-                        <tr>
-                            <td class="col-left">Disposition</td>
-                            <td class="col-right">{layout.meta['name']}</td>
-                        </tr>
                         <tr>
                             <td class="col-left">Locale</td>
                             <td class="col-right">{layout.meta['locale']}/{layout.meta['variant']}</td>
@@ -191,6 +193,10 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                 page: str, content: str = "text/plain", charset: str = "utf-8"
             ) -> None:
                 self.send_header("Content-type", f"{content}; charset={charset}")
+                # no cash as one is likely working live on it
+                self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+                self.send_header("Pragma", "no-cache")
+                self.send_header("Expires", "0")
                 self.end_headers()
                 self.wfile.write(bytes(page, charset))
                 # self.wfile.write(page.encode(charset))
