@@ -82,7 +82,7 @@ def klc_virtual_key(layout: "KeyboardLayout", symbols: list, scan_code: str) -> 
     elif base == " ":
         return "SPACE"
     elif base == "-1" and shifted == "-1":
-        raise Exception("Empty key are not allowed, please complete the description")
+        raise Exception("Empty keys are not allowed, please complete the description")
     else:
         MAX_OEM = 9
         # We affect abitrary OEM VK and it will not match the one
