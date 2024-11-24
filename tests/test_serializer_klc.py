@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
-from kalamine.template import klc_deadkeys, klc_dk_index, klc_keymap
+from kalamine.generators.klc import klc_deadkeys, klc_dk_index, klc_keymap
 
 from .util import get_layout_dict
 
@@ -155,7 +155,7 @@ def test_intl_deadkeys():
         """
         // DEADKEY: 1DK //{{{
         DEADKEY	0027
-        0027	00b4	// ' -> ´
+        0027	0027	// ' -> '
         0045	00c9	// E -> É
         0065	00e9	// e -> é
         0055	00da	// U -> Ú

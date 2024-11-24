@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 from kalamine import KeyboardLayout
-from kalamine.template import ahk_keymap, ahk_shortcuts
+from kalamine.generators.ahk import ahk_keymap, ahk_shortcuts
 
 from .util import get_layout_dict
 
@@ -597,7 +597,7 @@ def test_intl():
          SC1b::SendKey("U+005d", {}) ; ]
         +SC1b::SendKey("U+007d", {}) ; }
 
-         SC28::SendKey("**", {"**": "´"})
+         SC28::SendKey("**", {"**": "\'"})
         +SC28::SendKey("*¨", {"*¨": "¨"})
 
          SC29::SendKey("*``", {"*``": "`"}) ; *`

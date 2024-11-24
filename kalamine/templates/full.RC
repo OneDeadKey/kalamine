@@ -1,0 +1,51 @@
+#include "winver.h"
+1 VERSIONINFO
+ FILEVERSION       ${rc_version}
+ PRODUCTVERSION    ${rc_version}
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+FILEOS 0x40004L
+ FILETYPE VFT_DLL
+ FILESUBTYPE VFT2_DRV_KEYBOARD
+BEGIN
+   BLOCK "StringFileInfo"
+   BEGIN
+       BLOCK "000004B0"
+       BEGIN
+           VALUE "CompanyName",     "${author}\0"
+           VALUE "FileDescription", "${name} Keyboard Layout\0"
+           VALUE "FileVersion",     "${rc_version}\0"
+           VALUE "InternalName",    "${name8} (3.40)\0"
+           VALUE "ProductName","Created by Kalamine\0"
+           VALUE "Release Information","Created by Kalamine\0"
+           VALUE "LegalCopyright",  "(c) 2024 ${author}\0"
+           VALUE "OriginalFilename","${name8}\0"
+           VALUE "ProductVersion",  "${rc_version}\0"
+       END
+   END
+   BLOCK "VarFileInfo"
+   BEGIN
+       VALUE "Translation", 0x0000, 0x04B0
+   END
+END
+
+STRINGTABLE DISCARDABLE
+LANGUAGE 9, 1
+BEGIN
+    1200    "${locale}"
+END
+
+
+STRINGTABLE DISCARDABLE
+LANGUAGE 9, 1
+BEGIN
+    1000    "${name}"
+END
+
+
+STRINGTABLE DISCARDABLE
+LANGUAGE 9, 1
+BEGIN
+    1100    "${description} ${version}"
+END
+

@@ -1,0 +1,25 @@
+// ${KALAMINE}
+//
+//# This XKB symbols file should be copied to:
+//#     /usr/share/X11/xkb/symbols/custom
+//# or
+//#     $XKB_CONFIG_ROOT/symbols/custom
+//#
+//# File          : ${fileName}.xkb_symbols
+// Project page  : ${url}
+// Author        : ${author}
+// Version       : ${version}
+// License       : ${license}
+//
+// ${description}
+//
+// KALAMINE::GEOMETRY_base
+
+partial alphanumeric_keys modifier_keys
+xkb_symbols "${variant}" {
+    name[group1]= "${description}";
+    key.type[group1] = "FOUR_LEVEL";
+
+    KALAMINE::LAYOUT
+};
+//# vim: ft=xkb:fdm=indent:ts=4:nowrap

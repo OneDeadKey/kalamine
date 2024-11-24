@@ -2,7 +2,6 @@ window.addEventListener('DOMContentLoaded', () => {
   'use strict'; // eslint-disable-line
 
   const keyboard = document.querySelector('x-keyboard');
-  const button   = document.querySelector('button');
   const input    = document.querySelector('input');
   const geometry = document.querySelector('select');
 
@@ -14,11 +13,9 @@ window.addEventListener('DOMContentLoaded', () => {
   fetch(keyboard.getAttribute('src'))
     .then(response => response.json())
     .then(data => {
-      const shape = data.geometry.replace('ergo', 'ol60').toLowerCase();
+      const shape = angle_mod ? "iso" : data.geometry.replace('ergo', 'ol60').toLowerCase();
       keyboard.setKeyboardLayout(data.keymap, data.deadkeys, shape);
       geometry.value = shape;
-      button.hidden = false;
-      button.focus();
     });
 
   geometry.onchange = (event) => {

@@ -1,0 +1,40 @@
+// ${KALAMINE}
+//
+//# This XKB symbols file should be copied to:
+//#     /usr/share/X11/xkb/symbols/custom
+//# or
+//#     $XKB_CONFIG_ROOT/symbols/custom
+//#
+//# File          : ${fileName}.xkb_symbols
+// Project page  : ${url}
+// Author        : ${author}
+// Version       : ${version}
+// License       : ${license}
+//
+// ${description}
+//
+// Base layer + dead key
+// KALAMINE::GEOMETRY_base
+//
+// AltGr layer
+// KALAMINE::GEOMETRY_altgr
+
+partial alphanumeric_keys modifier_keys
+xkb_symbols "${variant}" {
+    name[group1]= "${description}";
+    key.type[group1] = "EIGHT_LEVEL";
+
+    KALAMINE::LAYOUT
+
+    // The AltGr key is an ISO_Level3_Shift:
+    include "level3(ralt_switch)"
+
+    // The “OneDeadKey” is an ISO_Level5_Latch, which is activated by this:
+    // (note: MDSW [Mode_switch] is an alias for LVL5 on recent versions of XKB)
+    replace key <MDSW> {
+        type[Group1] = "ONE_LEVEL",
+        symbols[Group1] = [ ISO_Level5_Shift ]
+    };
+    modifier_map Mod3 { <MDSW> };
+};
+//# vim: ft=xkb:fdm=indent:ts=4:nowrap

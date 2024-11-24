@@ -28,7 +28,7 @@ make dev
 Code Formating
 --------------------------------------------------------------------------------
 
-We rely on [ruff][1] for that, with the isort rule enabled:
+We rely on [ruff] for that, with the isort rule enabled:
 
 ```bash
 ruff format kalamine
@@ -45,7 +45,7 @@ make format
 Code Linting
 --------------------------------------------------------------------------------
 
-We rely on [ruff][1] and [mypy][2] for that, with their default configurations:
+We rely on [ruff] and [mypy] for that, with their default configurations:
 
 ```bash
 ruff format --check kalamine
@@ -63,17 +63,17 @@ make lint
 Many linting errors can be fixed automatically:
 
 ```bash
-ruff --fix kalamine
+ruff check --fix kalamine
 ```
 
-[1]: https://docs.astral.sh/ruff/
-[2]: https://mypy.readthedocs.io
+[ruff]: https://docs.astral.sh/ruff/
+[mypy]: https://mypy.readthedocs.io
 
 
 Unit Tests
 --------------------------------------------------------------------------------
 
-We rely on [pytest][3] for that, but the sample layouts must be built by
+We rely on [pytest] for that, but the sample layouts must be built by
 kalamine first:
 
 ```bash
@@ -87,7 +87,7 @@ Alternative:
 make test
 ```
 
-[3]: https://docs.pytest.org
+[pytest]: https://docs.pytest.org
 
 
 Before Committing

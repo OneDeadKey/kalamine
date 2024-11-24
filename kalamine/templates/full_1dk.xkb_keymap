@@ -1,0 +1,58 @@
+// ${KALAMINE}
+//
+// This is a standalone XKB keymap file. To apply this keymap, use:
+//   xkbcomp -w9 ${fileName}.xkb_keymap $DISPLAY
+//
+// DO NOT COPY THIS INTO xkb/symbols: THIS WOULD MESS UP YOUR XKB CONFIG.
+//
+// File          : ${fileName}.xkb_keymap
+// Project page  : ${url}
+// Author        : ${author}
+// Version       : ${version}
+// License       : ${license}
+//
+// ${description}
+//
+
+xkb_keymap {
+  xkb_keycodes      { include "evdev"    };
+  xkb_types         { include "complete" };
+  xkb_compatibility { include "complete" };
+
+  // Base layer + dead key
+  // KALAMINE::GEOMETRY_base
+
+  // AltGr layer
+  // KALAMINE::GEOMETRY_altgr
+
+  partial alphanumeric_keys modifier_keys
+  xkb_symbols "${variant}" {
+    include "pc"
+    include "inet(evdev)"
+
+    // The “OneDeadKey” is an ISO_Level3_Latch, i.e. a “dead AltGr” key.
+    // This is the only way to have a multi-purpose dead key with XKB.
+
+    // The real AltGr key should be an ISO_Level5_Switch; however,
+    // ISO_Level5_Switch does not work as expected when applying this layout
+    // with xkbcomp, so let’s use two groups instead and make the AltGr key a
+    // group selector.
+
+    name[group1]= "${description}";
+    name[group2]= "AltGr";
+
+    key.type[group1] = "FOUR_LEVEL";
+    key.type[group2] = "TWO_LEVEL";
+
+    KALAMINE::LAYOUT
+
+    // AltGr
+    // Note: the `ISO_Level5_Latch` here is meaningless but helps with Chromium.
+    key <RALT> {
+      type = "TWO_LEVEL",
+      symbols = [ ISO_Level5_Latch, ISO_Level5_Latch ],
+      actions = [ SetGroup(group=2), SetGroup(group=2) ]
+    };
+  };
+};
+// vim: ft=xkb:fdm=indent:ts=2:nowrap

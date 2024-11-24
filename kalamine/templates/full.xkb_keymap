@@ -1,0 +1,36 @@
+// ${KALAMINE}
+//
+// This is a standalone XKB keymap file. To apply this keymap, use:
+//   xkbcomp -w9 ${fileName}.xkb_keymap $DISPLAY
+//
+// DO NOT COPY THIS INTO xkb/symbols: THIS WOULD MESS UP YOUR XKB CONFIG.
+//
+// File          : ${fileName}.xkb_keymap
+// Project page  : ${url}
+// Author        : ${author}
+// Version       : ${version}
+// License       : ${license}
+//
+// ${description}
+//
+
+xkb_keymap {
+  xkb_keycodes      { include "evdev"    };
+  xkb_types         { include "complete" };
+  xkb_compatibility { include "complete" };
+
+  // KALAMINE::GEOMETRY_full
+
+  partial alphanumeric_keys modifier_keys
+  xkb_symbols "${variant}" {
+    include "pc"
+    include "inet(evdev)"
+    include "level3(ralt_switch)"
+
+    name[group1]= "${description}";
+    key.type[group1] = "FOUR_LEVEL";
+
+    KALAMINE::LAYOUT
+  };
+};
+// vim: ft=xkb:fdm=indent:ts=2:nowrap

@@ -7,48 +7,58 @@ A text-based, cross-platform Keyboard Layout Maker.
 Install
 --------------------------------------------------------------------------------
 
-To install kalamine, all you need is a Python environment with version >= 3.8 and ``pip``:
+To install kalamine, all you need is a Python 3.8+ environment and ``pip``:
 
 .. code-block:: bash
 
-   python3 -m pip install --user kalamine
+    # to install kalamine
+    python3 -m pip install --user kalamine
 
-And to uninstall kalamine:
+    # to upgrade kalamine
+    python3 -m pip install --user --upgrade kalamine
 
-.. code-block:: bash
-
+    # to uninstall kalamine
     python3 -m pip uninstall --user kalamine
 
 However, we recommend using pipx_ rather than ``pip`` as it provides ``pyenv``
 containment, which is a much saner approach and is becoming mandatory on many
-operating systems (e.g. Arch Linux). It works very similarly from a user
-perspective:
+operating systems (e.g. Arch Linux). It is even simpler from a user perspective:
 
 .. code-block:: bash
 
     # to install kalamine
     pipx install kalamine
 
+    # to upgrade kalamine
+    pipx upgrade kalamine
+
     # to uninstall kalamine
     pipx uninstall kalamine
+
+Arch Linux users may use the `AUR package`_:
+
+.. code-block:: bash
+
+   yay -S kalamine-git
 
 Developer-specific installation instructions can be found in the CONTRIBUTING.md_ file.
 
 .. _pipx: https://pipx.pypa.io
+.. _`AUR package`: https://aur.archlinux.org/packages/kalamine-git
 .. _CONTRIBUTING.md: https://github.com/OneDeadKey/kalamine/blob/main/CONTRIBUTING.md
 
 
 Building Distributable Layouts
 --------------------------------------------------------------------------------
 
-Create a keyboard layout with ``kalamine create``:
+Create a keyboard layout with ``kalamine new``:
 
 .. code-block:: bash
 
-   kalamine create layout.toml                  # basic layout
-   kalamine create layout.toml --altgr          # layout with an AltGr layer
-   kalamine create layout.toml --1dk            # layout with a custom dead key
-   kalamine create layout.toml --geometry ERGO  # apply an ortholinear geometry
+   kalamine new layout.toml                  # basic layout
+   kalamine new layout.toml --altgr          # layout with an AltGr layer
+   kalamine new layout.toml --1dk            # layout with a custom dead key
+   kalamine new layout.toml --geometry ERGO  # apply an ortholinear geometry
 
 Edit this layout with your preferred text editor:
 
@@ -61,26 +71,26 @@ Build your layout:
 
 .. code-block:: bash
 
-    kalamine make layout.toml
+    kalamine build layout.toml
 
 Get all distributable keyboard drivers:
 
 .. code-block:: bash
 
     dist/
-     ├─ layout.ahk         # Windows (user)
-     ├─ layout.klc         # Windows (admin)
-     ├─ layout.keylayout   # macOS
-     ├─ layout.xkb         # Linux (user)
-     ├─ layout.xkb_custom  # Linux (root)
-     ├─ layout.json        # web
-     └─ layout.svg
+      ├─ layout.ahk            # Windows (user)
+      ├─ layout.klc            # Windows (admin)
+      ├─ layout.keylayout      # macOS
+      ├─ layout.xkb_keymap     # Linux (user)
+      ├─ layout.xkb_symbols    # Linux (root)
+      ├─ layout.json           # web
+      └─ layout.svg
 
 You can also ask for a single target by specifying the file extension:
 
 .. code-block:: bash
 
-    kalamine make layout.toml --out layout.xkb_custom
+    kalamine build layout.toml --out layout.xkb_symbols
 
 
 Emulating Layouts
@@ -121,15 +131,20 @@ You may also use Ahk2Exe to turn your ``*.ahk`` script into an executable file. 
 Windows (admin): ``*.klc``
 ``````````````````````````
 
+Note: this applies only if you want to use the ``*.klc`` file.
+A better approach is to use ``wkalamine`` (see below).
+
 * get a keyboard layout installer: MSKLC_ (freeware) or KbdEdit_ (shareware);
 * load the ``*.klc`` file with it;
 * run this installer to generate a setup program;
 * run the setup program;
-* :strong:`restart your computer`, even if Windows doesn’t ask you to.
+* :strong:`restart your session`, even if Windows doesn’t ask you to.
 
 The keyboard layout appears in the language bar.
 
-Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11. KbdEdit works fine.
+Note: in some cases, custom dead keys may not be supported any more by MSKLC on Windows 10/11.
+KbdEdit works fine, but its installers are not signed.
+WKalamine works fine as well (see below) and its installers are signed.
 
 Basic developer info available in Kalamine’s `KLC documentation page`_.
 
@@ -151,8 +166,8 @@ macOS: ``*.keylayout``
 The keyboard layout appears in the “Language and Text” preferences, “Input Methods” tab.
 
 
-Linux (root): ``*.xkb_custom``
-``````````````````````````````
+Linux (root): ``*.xkb_symbols``
+```````````````````````````````
 
 :strong:`This is by far the simplest method to install a custom keyboard layout on Linux.`
 
@@ -160,7 +175,7 @@ Recent versions of XKB allow *one* custom keyboard layout in root space:
 
 .. code-block:: bash
 
-    sudo cp layout.xkb_custom ${XKB_CONFIG_ROOT:-/usr/share/X11/xkb}/symbols/custom
+    sudo cp layout.xkb_symbols ${XKB_CONFIG_ROOT:-/usr/share/X11/xkb}/symbols/custom
 
 Your keyboard layout will be listed as “Custom” in the keyboard settings.
 This works on both Wayland and X.Org. Depending on your system, you might have to relog to your session or to reboot X completely.
@@ -181,16 +196,16 @@ On Wayland, this depends on your compositor. For Sway, tweak your keyboard input
     }
 
 
-Linux (user): ``*.xkb``
-```````````````````````
+Linux (user): ``*.xkb_keymap``
+``````````````````````````````
 
-``*.xkb`` keyboard descriptions can be applied in user-space. The main limitation is that the keyboard layout won’t show up in the keyboard settings.
+``*.xkb_keymap`` keyboard descriptions can be applied in user-space. The main limitation is that the keyboard layout won’t show up in the keyboard settings.
 
 On X.Org it is straight-forward with ``xkbcomp``:
 
 .. code-block:: bash
 
-    xkbcomp -w10 layout.xkb $DISPLAY
+    xkbcomp -w10 layout.xkb_keymap $DISPLAY
 
 Again, ``setxkbmap`` can be used to get back to the standard us-qwerty layout on X.Org:
 
@@ -203,8 +218,28 @@ On Wayland, this depends on your compositor. For Sway, tweak your keyboard input
 .. code-block:: properties
 
     input type:keyboard {
-        xkb_file /path/to/layout.xkb
+        xkb_file /path/to/layout.xkb_keymap
     }
+
+
+WKalamine
+--------------------------------------------------------------------------------
+
+``wkalamine`` is a Windows-specific CLI tool to create MSKLC_ setup packages.
+
+This is kind of a hack, but it provides an automatic way to build setup packages on Windows and more importantly, these setup packages overcome MSKLC’s limitations regarding chained dead keys and AltGr+Space combos.
+
+It is done by generating the C layout file, and tricking MSKLC to use it by setting it as read-only before.
+
+Make sure MSKLC is installed and build your installer:
+
+.. code-block:: bash
+
+    wkalamine build layout.toml
+
+and you should get a ``[layout]\setup.exe`` executable to install the layout.
+
+Remember to log out and log back in to apply the changes.
 
 
 XKalamine
@@ -216,7 +251,7 @@ XKalamine
 Wayland (user)
 ``````````````
 
-On Wayland, keyboard layouts can be installed in user-space:
+On *most* Wayland environments, keyboard layouts can be installed in user-space:
 
 .. code-block:: bash
 
@@ -243,6 +278,10 @@ Once installed, layouts are selectable in the desktop environment’s keyboard p
         xkb_variant "prog"
     }
 
+Note: some desktops like KDE Plasma, despite using Wayland, do not support
+keyboards layouts in ``~/.config:xkb`` out of the box. In such cases, using
+``xkalamine`` as ``sudo`` is required, as described below.
+
 
 X.Org (root)
 ````````````
@@ -251,7 +290,7 @@ On X.Org, a layout can be applied on the fly in user-space:
 
 .. code-block:: bash
 
-    # Equivalent to `xkbcomp -w10 layout.xkb $DISPLAY`
+    # Equivalent to `xkbcomp -w10 layout.xkb_keymap $DISPLAY`
     xkalamine apply layout.toml
 
 However, installing a layout so it can be selected in the keyboard preferences requires ``sudo`` privileges:

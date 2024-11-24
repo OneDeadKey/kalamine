@@ -1,11 +1,9 @@
-import pkgutil
 from pathlib import Path
-from typing import List
-
-import yaml
+from typing import Dict, List
 
 from .layout import KeyboardLayout
-from .utils import load_data
+from .template import SCAN_CODES
+from .utils import Layer, load_data
 
 SEPARATOR = (
     "--------------------------------------------------------------------------------"
@@ -66,15 +64,16 @@ def core_guide() -> List[str]:
     return sections
 
 
-def draw_layout(geometry: str = "ISO", altgr: bool = False, odk: bool = False) -> str:
-    """Draw a ASCII art description of a default layout."""
+def dummy_layout(
+    geometry: str = "ISO",
+    altgr: bool = False,
+    odk: bool = False,
+    meta: Dict[str, str] = {},
+) -> KeyboardLayout:
+    """Create a dummy (QWERTY) layout with the given characteristics."""
 
-    pkg_file = pkgutil.get_data(__package__, "data/layout.yaml")
-    if pkg_file is None:
-        return ""
-
-    # load the descriptor bug only keep the leyers we need
-    descriptor = yaml.safe_load(pkg_file.decode("utf-8"))
+    # load the descriptor, but only keep the layers we need
+    descriptor = load_data("layout")
     if not altgr:
         del descriptor["altgr"]
     if not odk:
@@ -83,11 +82,30 @@ def draw_layout(geometry: str = "ISO", altgr: bool = False, odk: bool = False) -
     else:
         del descriptor["alpha"]
         descriptor["base"] = descriptor.pop("1dk")
-    descriptor["geometry"] = geometry.upper()
 
-    # make a lyaout, just to get the ASCII arts
+    # XXX this should be a dataclass
+    for key, val in meta.items():
+        descriptor[key] = val
+
+    # make a KeyboardLayout matching the input parameters
+    descriptor["geometry"] = "ANSI"  # layout.yaml has an ANSI geometry
     layout = KeyboardLayout(descriptor)
     layout.geometry = geometry
+
+    # ensure there is no empty keys (XXX maybe this should be in layout.py)
+    for key in SCAN_CODES["web"].keys():
+        if key not in layout.layers[Layer.BASE].keys():
+            layout.layers[Layer.BASE][key] = "\\"
+            layout.layers[Layer.SHIFT][key] = "|"
+
+    return layout
+
+
+def draw_layout(geometry: str = "ISO", altgr: bool = False, odk: bool = False) -> str:
+    """Draw a ASCII art description of a default layout."""
+
+    # make a KeyboardLayout, just to get the ASCII arts
+    layout = dummy_layout(geometry, altgr, odk)
 
     def keymap(layer_name: str) -> str:
         layer = "\n".join(getattr(layout, layer_name))

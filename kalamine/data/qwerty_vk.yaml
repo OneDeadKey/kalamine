@@ -1,0 +1,61 @@
+# Scancodes <-> Virtual Keys as in qwerty
+# this is to keep shortcuts at their qwerty location
+'39': 'SPACE'
+
+# digits
+'02': '1'
+'03': '2'
+'04': '3'
+'05': '4'
+'06': '5'
+'07': '6'
+'08': '7'
+'09': '8'
+'0a': '9'
+'0b': '0'
+
+# letters, first row
+'10': 'Q'
+'11': 'W'
+'12': 'E'
+'13': 'R'
+'14': 'T'
+'15': 'Y'
+'16': 'U'
+'17': 'I'
+'18': 'O'
+'19': 'P'
+  
+# letters, second row
+'1e': 'A'
+'1f': 'S'
+'20': 'D'
+'21': 'F'
+'22': 'G'
+'23': 'H'
+'24': 'J'
+'25': 'K'
+'26': 'L'
+'27': 'OEM_1'
+
+# letters, third row
+'2c': 'Z'
+'2d': 'X'
+'2e': 'C'
+'2f': 'V'
+'30': 'B'
+'31': 'N'
+'32': 'M'
+'33': 'OEM_COMMA'
+'34': 'OEM_PERIOD'
+'35': 'OEM_2'
+
+# pinky keys
+'29': 'OEM_3'
+'0c': 'OEM_MINUS'
+'0d': 'OEM_PLUS'
+'1a': 'OEM_4'
+'1b': 'OEM_6'
+'28': 'OEM_7'
+'2b': 'OEM_5'
+'56': 'OEM_102'
