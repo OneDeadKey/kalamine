@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" Merge two corpus dictionaries. """
+"""Merge two corpus dictionaries."""
 
 import json
 from sys import argv

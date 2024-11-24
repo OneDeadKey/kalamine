@@ -50,7 +50,6 @@ We rely on [ruff] and [mypy] for that, with their default configurations:
 ```bash
 ruff format --check kalamine
 ruff check kalamine
-ruff kalamine
 mypy kalamine
 ```
 

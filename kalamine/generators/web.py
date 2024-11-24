@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 from ..utils import LAYER_KEYS, ODK_ID, SCAN_CODES, Layer, upper_key
 
 
+# fmt: off
 def raw_json(layout: "KeyboardLayout") -> Dict:
     """JSON layout descriptor"""
 
@@ -32,15 +33,14 @@ def raw_json(layout: "KeyboardLayout") -> Dict:
             keymap[SCAN_CODES["web"][key_name]] = chars
 
     return {
-        # fmt: off
         "name":        layout.meta["name"],
         "description": layout.meta["description"],
         "geometry":    layout.meta["geometry"].lower(),
         "keymap":      keymap,
         "deadkeys":    layout.dead_keys,
         "altgr":       layout.has_altgr,
-        # fmt: on
     }
+# fmt: on
 
 
 def pretty_json(layout: "KeyboardLayout") -> str:

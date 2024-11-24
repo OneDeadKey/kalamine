@@ -43,7 +43,7 @@ def build_all(layout: KeyboardLayout, output_dir_path: Path) -> None:
     # AHK driver
     with file_creation_context(".ahk") as ahk_path:
         with ahk_path.open("w", encoding="utf-8", newline="\n") as file:
-            file.write("\uFEFF")  # AHK scripts require a BOM
+            file.write("\ufeff")  # AHK scripts require a BOM
             file.write(ahk.ahk(layout))
 
     # Windows driver
@@ -126,7 +126,7 @@ def build(
         # detailed output
         if output_file.suffix == ".ahk":
             with output_file.open("w", encoding="utf-8", newline="\n") as file:
-                file.write("\uFEFF")  # AHK scripts require a BOM
+                file.write("\ufeff")  # AHK scripts require a BOM
                 file.write(ahk.ahk(layout))
 
         elif output_file.suffix == ".klc":

@@ -16,7 +16,6 @@ format:  ## Format sources
 lint:  ## Lint sources
 	ruff format --check kalamine
 	ruff check kalamine
-	ruff kalamine
 	mypy kalamine
 
 test:  ## Run tests
