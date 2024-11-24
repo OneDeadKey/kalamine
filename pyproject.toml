@@ -35,8 +35,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "isort",
     "ruff",
     "pytest",
     "lxml",
@@ -52,8 +50,8 @@ kalamine = "kalamine.cli:cli"
 xkalamine = "kalamine.cli_xkb:cli"
 wkalamine = "kalamine.cli_msklc:cli"
 
-[tool.isort]
-profile = "black"
+[tool.ruff.lint]
+extend-select = ["I"]
 
 [[tool.mypy.overrides]]
 module = ["progress.bar"]

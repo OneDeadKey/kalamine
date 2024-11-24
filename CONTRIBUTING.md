@@ -15,7 +15,7 @@ Which is the equivalent of:
 
 ```bash
 python3 -m pip install --user -e .
-python3 -m pip install --user build black isort ruff pytest mypy types-PyYAML pre-commit
+python3 -m pip install --user build ruff pytest mypy types-PyYAML pre-commit
 ```
 
 There’s also a Makefile recipe for that:
@@ -28,11 +28,11 @@ make dev
 Code Formating
 --------------------------------------------------------------------------------
 
-We rely on [black][1] and [isort][2] for that, with their default configurations:
+We rely on [ruff] for that, with the isort rule enabled:
 
 ```bash
-black kalamine
-isort kalamine
+ruff format kalamine
+ruff check --fix kalamine
 ```
 
 Alternative:
@@ -41,18 +41,14 @@ Alternative:
 make format
 ```
 
-[1]: https://black.readthedocs.io
-[2]: https://pycqa.github.io/isort/
-
 
 Code Linting
 --------------------------------------------------------------------------------
 
-We rely on [ruff][3] and [mypy][4] for that, with their default configurations:
+We rely on [ruff] and [mypy] for that, with their default configurations:
 
 ```bash
-black --check --quiet kalamine
-isort --check --quiet kalamine
+ruff format --check kalamine
 ruff check kalamine
 mypy kalamine
 ```
@@ -69,14 +65,14 @@ Many linting errors can be fixed automatically:
 ruff check --fix kalamine
 ```
 
-[3]: https://docs.astral.sh/ruff/
-[4]: https://mypy.readthedocs.io
+[ruff]: https://docs.astral.sh/ruff/
+[mypy]: https://mypy.readthedocs.io
 
 
 Unit Tests
 --------------------------------------------------------------------------------
 
-We rely on [pytest][5] for that, but the sample layouts must be built by
+We rely on [pytest] for that, but the sample layouts must be built by
 kalamine first:
 
 ```bash
@@ -90,7 +86,7 @@ Alternative:
 make test
 ```
 
-[5]: https://docs.pytest.org
+[pytest]: https://docs.pytest.org
 
 
 Before Committing

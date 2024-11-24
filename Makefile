@@ -10,12 +10,11 @@ dev:  ## Install a development environment
 	# $(PYTHON3) -m pip install --user --upgrade twine wheel
 
 format:  ## Format sources
-	black kalamine
-	isort kalamine
+	ruff format kalamine
+	ruff check --fix kalamine
 
 lint:  ## Lint sources
-	black --check --quiet kalamine
-	isort --check --quiet kalamine
+	ruff format --check kalamine
 	ruff check kalamine
 	mypy kalamine
 

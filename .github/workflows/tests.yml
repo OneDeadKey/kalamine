@@ -55,12 +55,6 @@ jobs:
           python -m kalamine.cli new test.toml
           pytest
 
-      - name: Run black
-        run: black kalamine --check
-
-      - name: Run isort
-        run: isort kalamine --check
-
       - name: Run ruff
         run: ruff check kalamine
 
