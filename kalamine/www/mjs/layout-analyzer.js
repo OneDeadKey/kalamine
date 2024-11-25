@@ -1,6 +1,6 @@
   const substituteChars = {
-    '\u00a0': ' ', // ( ) no-break space
-    '\u202f': ' ', // ( ) narrow no-break space
+    '\u00a0': ' ', // no-break space
+    '\u202f': ' ', // narrow no-break space
 
     '\u00ab': '"', // («) left-pointing double angle quotation mark
     '\u00bb': '"', // (») right-pointing double angle quotation mark
@@ -268,8 +268,8 @@ export function analyzeKeyboardLayout(
     };
 
     const isScissor = (kc1, kc2, finger1, finger2) => {
-      var finger1Height = getKeyRow(kc1);
-      var finger2Height = getKeyRow(kc2);
+      let finger1Height = getKeyRow(kc1);
+      let finger2Height = getKeyRow(kc2);
 
       switch (finger1.at(1) + finger2.at(1)) {
         case '45':

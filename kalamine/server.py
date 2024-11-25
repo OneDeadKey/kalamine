@@ -1,6 +1,7 @@
 import threading
 import webbrowser
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from importlib import metadata
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -40,6 +41,10 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                 <script>angle_mod = {"true" if angle_mod else "false"}; </script>
             </head>
             <body>
+                <p style="float: right; text-align: right;">
+                    <a href="https://github.com/OneDeadKey/kalamine">kalamine</a>
+                    v{metadata.version('kalamine')}<br>🦆
+                </p>
                 <dl>
                     <dt>Name</dt>
                     <dd>{layout_ref}</dd>
@@ -151,6 +156,11 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
         def __init__(self, *args, **kwargs) -> None:  # type: ignore
             kwargs["directory"] = str(Path(__file__).parent / "www")
             super().__init__(*args, **kwargs)
+            self.extensions_map = {
+                "json": "application/json",
+                "css": "text/css",
+                "js": "text/javascript",
+            }
 
         def do_GET(self) -> None:
             self.send_response(200)
