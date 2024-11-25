@@ -1,61 +1,81 @@
 body {
-  max-width: 64em;
-  margin: 0 auto;
-  font-family: sans-serif;
+    max-width: 64em;
+    margin: 0 auto;
+    font-family: sans-serif;
+}
+
+a {
+    color: blue;
+}
+
+dt {
+    float: left;
+    width: 10em;
+}
+
+dd {
+    margin-left: 10em;
 }
 
 input {
-  width: 100%;
-  text-align: center;
-  font-size: 1.5em;
-  margin-bottom: 1em;
+    box-sizing: border-box;
+    border-radius: 6px;
+    width: 100%;
+    height: 2em;
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 1em;
 }
 
-a { color: blue; }
+select {
+    margin: 0 0.5em;
+    text-align: center;
+}
+
+#sticky-select {
+    position: sticky;
+    z-index: 999;
+    top: 0;
+    align-items: center;
+    text-align: center;
+    padding: 0.8em;
+    backdrop-filter: blur(5px);
+}
+
+/**
+ * Analyzer
+ */
+
+#imprecise-data {
+    margin: 0.25em auto -0.75em;
+    text-align: center;
+    text-wrap: balance;
+}
+
+h2 {
+    border-bottom: 1px dotted currentcolor;
+}
+
+h2 + small {
+    display: block;
+    text-align: right;
+    margin-top: -1em;
+}
+
+stats-canvas {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 750px;
+    margin: auto;
+}
+
+/**
+ * Dark/Light Themes
+ */
 
 input, select { color-scheme: light dark; }
 @media (prefers-color-scheme: dark) {
-  html { background-color: #222; color: #ddd; }
-  a { color: #99f; }
-}
-
-.table-fill {
-  border-radius:3px;
-  border-collapse: collapse;
-  height: 50px;
-  margin: 20px auto;
-  max-width: 400px;
-  padding:5px;
-  width: 100%;
-}
-
- 
-caption {
-  color:#99f;;
-  border: solid ;
-  font-size:18px;
-  font-weight: 600;
-  padding:10px;
-  margin-bottom:5px;
-  text-align:center;
-  vertical-align:middle;
-}
-
- 
-td {
-  padding:5px;
-  text-align:left;
-  vertical-align:middle;
-  font-weight:300;
-  font-size:14px;
-}
-
-td.col-left {
-  text-align: left;
-  padding-left:5%;
-}
-
-td.col-right {
-  text-align: left;
-  padding-left:15%
+    html { background-color: #222; color: #ddd; }
+    a { color: #99f; }
 }
