@@ -39,7 +39,6 @@ dev = [
     "lxml",
     "mypy>=1.13.0",
     "ruff>=0.8.0",
-    "types-click>=7.1.8",
     "types-PyYAML",
     "twine>=5.1.1",
 ]
