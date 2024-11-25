@@ -156,18 +156,12 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
         def __init__(self, *args, **kwargs) -> None:  # type: ignore
             kwargs["directory"] = str(Path(__file__).parent / "www")
             super().__init__(*args, **kwargs)
-            self.extensions_map = {
-                "json": "application/json",
-                "css": "text/css",
-                "js": "text/javascript",
-            }
 
         def do_GET(self) -> None:
-            self.send_response(200)
-
             def send(
                 page: str, content: str = "text/plain", charset: str = "utf-8"
             ) -> None:
+                self.send_response(200)
                 self.send_header("Content-type", f"{content}; charset={charset}")
                 # no cash as one is likely working live on it
                 self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
@@ -180,9 +174,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             # XXX always reloads the layout on the root page, never in sub pages
             nonlocal kb_layout
             nonlocal angle_mod
-            if self.path == "/favicon.ico":
-                pass
-            elif self.path == "/json":
+            if self.path == "/json":
                 send(web.pretty_json(kb_layout), content="application/json")
             elif self.path == "/keylayout":
                 # send(keylayout.keylayout(kb_layout), content='application/xml')
@@ -206,7 +198,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                 kb_layout = KeyboardLayout(load_layout(file_path), angle_mod)  # refresh
                 send(main_page(kb_layout, angle_mod), content="text/html")
             else:
-                return SimpleHTTPRequestHandler.do_GET(self)
+                SimpleHTTPRequestHandler.do_GET(self)
 
     webserver = HTTPServer((host_name, webserver_port), LayoutHandler)
     thread = threading.Thread(None, webserver.serve_forever)
