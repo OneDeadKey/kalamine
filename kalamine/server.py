@@ -43,7 +43,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             <body>
                 <p style="float: right; text-align: right;">
                     <a href="https://github.com/OneDeadKey/kalamine">kalamine</a>
-                    v{metadata.version('kalamine')}<br>🦆
+                    v{metadata.version('kalamine')}<br>\U0001f986
                 </p>
                 <dl>
                     <dt>Name</dt>
