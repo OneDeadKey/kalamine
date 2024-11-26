@@ -52,6 +52,10 @@ select {
     text-wrap: balance;
 }
 
+#analyzer {
+    padding-bottom: 2em;
+}
+
 h2 {
     border-bottom: 1px dotted currentcolor;
 }

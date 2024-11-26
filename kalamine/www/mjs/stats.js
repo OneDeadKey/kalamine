@@ -1,14 +1,8 @@
-import { getSupportedChars, analyzeKeyboardLayout } from './layout-analyzer.js';
+import { analyzeKeyboardLayout } from './layout-analyzer.js';
 
 window.addEventListener('DOMContentLoaded', () => {
-  const inputField = document.querySelector('input');
-  const keyboard   = document.querySelector('x-keyboard');
-
-  const headingColor = 'rgb(127, 127, 127)'; // getComputedStyle(document.querySelector('h3')).color;
-
+  const keyboard = document.querySelector('x-keyboard');
   let corpus = {};
-  let keyChars = {};
-  let impreciseData = false;
 
   // display a percentage value
   const fmtPercent = (num, p) => `${Math.round(10 ** p * num) / 10 ** p}%`;
@@ -57,10 +51,7 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   const showReport = () => {
-    keyChars = getSupportedChars(keyboard.layout.keyMap, keyboard.layout.deadKeys);
-    const report = analyzeKeyboardLayout(keyboard, corpus, keyChars, headingColor);
-    console.log(corpus);
-    console.log(report);
+    const report = analyzeKeyboardLayout(keyboard, corpus);
 
     document.querySelector('#sfu stats-canvas').renderData({
       values: report.totalSfuSkuPerFinger,
@@ -82,7 +73,7 @@ window.addEventListener('DOMContentLoaded', () => {
     showPercentAll('#load small', report.loadGroups.map(sumUpBarGroup), 1);
     showPercent('#unsupported-all', report.totalUnsupportedChars, 3);
 
-    document.querySelector('#imprecise-data').hidden = !impreciseData;
+    document.querySelector('#imprecise-data').hidden = !report.impreciseData;
 
     document
       .querySelector('#bottlenecks stats-table')
@@ -94,11 +85,16 @@ window.addEventListener('DOMContentLoaded', () => {
   document
     .getElementById('corpus')
     .addEventListener('change', event => {
-      fetch(`corpus/${event.target.value}.json`)
+      const corpusName = event.target.value;
+      const noCorpus = (corpusName === '-');
+      document.getElementById('analyzer').hidden = noCorpus;
+      if (noCorpus) {
+        return;
+      }
+      fetch(`corpus/${corpusName}.json`)
         .then(response => response.json())
         .then(data => {
           corpus = data;
-          document.getElementById('analyzer').hidden = false;
           showReport();
         });
     });

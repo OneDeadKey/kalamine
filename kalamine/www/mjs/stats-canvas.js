@@ -71,7 +71,7 @@ class StatsCanvas extends HTMLElement {
 
     const scale = canvas.height / maxValue;
 
-    const renderBarPart = (groupIndex, columnIndex, column, flipVerically) => {
+    const renderBarPart = (groupIndex, columnIndex, column) => {
       let renderedBarHeight = 0;
 
       const colors = Object.entries(this.colors);

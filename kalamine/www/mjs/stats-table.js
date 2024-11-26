@@ -9,12 +9,12 @@ class StatsTable extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: 'open' });
 
-    // Stupid hack to get the height of a 'tr' element
+    // Stupid hack to get the height of a 'tr' element (XXX not working)
     const tableRowElement = document.createElement('tr');
     tableRowElement.innerHTML = 'random placeholder text';
     shadow.appendChild(tableRowElement);
     this.maxHeightCollapsed =
-      this.maxLinesCollapsed * tableRowElement.offsetHeight;
+      Math.max(180, this.maxLinesCollapsed * tableRowElement.offsetHeight);
 
     // Actually build the content of the element (+ remove the stupid tr)
     shadow.innerHTML = `
@@ -48,13 +48,11 @@ class StatsTable extends HTMLElement {
         cursor: pointer;
         clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
       }
-      button.showLess {
+      .showLess + button {
         clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
       }
       </style>
 
-      <!-- Using a style attribute on top of the stylesheet, as it is used by
-           the button 'click' event-listner -->
       <div id='wrapper' style='max-height: ${this.maxHeightCollapsed}px;'></div>
       <button style='display: none'></button>
     `;
@@ -64,17 +62,11 @@ class StatsTable extends HTMLElement {
     this.innerHTML = ''; // Remove original content
 
     // Setting up the `see more` button
-    // Using 'function' to set 'this' to the button (self is the web component)
-    const self = this;
-    shadow.querySelector('button').addEventListener('click', function () {
-      const wrapper = shadow.getElementById('wrapper');
-      if (wrapper.style.maxHeight == `${self.maxHeightCollapsed}px`) {
-        wrapper.style.maxHeight = `${wrapper.children[0].offsetHeight}px`;
-        this.className = 'showLess';
-      } else {
-        wrapper.style.maxHeight = `${self.maxHeightCollapsed}px`;
-        this.className = '';
-      }
+    shadow.querySelector('button').addEventListener('click', () => {
+      wrapper.style.maxHeight = wrapper.className === ''
+        ? `${wrapper.children[0].offsetHeight}px`
+        : `${this.maxHeightCollapsed}px`;
+      wrapper.classList.toggle('showLess');
     });
   }
 
@@ -84,7 +76,7 @@ class StatsTable extends HTMLElement {
     table.innerHTML =
       `<tr><th colspan='2'>${table.title}</td></tr>` +
       Object.entries(values)
-        .filter(([digram, freq]) => freq >= 10 ** -precision)
+        .filter(([_, freq]) => freq >= 10 ** -precision)
         .sort(([_, freq1], [__, freq2]) => freq2 - freq1)
         .map(
           ([digram, freq]) =>
