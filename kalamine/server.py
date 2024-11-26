@@ -82,6 +82,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                             <option>en</option>
                             <option>en+fr</option>
                             <option>fr</option>
+                            <option value="fra_mixed-typical_2012_1M-sentences">fr (Leipzig)</option>
                         </select>
                         <label for="corpus">corpus</label>
                     </form>
