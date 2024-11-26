@@ -34,7 +34,6 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "uv",
     "pytest",
     "lxml",
     "mypy>=1.13.0",
