@@ -116,7 +116,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
                         <stats-table>
                             <table id="unsupported"    title="unsupported"></table>
                             <table id="sfu-bigrams"    title="SFU"></table>
-                            <table id="extended-rolls" title="LFB"></table>
+                            <table id="extended-rolls" title="LSB"></table>
                             <table id="scissors"       title="scissors"></table>
                         </stats-table>
                     </section>
