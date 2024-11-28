@@ -12,7 +12,8 @@ from xml.etree import ElementTree as ET
 if TYPE_CHECKING:
     from ..layout import KeyboardLayout
 
-from ..utils import LAYER_KEYS, ODK_ID, SCAN_CODES, Layer, upper_key
+from ..key import KEYS
+from ..utils import ODK_ID, Layer, upper_key
 
 
 # fmt: off
@@ -22,15 +23,16 @@ def raw_json(layout: "KeyboardLayout") -> Dict:
     # flatten the keymap: each key has an array of 2-4 characters
     # correcponding to Base, Shift, AltGr, AltGr+Shift
     keymap: Dict[str, List[str]] = {}
-    for key_name in LAYER_KEYS:
-        if key_name.startswith("-"):
+    for key in KEYS.values():
+        if key.web is None:
+            # TODO: warning
             continue
         chars = list("")
         for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
-            if key_name in layout.layers[i]:
-                chars.append(layout.layers[i][key_name])
+            if key.id in layout.layers[i]:
+                chars.append(layout.layers[i][key.id])
         if chars:
-            keymap[SCAN_CODES["web"][key_name]] = chars
+            keymap[key.web] = chars
 
     return {
         "name":        layout.meta["name"],
@@ -90,30 +92,32 @@ def svg(layout: "KeyboardLayout") -> ET.ElementTree:
         return ET.ElementTree()
     svg = ET.ElementTree(ET.fromstring(res.decode("utf-8")))
 
-    for key_name in LAYER_KEYS:
-        if key_name.startswith("-"):
+    for key in KEYS.values():
+        if key.web is None:
+            # TODO: warning
             continue
 
-        level = 0
-        for i in [
-            Layer.BASE,
-            Layer.SHIFT,
-            Layer.ALTGR,
-            Layer.ALTGR_SHIFT,
-            Layer.ODK,
-            Layer.ODK_SHIFT,
-        ]:
-            level += 1
-            if key_name not in layout.layers[i]:
+        for level, i in enumerate(
+            (
+                Layer.BASE,
+                Layer.SHIFT,
+                Layer.ALTGR,
+                Layer.ALTGR_SHIFT,
+                Layer.ODK,
+                Layer.ODK_SHIFT,
+            ),
+            start=1,
+        ):
+            if key.id not in layout.layers[i]:
                 continue
-            if level == 1 and same_symbol(key_name, Layer.BASE, Layer.SHIFT):
+            if level == 1 and same_symbol(key.id, Layer.BASE, Layer.SHIFT):
                 continue
-            if level == 4 and same_symbol(key_name, Layer.ALTGR, Layer.ALTGR_SHIFT):
+            if level == 4 and same_symbol(key.id, Layer.ALTGR, Layer.ALTGR_SHIFT):
                 continue
-            if level == 6 and same_symbol(key_name, Layer.ODK, Layer.ODK_SHIFT):
+            if level == 6 and same_symbol(key.id, Layer.ODK, Layer.ODK_SHIFT):
                 continue
 
-            key = svg.find(f".//g[@id=\"{SCAN_CODES['web'][key_name]}\"]", ns)
-            set_key_label(key, level, layout.layers[i][key_name])
+            key_elem = svg.find(f'.//g[@id="{key.web}"]', ns)
+            set_key_label(key_elem, level, layout.layers[i][key.id])
 
     return svg

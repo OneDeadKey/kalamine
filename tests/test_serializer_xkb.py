@@ -1,4 +1,5 @@
 from textwrap import dedent
+from typing import Dict
 
 from kalamine import KeyboardLayout
 from kalamine.generators.xkb import xkb_table
@@ -6,8 +7,10 @@ from kalamine.generators.xkb import xkb_table
 from .util import get_layout_dict
 
 
-def load_layout(filename: str) -> KeyboardLayout:
-    return KeyboardLayout(get_layout_dict(filename))
+def load_layout(
+    filename: str, extraMapping: Dict[str, Dict[str, str]]
+) -> KeyboardLayout:
+    return KeyboardLayout(get_layout_dict(filename, extraMapping))
 
 
 def split(multiline_str: str):
@@ -15,7 +18,7 @@ def split(multiline_str: str):
 
 
 def test_ansi():
-    layout = load_layout("ansi")
+    layout = load_layout("ansi", {})
 
     expected = split(
         """
@@ -70,14 +73,11 @@ def test_ansi():
         // Pinky keys
         key <AE11> {[ minus           , underscore      , VoidSymbol      , VoidSymbol      ]}; // - _
         key <AE12> {[ equal           , plus            , VoidSymbol      , VoidSymbol      ]}; // = +
-        key <AE13> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <AD11> {[ bracketleft     , braceleft       , VoidSymbol      , VoidSymbol      ]}; // [ {
         key <AD12> {[ bracketright    , braceright      , VoidSymbol      , VoidSymbol      ]}; // ] }
         key <AC11> {[ apostrophe      , quotedbl        , VoidSymbol      , VoidSymbol      ]}; // ' "
-        key <AB11> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <TLDE> {[ grave           , asciitilde      , VoidSymbol      , VoidSymbol      ]}; // ` ~
         key <BKSL> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
-        key <LSGT> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
 
         // Space bar
         key <SPCE> {[ space           , space           , apostrophe      , apostrophe      ]}; //     ' '
@@ -94,8 +94,6 @@ def test_ansi():
 
 
 def test_intl():
-    layout = load_layout("intl")
-
     expected = split(
         """
         // Digits
@@ -149,11 +147,9 @@ def test_intl():
         // Pinky keys
         key <AE11> {[ minus           , underscore      , VoidSymbol      , VoidSymbol      ]}; // - _
         key <AE12> {[ equal           , plus            , VoidSymbol      , VoidSymbol      ]}; // = +
-        key <AE13> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <AD11> {[ bracketleft     , braceleft       , VoidSymbol      , VoidSymbol      ]}; // [ {
         key <AD12> {[ bracketright    , braceright      , VoidSymbol      , VoidSymbol      ]}; // ] }
         key <AC11> {[ ISO_Level3_Latch, dead_diaeresis  , apostrophe      , VoidSymbol      ]}; // ' ¨ '
-        key <AB11> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <TLDE> {[ dead_grave      , dead_tilde      , VoidSymbol      , VoidSymbol      ]}; // ` ~
         key <BKSL> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
         key <LSGT> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
@@ -163,17 +159,47 @@ def test_intl():
         """
     )
 
-    xkbcomp = xkb_table(layout, xkbcomp=True)
-    assert len(xkbcomp) == len(expected)
-    assert xkbcomp == expected
+    # Extra mapping section
+    extraMapping = {
+        # Redefine level of key previously defined in ASCII art
+        "ae01": {"shift": "?"},
+        # Test layer case variants and ODK alias
+        "menu": {"base": "a", "sHiFt": "A", "1dk": "æ", "ODk_shiFt": "Æ"},
+        # Clone level of another key previously defined in ASCII art
+        "esc": {"base": "(ae11)"},
+        # Clone whole key previously defined
+        "i172": "(lsgt)",
+    }
 
-    xkbpatch = xkb_table(layout, xkbcomp=False)
-    assert len(xkbpatch) == len(expected)
-    assert xkbpatch == expected
+    # Extra mapping keymap
+    extraSymbols = [
+        "",
+        "// System",
+        "key <ESC>  {[ minus           , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; // -",
+        "key <MENU> {[ a               , A               , ae              , AE              ]}; // a A æ Æ",
+        "",
+        "// Miscellaneous",
+        "key <I172> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |",
+    ]
+    extraExpected = expected + extraSymbols
+    extraExpected[1] = (
+        "key <AE01> {[ 1               , question        , VoidSymbol      , VoidSymbol      ]}; // 1 ?"
+    )
+
+    for mapping, expectedʹ in (({}, expected), (extraMapping, extraExpected)):
+        layout = load_layout("intl", mapping)
+
+        xkbcomp = xkb_table(layout, xkbcomp=True)
+        assert len(xkbcomp) == len(expectedʹ)
+        assert xkbcomp == expectedʹ
+
+        xkbpatch = xkb_table(layout, xkbcomp=False)
+        assert len(xkbpatch) == len(expectedʹ)
+        assert xkbpatch == expectedʹ
 
 
 def test_prog():
-    layout = load_layout("prog")
+    layout = load_layout("prog", {})
 
     expected = split(
         """
@@ -228,14 +254,11 @@ def test_prog():
         // Pinky keys
         key <AE11> {[ minus           , underscore      , VoidSymbol      , VoidSymbol      ]}; // - _
         key <AE12> {[ equal           , plus            , VoidSymbol      , VoidSymbol      ]}; // = +
-        key <AE13> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <AD11> {[ bracketleft     , braceleft       , VoidSymbol      , VoidSymbol      ]}; // [ {
         key <AD12> {[ bracketright    , braceright      , VoidSymbol      , VoidSymbol      ]}; // ] }
         key <AC11> {[ apostrophe      , quotedbl        , dead_acute      , dead_diaeresis  ]}; // ' " ´ ¨
-        key <AB11> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
         key <TLDE> {[ grave           , asciitilde      , dead_grave      , dead_tilde      ]}; // ` ~ ` ~
         key <BKSL> {[ backslash       , bar             , VoidSymbol      , VoidSymbol      ]}; // \\ |
-        key <LSGT> {[ VoidSymbol      , VoidSymbol      , VoidSymbol      , VoidSymbol      ]}; //
 
         // Space bar
         key <SPCE> {[ space           , space           , space           , space           ]}; //
