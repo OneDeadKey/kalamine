@@ -170,6 +170,7 @@ def build(
 @click.option("--1dk/--no-1dk", "odk", default=False, help="Set a custom dead key.")
 def new(output_file: Path, geometry: str, altgr: bool, odk: bool) -> None:
     """Create a new TOML layout description."""
+
     create_layout(output_file, geometry, altgr, odk)
     click.echo(f"... {output_file}")
 
