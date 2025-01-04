@@ -1,188 +1,125 @@
-klc:
-  spce: '39'
-
-  # digits
-  ae01: '02'
-  ae02: '03'
-  ae03: '04'
-  ae04: '05'
-  ae05: '06'
-  ae06: '07'
-  ae07: '08'
-  ae08: '09'
-  ae09: '0a'
-  ae10: '0b'
-
-  # letters, first row
-  ad01: '10'
-  ad02: '11'
-  ad03: '12'
-  ad04: '13'
-  ad05: '14'
-  ad06: '15'
-  ad07: '16'
-  ad08: '17'
-  ad09: '18'
-  ad10: '19'
-
-  # letters, second row
-  ac01: '1e'
-  ac02: '1f'
-  ac03: '20'
-  ac04: '21'
-  ac05: '22'
-  ac06: '23'
-  ac07: '24'
-  ac08: '25'
-  ac09: '26'
-  ac10: '27'
-
-  # letters, third row
-  ab01: '2c'
-  ab02: '2d'
-  ab03: '2e'
-  ab04: '2f'
-  ab05: '30'
-  ab06: '31'
-  ab07: '32'
-  ab08: '33'
-  ab09: '34'
-  ab10: '35'
-
-  # pinky keys
-  tlde: '29'
-  ae11: '0c'
-  ae12: '0d'
-  ae13: '0d' # XXX FIXME
-  ad11: '1a'
-  ad12: '1b'
-  ac11: '28'
-  ab11: '28'  # XXX FIXME
-  bksl: '2b'
-  lsgt: '56'
- 
-osx:
-  spce: 49
-
-  # digits
-  ae01: 18  # 1
-  ae02: 19  # 2
-  ae03: 20  # 3
-  ae04: 21  # 4
-  ae05: 23  # 5
-  ae06: 22  # 6
-  ae07: 26  # 7
-  ae08: 28  # 8
-  ae09: 25  # 9
-  ae10: 29  # 0
-
-  # letters, first row
-  ad01: 12  # Q
-  ad02: 13  # W
-  ad03: 14  # E
-  ad04: 15  # R
-  ad05: 17  # T
-  ad06: 16  # Y
-  ad07: 32  # U
-  ad08: 34  # I
-  ad09: 31  # O
-  ad10: 35  # P
-
-  # letters, second row
-  ac01:  0  # A
-  ac02:  1  # S
-  ac03:  2  # D
-  ac04:  3  # F
-  ac05:  5  # G
-  ac06:  4  # H
-  ac07: 38  # J
-  ac08: 40  # K
-  ac09: 37  # L
-  ac10: 41  # ★
-
-  # letters, third row
-  ab01:  6  # Z
-  ab02:  7  # X
-  ab03:  8  # C
-  ab04:  9  # V
-  ab05: 11  # B
-  ab06: 45  # N
-  ab07: 46  # M
-  ab08: 43  # ,
-  ab09: 47  # .
-  ab10: 44  # /
-
-  # pinky keys
-  tlde: 50  # ~
-  ae11: 27  # -
-  ae12: 24  # =
-  ae13: 42  # XXX FIXME
-  ad11: 33  # [
-  ad12: 30  # ]
-  ac11: 39  # '
-  ab11: 39  # XXX FIXME
-  bksl: 42  # \
-  lsgt: 10  # <
-
-web:
-  spce: 'Space'
-
-  # digits
-  ae01: 'Digit1'
-  ae02: 'Digit2'
-  ae03: 'Digit3'
-  ae04: 'Digit4'
-  ae05: 'Digit5'
-  ae06: 'Digit6'
-  ae07: 'Digit7'
-  ae08: 'Digit8'
-  ae09: 'Digit9'
-  ae10: 'Digit0'
-
-  # letters, 1st row
-  ad01: 'KeyQ'
-  ad02: 'KeyW'
-  ad03: 'KeyE'
-  ad04: 'KeyR'
-  ad05: 'KeyT'
-  ad06: 'KeyY'
-  ad07: 'KeyU'
-  ad08: 'KeyI'
-  ad09: 'KeyO'
-  ad10: 'KeyP'
-
-  # letters, 2nd row
-  ac01: 'KeyA'
-  ac02: 'KeyS'
-  ac03: 'KeyD'
-  ac04: 'KeyF'
-  ac05: 'KeyG'
-  ac06: 'KeyH'
-  ac07: 'KeyJ'
-  ac08: 'KeyK'
-  ac09: 'KeyL'
-  ac10: 'Semicolon'
-
-  # letters, 3rd row
-  ab01: 'KeyZ'
-  ab02: 'KeyX'
-  ab03: 'KeyC'
-  ab04: 'KeyV'
-  ab05: 'KeyB'
-  ab06: 'KeyN'
-  ab07: 'KeyM'
-  ab08: 'Comma'
-  ab09: 'Period'
-  ab10: 'Slash'
-
-  # pinky keys
-  tlde: 'Backquote'
-  ae11: 'Minus'
-  ae12: 'Equal'
-  ae13: 'IntlYen'
-  ad11: 'BracketLeft'
-  ad12: 'BracketRight'
-  bksl: 'Backslash'
-  ac11: 'Quote'
-  ab11: 'IntlRo'
-  lsgt: 'IntlBackslash'
+Digits:
+- {web: Digit1,         xkb: ae01, windows: T02, macos: 18, hand: null}
+- {web: Digit2,         xkb: ae02, windows: T03, macos: 19, hand: null}
+- {web: Digit3,         xkb: ae03, windows: T04, macos: 20, hand: null}
+- {web: Digit4,         xkb: ae04, windows: T05, macos: 21, hand: null}
+- {web: Digit5,         xkb: ae05, windows: T06, macos: 23, hand: null}
+- {web: Digit6,         xkb: ae06, windows: T07, macos: 22, hand: null}
+- {web: Digit7,         xkb: ae07, windows: T08, macos: 26, hand: null}
+- {web: Digit8,         xkb: ae08, windows: T09, macos: 28, hand: null}
+- {web: Digit9,         xkb: ae09, windows: T0A, macos: 25, hand: null}
+- {web: Digit0,         xkb: ae10, windows: T0B, macos: 29, hand: null}
+# Letters, first row
+Letters1:
+- {web: KeyQ,           xkb: ad01, windows: T10, macos: 12, hand: null}
+- {web: KeyW,           xkb: ad02, windows: T11, macos: 13, hand: null}
+- {web: KeyE,           xkb: ad03, windows: T12, macos: 14, hand: null}
+- {web: KeyR,           xkb: ad04, windows: T13, macos: 15, hand: null}
+- {web: KeyT,           xkb: ad05, windows: T14, macos: 17, hand: null}
+- {web: KeyY,           xkb: ad06, windows: T15, macos: 16, hand: null}
+- {web: KeyU,           xkb: ad07, windows: T16, macos: 32, hand: null}
+- {web: KeyI,           xkb: ad08, windows: T17, macos: 34, hand: null}
+- {web: KeyO,           xkb: ad09, windows: T18, macos: 31, hand: null}
+- {web: KeyP,           xkb: ad10, windows: T19, macos: 35, hand: null}
+# Letters, second row
+Letters2:
+- {web: KeyA,           xkb: ac01, windows: T1E, macos: 0, hand: null}
+- {web: KeyS,           xkb: ac02, windows: T1F, macos: 1, hand: null}
+- {web: KeyD,           xkb: ac03, windows: T20, macos: 2, hand: null}
+- {web: KeyF,           xkb: ac04, windows: T21, macos: 3, hand: null}
+- {web: KeyG,           xkb: ac05, windows: T22, macos: 5, hand: null}
+- {web: KeyH,           xkb: ac06, windows: T23, macos: 4, hand: null}
+- {web: KeyJ,           xkb: ac07, windows: T24, macos: 38, hand: null}
+- {web: KeyK,           xkb: ac08, windows: T25, macos: 40, hand: null}
+- {web: KeyL,           xkb: ac09, windows: T26, macos: 37, hand: null}
+- {web: Semicolon,      xkb: ac10, windows: T27, macos: 41, hand: null}
+# Letters, third row
+Letters3:
+- {web: KeyZ,           xkb: ab01, windows: T2C, macos: 6, hand: null}
+- {web: KeyX,           xkb: ab02, windows: T2D, macos: 7, hand: null}
+- {web: KeyC,           xkb: ab03, windows: T2E, macos: 8, hand: null}
+- {web: KeyV,           xkb: ab04, windows: T2F, macos: 9, hand: null}
+- {web: KeyB,           xkb: ab05, windows: T30, macos: 11, hand: null}
+- {web: KeyN,           xkb: ab06, windows: T31, macos: 45, hand: null}
+- {web: KeyM,           xkb: ab07, windows: T32, macos: 46, hand: null}
+- {web: Comma,          xkb: ab08, windows: T33, macos: 43, hand: null}
+- {web: Period,         xkb: ab09, windows: T34, macos: 47, hand: null}
+- {web: Slash,          xkb: ab10, windows: T35, macos: 44, hand: null}
+PinkyKeys:
+- {web: Minus,          xkb: ae11, windows: T0C, macos: 27, hand: null}
+- {web: Equal,          xkb: ae12, windows: T0D, macos: 24, hand: null}
+- {web: IntlYen,        xkb: ae13, windows: T0D, macos: 42, hand: null}
+- {web: BracketLeft,    xkb: ad11, windows: T1A, macos: 33, hand: null}
+- {web: BracketRight,   xkb: ad12, windows: T1B, macos: 30, hand: null}
+- {web: Quote,          xkb: ac11, windows: T28, macos: 39, hand: null}
+- {web: IntlRo,         xkb: ab11, windows: T28, macos: 39, hand: null}
+- {web: Backquote,      xkb: tlde, windows: T29, macos: 50, hand: null}
+- {web: Backslash,      xkb: bksl, windows: T2B, macos: 42, hand: null}
+- {web: IntlBackslash,  xkb: lsgt, windows: T56, macos: 10, hand: null}
+SpaceBar:
+- {web: Space,          xkb: spce, windows: T39, macos: 49, hand: null}
+Numpad:
+- {web: Numpad0,        xkb: kp0,  windows: T52, macos: null, hand: null}
+- {web: Numpad1,        xkb: kp1,  windows: T4F, macos: null, hand: null}
+- {web: Numpad2,        xkb: kp2,  windows: T50, macos: null, hand: null}
+- {web: Numpad3,        xkb: kp3,  windows: T51, macos: null, hand: null}
+- {web: Numpad4,        xkb: kp4,  windows: T4B, macos: null, hand: null}
+- {web: Numpad5,        xkb: kp5,  windows: T4C, macos: null, hand: null}
+- {web: Numpad6,        xkb: kp6,  windows: T4D, macos: null, hand: null}
+- {web: Numpad7,        xkb: kp7,  windows: T47, macos: null, hand: null}
+- {web: Numpad8,        xkb: kp8,  windows: T48, macos: null, hand: null}
+- {web: Numpad9,        xkb: kp9,  windows: T49, macos: null, hand: null}
+- {web: NumpadEnter,    xkb: kpen, windows: X1C, macos: null, hand: null}
+- {web: NumpadEqual,    xkb: kpeq, windows: T59, macos: null, hand: null}
+- {web: NumpadDecimal,  xkb: kpdl, windows: T53, macos: null, hand: null}
+- {web: NumpadComma,    xkb: kppt, windows: T7E, macos: null, hand: null}
+- {web: NumpadDivide,   xkb: kpdv, windows: X35, macos: null, hand: null}
+- {web: NumpadMultipl,  xkb: kpmu, windows: T37, macos: null, hand: null}
+- {web: NumpadSubtrac,  xkb: kpsu, windows: T4A, macos: null, hand: null}
+- {web: NumpadAdd,      xkb: kpad, windows: T4E, macos: null, hand: null}
+- {web: NumLock,        xkb: nmlk, windows: T45, macos: null, hand: null}
+System:
+- {web: Tab,            xkb: tab,  windows: T0F, macos: null, hand: Left}
+- {web: Enter,          xkb: rtrn, windows: T1C, macos: null, hand: null}
+- {web: Backspace,      xkb: bksp, windows: T0E, macos: null, hand: null}
+- {web: Delete,         xkb: dele, windows: X53, macos: null, hand: null}
+- {web: Escape,         xkb: esc,  windows: T01, macos: null, hand: null}
+- {web: ContextMenu,    xkb: menu, windows: X5D, macos: null, hand: null}
+- {web: Home,           xkb: home, windows: X47, macos: null, hand: null}
+- {web: End,            xkb: end,  windows: X4F, macos: null, hand: null}
+- {web: ArrowUp,        xkb: up,   windows: X48, macos: null, hand: null}
+- {web: ArrowDown,      xkb: down, windows: X50, macos: null, hand: null}
+- {web: ArrowLeft,      xkb: left, windows: X4B, macos: null, hand: null}
+- {web: ArrowDown,      xkb: rght, windows: X50, macos: null, hand: null}
+- {web: PageUp,         xkb: pgup, windows: X49, macos: null, hand: null}
+- {web: PageDown,       xkb: pgdn, windows: X51, macos: null, hand: null}
+- {web: F1,             xkb: fk01, windows: T3B, macos: null, hand: null}
+- {web: F2,             xkb: fk02, windows: T3C, macos: null, hand: null}
+- {web: F3,             xkb: fk03, windows: T3D, macos: null, hand: null}
+- {web: F4,             xkb: fk04, windows: T3E, macos: null, hand: null}
+- {web: F5,             xkb: fk05, windows: T3F, macos: null, hand: null}
+- {web: F6,             xkb: fk06, windows: T40, macos: null, hand: null}
+- {web: F7,             xkb: fk07, windows: T41, macos: null, hand: null}
+- {web: F8,             xkb: fk08, windows: T42, macos: null, hand: null}
+- {web: F9,             xkb: fk09, windows: T43, macos: null, hand: null}
+- {web: F10,            xkb: fk10, windows: T44, macos: null, hand: null}
+- {web: F11,            xkb: fk11, windows: T57, macos: null, hand: null}
+- {web: F12,            xkb: fk12, windows: T58, macos: null, hand: null}
+Modifiers:
+- {web: ShiftLeft,      xkb: lfsh, windows: T2A, macos: null, hand: Left}
+- {web: ShiftRight,     xkb: rtsh, windows: T36, macos: null, hand: Right}
+- {web: CapsLock,       xkb: caps, windows: T3A, macos: null, hand: Left}
+- {web: AltLeft,        xkb: lalt, windows: T38, macos: null, hand: Left}
+- {web: AltRight,       xkb: ralt, windows: X38, macos: null, hand: Right}
+- {web: ControlLeft,    xkb: lctl, windows: T1D, macos: null, hand: Left}
+- {web: ControlRight,   xkb: rctl, windows: X1D, macos: null, hand: Right}
+- {web: MetaLeft,       xkb: lwin, windows: X5B, macos: null, hand: Left}
+- {web: MetaRight,      xkb: rwin, windows: X5C, macos: null, hand: Right}
+InputMethod:
+- {web: NonConvert,     xkb: muhe, windows: T7B, macos: null, hand: Left}
+- {web: Convert,        xkb: henk, windows: T79, macos: null, hand: Right}
+Miscellaneous:
+- {web: LaunchApp2,     xkb: i148, windows: null, macos: null, hand: null} # Calculator
+- {web: LaunchMail,     xkb: i163, windows: null, macos: null, hand: null}
+- {web: MediaPlayPause, xkb: i172, windows: X22,  macos: null, hand: null}
+- {web: BrowserHome,    xkb: i180, windows: X32,  macos: null, hand: null}

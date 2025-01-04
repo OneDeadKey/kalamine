@@ -2,21 +2,14 @@ import copy
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Type, TypeVar
+from typing import Dict, List, Optional, Set, Type, TypeVar, Union
 
 import click
 import tomli
 import yaml
 
-from .utils import (
-    DEAD_KEYS,
-    LAYER_KEYS,
-    ODK_ID,
-    Layer,
-    load_data,
-    text_to_lines,
-    upper_key,
-)
+from .key import KEYS
+from .utils import DEAD_KEYS, ODK_ID, Layer, load_data, text_to_lines, upper_key
 
 ###
 # Helpers
@@ -219,7 +212,46 @@ class KeyboardLayout:
             self.layers[Layer.ALTGR]["spce"] = spc["altgr"]
             self.layers[Layer.ALTGR_SHIFT]["spce"] = spc["altgr_shift"]
 
+        # Extra mapping
+        if mapping := layout_data.get("mapping"):
+            self._parse_extra_mapping(mapping)
+
         self._parse_dead_keys(spc)
+
+    @staticmethod
+    def _parse_key_ref(raw: str) -> Optional[str]:
+        """Parse a key reference (e.g. to clone)"""
+        if raw.startswith("(") and raw.endswith(")"):
+            if (clone := raw[1:-1]) and clone in KEYS:
+                return clone
+        return None
+
+    def _parse_extra_mapping(self, mapping: Dict[str, Union[str, Dict[str, str]]]):
+        """Parse a layout dict"""
+        layer: Optional[Layer]
+        for raw_key, levels in mapping.items():
+            # TODO: parse key in various ways (XKB, Linux keycode)
+            if raw_key not in KEYS:
+                raise ValueError(f"Unknown key: “{raw_key}”")
+            key = raw_key
+            # Check for key clone
+            if isinstance(levels, str):
+                # Check for clone
+                if clone := self._parse_key_ref(levels):
+                    for layer, keys in self.layers.items():
+                        if value := keys.get(clone):
+                            self.layers[layer][key] = value
+                    continue
+                raise ValueError(f"Unsupported key mapping: {raw_key}: {levels}")
+            for raw_layer, raw_value in levels.items():
+                if (layer := Layer.parse(raw_layer)) is None:
+                    raise ValueError(f"Cannot parse layer: “{raw_layer}”")
+                if clone := self._parse_key_ref(raw_value):
+                    if (value := self.layers[layer].get(clone)) is None:
+                        continue
+                else:
+                    value = raw_value
+                self.layers[layer][key] = value
 
     def _parse_dead_keys(self, spc: Dict[str, str]) -> None:
         """Build a deadkey dict."""
@@ -252,9 +284,7 @@ class KeyboardLayout:
 
             if id == ODK_ID:
                 self.has_1dk = True
-                for key_name in LAYER_KEYS:
-                    if key_name.startswith("-"):
-                        continue
+                for key_name in KEYS:
                     for layer in [Layer.ODK_SHIFT, Layer.ODK]:
                         if key_name in self.layers[layer]:
                             deadkey[self.layers[layer.necromance()][key_name]] = (
