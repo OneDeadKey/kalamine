@@ -365,12 +365,17 @@ def remove_rules_variant(variant_list: ET.Element, name: str) -> None:
         variant_list.remove(variant)
 
 
-def add_rules_variant(variant_list: ET.Element, name: str, description: str) -> None:
+def add_rules_variant(variant_list: ET.Element, name: str, description: str, xkb_label: str) -> None:
     """Add a <variant/configItem/{name,description> item to <layout/variantList>."""
 
     variant = ET.SubElement(variant_list, "variant")
     config = ET.SubElement(variant, "configItem")
     ET.SubElement(config, "name").text = name
+    if xkb_label != "":
+        # Set the label used notably by Fcitx5 in the systray, see:
+        # https://github.com/fcitx/fcitx5/issues/1555
+        # Note: `shortDescription` MUST appear before `description` for the document to be valid
+        ET.SubElement(config, "shortDescription").text = xkb_label
     ET.SubElement(config, "description").text = description
 
 
@@ -394,8 +399,8 @@ def update_rules(xkb_root: Path, kbd_index: KbdIndex) -> None:
                     remove_rules_variant(vlist, name)
                     if layout is not None:
                         description = layout.meta["description"]
-                        add_rules_variant(vlist, name, description)
-
+                        xkb_label = layout.meta["xkb_label"]
+                        add_rules_variant(vlist, name, description, xkb_label)
             if hasattr(ET, "indent"):  # Python 3.9+
                 ET.indent(tree)
 

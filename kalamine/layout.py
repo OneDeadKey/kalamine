@@ -38,6 +38,8 @@ def load_layout(layout_path: Path) -> Dict:
         cfg = load_descriptor(layout_path)
         if "name" not in cfg:
             cfg["name"] = layout_path.stem
+        if not "xkb_label":
+            cfg["xkb_label"] = ""
         if "extends" in cfg:
             parent_path = layout_path.parent / cfg["extends"]
             ext = load_descriptor(parent_path)
@@ -77,6 +79,7 @@ class MetaDescr:
     locale:      str = "us"
     geometry:    str = "ISO"
     description: str = ""
+    xkb_label:   str = ""
     author:      str = "nobody"
     license:     str = ""
     version:     str = "0.0.1"
@@ -96,6 +99,7 @@ CONFIG = {
     "author": "nobody",
     "license": "WTFPL - Do What The Fuck You Want Public License",
     "geometry": "ISO",
+    "xkb_label": "",
 }
 
 SPACEBAR = {
