@@ -22,7 +22,7 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
     def main_page(layout: KeyboardLayout, angle_mod: bool = False) -> str:
         layout_ref = layout.meta["name"]
         if "url" in layout.meta:
-            layout_ref = f"""<a href="{layout.meta['url']}">{layout.meta['name']}</a>"""
+            layout_ref = f"""<a href="{layout.meta["url"]}">{layout.meta["name"]}</a>"""
 
         return f"""
             <!DOCTYPE html>
@@ -43,19 +43,19 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             <body>
                 <p style="float: right; text-align: right;">
                     <a href="https://github.com/OneDeadKey/kalamine">kalamine</a>
-                    v{metadata.version('kalamine')}<br>\U0001f986
+                    v{metadata.version("kalamine")}<br>\U0001f986
                 </p>
                 <dl>
                     <dt>Name</dt>
                     <dd>{layout_ref}</dd>
                     <dt>Locale</dt>
-                    <dd>{layout.meta['locale']}/{layout.meta['variant']}</dd>
+                    <dd>{layout.meta["locale"]}/{layout.meta["variant"]}</dd>
                     <dt>Description</dt>
-                    <dd>{layout.meta['description']}</dd>
+                    <dd>{layout.meta["description"]}</dd>
                     <dt>Version</dt>
-                    <dd>{layout.meta['version']}</dd>
+                    <dd>{layout.meta["version"]}</dd>
                 </dl>
-                <input spellcheck="false" placeholder="{layout.meta['name']}">
+                <input spellcheck="false" placeholder="{layout.meta["name"]}">
                 <x-keyboard src="/json"></x-keyboard>
                 <p style="text-align: center;">
                     <a href="/json">json</a>

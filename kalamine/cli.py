@@ -195,7 +195,7 @@ def guide() -> None:
 @cli.command()
 def version() -> None:
     """Show version number and exit."""
-    click.echo(f"kalamine { metadata.version('kalamine') }")
+    click.echo(f"kalamine {metadata.version('kalamine')}")
 
 
 if __name__ == "__main__":

@@ -54,7 +54,7 @@ class MsklcManager:
         # check if the DLL is present
         sys32 = Path(os.environ["WINDIR"]) / Path("System32")
         sysWow = Path(os.environ["WINDIR"]) / Path("SysWOW64")
-        dll_name = f'{self._layout.meta["name8"]}.dll'
+        dll_name = f"{self._layout.meta['name8']}.dll"
         dll_exists = (sys32 / dll_name).exists() or (sysWow / Path(dll_name)).exists()
 
         if dll_exists:
@@ -250,7 +250,7 @@ class MsklcManager:
             self._progress.finish()
             return False
         os.chdir(self._layout.meta["name8"])
-        msi = f'{self._layout.meta["name8"]}_{arch}.msi'
+        msi = f"{self._layout.meta['name8']}_{arch}.msi"
         if not Path(msi).exists():
             print(f"`{msi}` not found")
             self._progress.finish()

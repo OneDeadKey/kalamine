@@ -219,7 +219,7 @@ def klc_dk_index(layout: "KeyboardLayout") -> List[str]:
         if k not in layout.dead_keys:
             continue
         dk = layout.dead_keys[k]
-        output.append(f"{hex_ord(dk[' '])}\t\"{DK_INDEX[k].name.upper()}\"")
+        output.append(f'{hex_ord(dk[" "])}\t"{DK_INDEX[k].name.upper()}"')
     return output
 
 

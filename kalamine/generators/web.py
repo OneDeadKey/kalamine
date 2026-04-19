@@ -113,7 +113,7 @@ def svg(layout: "KeyboardLayout") -> ET.ElementTree:
             if level == 6 and same_symbol(key_name, Layer.ODK, Layer.ODK_SHIFT):
                 continue
 
-            key = svg.find(f".//g[@id=\"{SCAN_CODES['web'][key_name]}\"]", ns)
+            key = svg.find(f'.//g[@id="{SCAN_CODES["web"][key_name]}"]', ns)
             set_key_label(key, level, layout.layers[i][key_name])
 
     return svg

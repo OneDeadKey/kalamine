@@ -59,7 +59,7 @@ def build(
         msklc_mgr = MsklcManager(layout, msklc, install=False, verbose=verbose)
         if msklc_mgr.build_msklc_installer():
             if msklc_mgr.build_msklc_dll():
-                output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
+                output_dir = f"{msklc_mgr._working_dir}\\{layout.meta['name8']}\\"
                 click.echo(
                     "MSKLC drivers successfully built.\n"
                     f"Execute `{output_dir}setup.exe` to install.\n"
@@ -114,7 +114,7 @@ def install(
                         "Log out and log back in to apply the changes."
                     )
                 else:
-                    output_dir = f'{msklc_mgr._working_dir}\\{layout.meta["name8"]}\\'
+                    output_dir = f"{msklc_mgr._working_dir}\\{layout.meta['name8']}\\"
                     click.echo(
                         "MSKLC drivers successfully built but failed to installed.\n"
                         f"Execute `{output_dir}setup.exe` to install manually.\n"
