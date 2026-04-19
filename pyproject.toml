@@ -54,6 +54,6 @@ wkalamine = "kalamine.cli_msklc:cli"
 [tool.ruff.lint]
 extend-select = ["I"]
 
-[[tool.mypy.overrides]]
+[tool.mypy]
 module = ["progress.bar"]
 ignore_missing_imports = true
