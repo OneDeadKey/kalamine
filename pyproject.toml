@@ -23,12 +23,11 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
-requires-python = ">= 3.9"
+requires-python = ">= 3.11"
 dependencies = [
     "click>=8.0",
     "livereload",
     "pyyaml",
-    "tomli;python_version<'3.11'",
     "progress",
 ]
 

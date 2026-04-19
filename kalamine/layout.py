@@ -1,13 +1,9 @@
 import copy
 import sys
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Type, TypeVar
-
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
 
 import click
 import yaml

@@ -3,10 +3,7 @@
 from pathlib import Path
 from typing import Dict
 
-try:
-    import tomllib
-except ImportError:
-    import tomli as tomllib
+import tomllib
 
 
 def get_layout_dict(filename: str) -> Dict:
