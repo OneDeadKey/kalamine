@@ -10,7 +10,7 @@ import traceback
 from os import environ
 from pathlib import Path
 from textwrap import dedent
-from typing import Dict, ItemsView, Optional
+from typing import Dict, ItemsView, NamedTuple, Optional
 from xml.etree import ElementTree as ET
 
 from .generators import xkb
@@ -379,7 +379,7 @@ def add_rules_variant(variant_list: ET.Element, name: str, description: str) -> 
     ET.SubElement(config, "description").text = description
 
 
-def update_rules(xkb_root: Path, kbd_index: KbdIndex) -> None:
+def update_rules_xml(xkb_root: Path, kbd_index: KbdIndex) -> None:
     """Update references in XKB/rules/{base,evdev}.xml."""
 
     for filename in ["base.xml", "evdev.xml"]:
@@ -412,6 +412,117 @@ def update_rules(xkb_root: Path, kbd_index: KbdIndex) -> None:
 
         except Exception as exc:
             exit_FileNotWritable(exc, filepath)
+
+
+class LstVariantLine(NamedTuple):
+    """A parsed variant line from a lst rules file"""
+
+    original_line: Optional[str]
+    variant: str
+    locale: str
+    descr: str
+
+    @classmethod
+    def from_line(cls, line: str) -> "LstVariantLine":
+        """Initialize from a raw line"""
+        parse_re = re.compile(
+            r"^  (?P<variant>[a-zA-Z0-9_-]+)\s+(?P<locale>[a-z]+):\s+(?P<descr>.*)$"
+        )
+        if not (res := parse_re.match(line)):
+            raise ValueError(f"Bad variant line: {line}")
+
+        return cls(
+            original_line=line,
+            variant=res["variant"],
+            locale=res["locale"],
+            descr=res["descr"],
+        )
+
+    def __str__(self):
+        if self.original_line:
+            return self.original_line
+        return f"  {self.variant:<15} {self.locale}: {self.descr}"
+
+
+def update_rules_lst(xkb_root: Path, kbd_index: KbdIndex) -> None:
+    """Update references in XKB/rules/{base,evdev}.lst."""
+
+    variants_start_re = re.compile(r"^!\s+variant\s*\n", re.MULTILINE)
+    variants_end_re = re.compile(r"\n+!\s+\w+\s*\n")
+
+    for filename in ["base.lst", "evdev.lst"]:
+        filepath = xkb_root / "rules" / filename
+        if not filepath.exists():
+            continue
+
+        try:
+            with open(filepath, "r") as file:
+                content = file.read()
+
+            if not (start_match := variants_start_re.search(content)):
+                raise ValueError(
+                    f"File {filepath}: could not find variants start marker"
+                )
+            variant_start = start_match.end()
+            if not (end_match := variants_end_re.search(content, pos=variant_start)):
+                raise ValueError(f"File {filepath}: could not find variants end marker")
+            variant_end = end_match.start()
+
+            content_head = content[:variant_start]
+            content_tail = content[variant_end:]
+            variant_lines = content[variant_start:variant_end].split("\n")
+            try:
+                variants = [LstVariantLine.from_line(line) for line in variant_lines]
+            except ValueError as exc:
+                raise ValueError(f"File {filepath}: {exc}") from exc
+
+            # Patch variants – quadratic, but this should be OK
+            for locale, named_layouts in kbd_index.items():
+                for variant, layout in named_layouts.items():
+                    new_variant = None
+                    if layout is not None:
+                        new_variant = LstVariantLine(
+                            locale=locale,
+                            variant=variant,
+                            descr=layout.meta["description"],
+                            original_line=None,
+                        )
+
+                    variant_insert_pos = len(variants)  # insert at the end by default
+                    for lst_index, lst_variant in enumerate(variants):
+                        if lst_variant.locale == locale:
+                            variant_insert_pos = lst_index + 1
+
+                            if lst_variant.variant == variant:
+                                if new_variant is None:
+                                    # Delete
+                                    variants.pop(lst_index)
+                                    break
+                                # Edit in place
+                                variants[lst_index] = new_variant
+                                break
+                    else:  # Not found – insert at the end of its locale block
+                        if new_variant is not None:
+                            variants.insert(variant_insert_pos, new_variant)
+
+            with open(filepath, "w") as file:
+                file.write(
+                    content_head
+                    + "\n".join(str(var) for var in variants)
+                    + content_tail
+                )
+
+            print(f"... {filepath}")
+
+        except Exception as exc:
+            exit_FileNotWritable(exc, filepath)
+
+
+def update_rules(xkb_root: Path, kbd_index: KbdIndex) -> None:
+    """Update references in XKB/rules/{base,evdev}.{xml,lst}."""
+
+    update_rules_xml(xkb_root, kbd_index)
+    update_rules_lst(xkb_root, kbd_index)
 
 
 def list_rules(xkb_root: Path, mask: str = "*") -> XmlIndex:
