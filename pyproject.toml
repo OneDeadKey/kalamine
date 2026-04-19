@@ -28,7 +28,7 @@ dependencies = [
     "click>=8.0",
     "livereload",
     "pyyaml",
-    "tomli",
+    "tomli;python_version<'3.11'",
     "progress",
 ]
 
