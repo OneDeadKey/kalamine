@@ -23,12 +23,11 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 
-requires-python = ">= 3.8"
+requires-python = ">= 3.11"
 dependencies = [
     "click>=8.0",
     "livereload",
     "pyyaml",
-    "tomli",
     "progress",
 ]
 
@@ -40,6 +39,7 @@ dev = [
     "ruff>=0.8.0",
     "types-PyYAML",
     "twine>=5.1.1",
+    "docutils>=0.22",
 ]
 
 [project.urls]
@@ -53,6 +53,6 @@ wkalamine = "kalamine.cli_msklc:cli"
 [tool.ruff.lint]
 extend-select = ["I"]
 
-[[tool.mypy.overrides]]
-module = ["progress.bar"]
+[tool.mypy]
+# module = ["progress.bar"]
 ignore_missing_imports = true

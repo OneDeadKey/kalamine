@@ -1,11 +1,11 @@
 import copy
 import sys
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Type, TypeVar
 
 import click
-import tomli
 import yaml
 
 from .utils import (
@@ -32,7 +32,7 @@ def load_layout(layout_path: Path) -> Dict:
                 return yaml.load(file, Loader=yaml.SafeLoader)
 
         with file_path.open(mode="rb") as dfile:
-            return tomli.load(dfile)
+            return tomllib.load(dfile)
 
     try:
         cfg = load_descriptor(layout_path)
