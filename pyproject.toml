@@ -1,10 +1,10 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling >= 1.27"]
 build-backend = "hatchling.build"
 
 [project]
 name = "kalamine"
-version = "0.38"
+version = "0.40"
 description = "a cross-platform Keyboard Layout Maker"
 readme = "README.rst"
 authors = [{ name = "Fabien Cazenave", email = "fabien@cazenave.cc" }]
@@ -53,5 +53,4 @@ wkalamine = "kalamine.cli_msklc:cli"
 extend-select = ["I"]
 
 [tool.mypy]
-# module = ["progress.bar"]
 ignore_missing_imports = true
