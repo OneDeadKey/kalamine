@@ -54,5 +54,5 @@ wkalamine = "kalamine.cli_msklc:cli"
 extend-select = ["I"]
 
 [tool.mypy]
-module = ["progress.bar"]
+# module = ["progress.bar"]
 ignore_missing_imports = true
