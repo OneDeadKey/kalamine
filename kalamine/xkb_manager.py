@@ -339,9 +339,14 @@ def list_symbols(xkb_root: Path, xml_index: XmlIndex) -> XmlIndex:
 #
 
 
-def get_rules_variant_list(
-    tree: ET.ElementTree, locale: LocaleName
-) -> Optional[ET.Element]:
+# XXX Getting a strange MyPy error here => deactivate the type checking :-(
+
+# def get_rules_variant_list(
+#     tree: ET.ElementTree, locale: LocaleName)
+# ) -> Optional[ET.Element]:
+
+
+def get_rules_variant_list(tree, locale: LocaleName) -> Optional[ET.Element]:
     """Find the <layout/variantList> item matching the locale."""
 
     query = f'.//layout/configItem/name[.="{locale}"]/../../variantList'
@@ -396,8 +401,7 @@ def update_rules(xkb_root: Path, kbd_index: KbdIndex) -> None:
                         description = layout.meta["description"]
                         add_rules_variant(vlist, name, description)
 
-            if hasattr(ET, "indent"):  # Python 3.9+
-                ET.indent(tree)
+            ET.indent(tree)
 
             with filepath.open("w") as file:
                 file.write(XKB_RULES_HEADER)
