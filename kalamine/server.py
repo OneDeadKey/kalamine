@@ -193,8 +193,10 @@ def keyboard_server(file_path: Path, angle_mod: bool = False) -> None:
             elif self.path == "/xkb_symbols":
                 send(xkb.xkb_symbols(kb_layout))
             elif self.path == "/svg":
-                utf8 = ET.tostring(web.svg(kb_layout).getroot(), encoding="unicode")
-                send(utf8, content="image/svg+xml")
+                root_element = web.svg(kb_layout).getroot()
+                if root_element is not None:
+                    utf8 = ET.tostring(root_element, encoding="unicode")
+                    send(utf8, content="image/svg+xml")
             elif self.path == "/":
                 kb_layout = KeyboardLayout(load_layout(file_path), angle_mod)  # refresh
                 send(main_page(kb_layout, angle_mod), content="text/html")
