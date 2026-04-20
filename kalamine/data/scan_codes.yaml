@@ -113,7 +113,7 @@ osx:
   ab10: 44  # /
 
   # pinky keys
-  tlde: 50  # ~
+  tlde: 10  # ~
   ae11: 27  # -
   ae12: 24  # =
   ae13: 42  # XXX FIXME
@@ -122,7 +122,7 @@ osx:
   ac11: 39  # '
   ab11: 39  # XXX FIXME
   bksl: 42  # \
-  lsgt: 10  # <
+  lsgt: 50  # <
 
 web:
   spce: 'Space'
