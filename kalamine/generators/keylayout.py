@@ -120,11 +120,16 @@ def macos_actions(layout: "KeyboardLayout") -> List[str]:
             ret_actions.append(f"<!--{key_name[1:]} -->")
             continue
 
+        already = []
         for i in [Layer.BASE, Layer.SHIFT, Layer.ALTGR, Layer.ALTGR_SHIFT]:
             if key_name == "spce" or key_name not in layout.layers[i]:
                 continue
 
             key = layout.layers[i][key_name]
+            if key in already:
+                continue
+            already.append(key)
+
             if i and key == layout.layers[Layer.BASE][key_name]:
                 continue
             if key in layout.dead_keys:
