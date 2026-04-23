@@ -54,7 +54,13 @@ def apply(filepath: Path, angle_mod: bool) -> None:
     default=False,
     help="Apply Angle-Mod (which is a [ZXCVB] permutation with the LSGT key (a.k.a. ISO key))",
 )
-def install(layouts: List[Path], angle_mod: bool) -> None:
+@click.option(
+    "-y", "--yes",
+    is_flag=True,
+    default=False,
+    help="Skip confirmation prompt for user-space install",
+)
+def install(layouts: List[Path], angle_mod: bool, yes: bool) -> None:
     """Install a list of Kalamine layouts."""
 
     if not layouts:
@@ -78,7 +84,14 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
         print("Successfully installed.")
         return dict(index)
 
-    # EAFP (Easier to Ask Forgiveness than Permission)
+
+def is_root() -> bool:
+    """Check if running as root (euid 0)."""
+    import os
+    return os.geteuid() == 0
+
+
+# EAFP (Easier to Ask Forgiveness than Permission)
     try:
         xkb_root = XKBManager(root=True)
         xkb_index = xkb_install(xkb_root)
@@ -89,21 +102,52 @@ def install(layouts: List[Path], angle_mod: bool) -> None:
         print()
 
     except PermissionError:
-        print(xkb_root.path)
-        print("    Not writable: switching to user-space.")
-        print()
-        if not WAYLAND:
-            print(
-                "You appear to be running XOrg. You need sudo privileges to install keyboard layouts:"
-            )
-            for filepath in layouts:
-                print(f'    sudo env "PATH=$PATH" xkalamine install {filepath}')
-            sys.exit(1)
+        if not is_root():
+            if not WAYLAND:
+                print(xkb_root.path)
+                print("    Not writable: sudo required.")
+                print(
+                    "You appear to be running XOrg. You need sudo privileges to install keyboard layouts:"
+                )
+                print("Use sudo to install:")
+                for filepath in layouts:
+                    print(f'    sudo env "PATH=$PATH" xkalamine install {filepath}')
+                sys.exit(1)
 
-        xkb_home = XKBManager()
+            # Not root but on Wayland → try user-space
+            xkb_home = XKBManager()
+            xkb_home.ensure_xkb_config_is_ready()
+
+            if not yes:
+                click.confirm(
+                    "Install in user-space (~/.config/xkb)? "
+                    "Layout will be available in your compositor's keyboard settings.",
+                    abort=True,
+                )
+
+            xkb_install(xkb_home)
+            print("User-space layout installed. Select it in your compositor's keyboard settings.")
+            print()
+            return
+
+        # is_root() but PermissionError
+        print(xkb_root.path)
+        print("    Not writable: sudo required.")
+        print("Use sudo for system-wide install:")
+        for filepath in layouts:
+            print(f'    sudo xkalamine install {filepath}')
+        sys.exit(1)
         xkb_home.ensure_xkb_config_is_ready()
+
+        if not yes:
+            click.confirm(
+                "Install in user-space (~/.config/xkb)? "
+                "Layout will be available in your compositor's keyboard settings.",
+                abort=True,
+            )
+
         xkb_install(xkb_home)
-        print("Warning: user-space layouts only work with Wayland.")
+        print("User-space layout installed. Select it in your compositor's keyboard settings.")
         print()
 
 
@@ -124,13 +168,25 @@ def remove(mask: str) -> None:
     try:
         xkb_remove(root=True)
     except PermissionError:
-        if not WAYLAND:
-            print(
-                "You appear to be running XOrg. You need sudo privileges to remove keyboard layouts:"
-            )
-            print(f'    sudo env "PATH=$PATH" xkalamine remove {mask}')
-            sys.exit(1)
-        xkb_remove()
+        if not is_root():
+            if not WAYLAND:
+                print(
+                    "You appear to be running XOrg. You need sudo privileges to remove keyboard layouts:"
+                )
+                print(f"Use sudo to remove:")
+                print(f'    sudo env "PATH=$PATH" xkalamine remove {mask}')
+                sys.exit(1)
+
+            # Not root but on Wayland → try user-space
+            xkb_remove(root=False)
+            print("User-space layout removed.")
+            print()
+            return
+
+        # is_root() but PermissionError
+        print("Error: system XKB is not writable even as root.")
+        print("This is an environment configuration issue.")
+        sys.exit(1)
 
 
 @cli.command(name="list")

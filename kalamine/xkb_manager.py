@@ -4,6 +4,7 @@ This MUST remain dependency-free in order to be usable as a standalone installer
 """
 
 import datetime
+import os
 import re
 import sys
 import traceback
@@ -28,6 +29,20 @@ def wayland_running() -> bool:
     xdg_session = environ.get("XDG_SESSION_TYPE")
     if xdg_session:
         return xdg_session.startswith("wayland")
+
+    try:
+        for pid in os.listdir("/proc"):
+            if not pid.isdigit():
+                continue
+            try:
+                cmdline = Path(f"/proc/{pid}/cmdline").read_text()
+                if any(c in cmdline for c in ("sway", "niri", "wayfire", "kwin_wayland", "gnome-shell", "weston")):
+                    return True
+            except (PermissionError, FileNotFoundError):
+                pass
+    except Exception:
+        pass
+
     return False
 
 
@@ -130,22 +145,14 @@ class XKBManager:
         for subdir in ["compat", "keycodes", "rules", "symbols", "types"]:
             (XKB_HOME / subdir).mkdir(exist_ok=True)
 
-        # ensure there are XKB rules
-        # (new locales and symbols will be added by XKBManager)
-        for ruleset in ["evdev"]:  # add 'base', too?
-            # xkb/rules/evdev
-            rules = XKB_HOME / "rules" / ruleset
-            if not rules.exists():
-                rules.write_text(
-                    dedent(
-                        f"""\
-                        // {KALAMINE_MARK}
-                        // Include the system '{ruleset}' file
-                        ! include %S/{ruleset}
-                        """
-                    )
-                )
-            # xkb/rules/evdev.xml
+        # ensure there is an XKB rules XML file
+        # NOTE: Do NOT create rules/evdev (the user-space rules file)!
+        # xkbcommon walks ~/.config/xkb/ first, and if rules/evdev exists,
+        # it takes precedence over system rules. Previously we tried to
+        # delegate with "! include %S/evdev" but this doesn't work reliably.
+        # By not creating rules/evdev, xkbcommon falls through to system rules
+        # (/usr/share/X11/xkb/rules/evdev) automatically, which works correctly.
+        for ruleset in ["evdev"]:
             xmlpath = XKB_HOME / "rules" / f"{ruleset}.xml"
             if not xmlpath.exists():
                 xmlpath.write_text(
