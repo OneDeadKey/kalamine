@@ -43,8 +43,8 @@ Dead_Keys:
         … as well as in the `altgr` layer:
 
                            +-----+
-                           |  *" | <----- altgr+shift+key = dead diaeresis
-                           |  *´ | <----- altgr+key       = dead acute accent
+            shift = " ---> | "*" | <----- altgr+shift+key = dead diaeresis
+            base = ' ----> | '*' | <----- altgr+key       = dead acute accent
                            +-----+
 
         … and combined in the `full` layer:

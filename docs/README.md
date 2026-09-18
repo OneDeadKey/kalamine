@@ -82,8 +82,8 @@ Dead keys are preceded by a `*` sign. They can be used in the `base` layer:
 … as well as in the `altgr` layer:
 
                    +-----+
-                   |  *" | <----- altgr+shift+key = dead diaeresis
-                   |  *´ | <----- altgr+key       = dead acute accent
+    shift = " ---> | "*" | <----- altgr+shift+key = dead diaeresis
+    base = ' ----> | '*' | <----- altgr+key       = dead acute accent
                    +-----+
 
 … and combined in the `full` layer:
