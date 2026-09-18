@@ -1,14 +1,3 @@
-/***************************************************************************\
-* Module Name: ergol.C
-*
-* keyboard layout
-*
-* Copyright (c) 1985-2001, Microsoft Corporation
-*
-* History:
-* KBDTOOL v3.40 - Created  Sat Feb 17 19:22:00 2024
-\***************************************************************************/
-
 #include <windows.h>
 #include "kbd.h"
 #include "${name8}.h"

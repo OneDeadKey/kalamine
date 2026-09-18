@@ -3,7 +3,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const keyboard = document.querySelector('x-keyboard');
   const input    = document.querySelector('input');
-  const geometry = document.querySelector('select');
+  const geometry = document.querySelector('#geometry');
 
   if (!keyboard.layout) {
     console.warn('web components are not supported');

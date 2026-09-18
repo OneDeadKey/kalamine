@@ -1,11 +1,11 @@
 import copy
 import sys
+import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Type, TypeVar
 
 import click
-import tomli
 import yaml
 
 from .utils import (
@@ -32,7 +32,7 @@ def load_layout(layout_path: Path) -> Dict:
                 return yaml.load(file, Loader=yaml.SafeLoader)
 
         with file_path.open(mode="rb") as dfile:
-            return tomli.load(dfile)
+            return tomllib.load(dfile)
 
     try:
         cfg = load_descriptor(layout_path)
@@ -43,6 +43,17 @@ def load_layout(layout_path: Path) -> Dict:
             ext = load_descriptor(parent_path)
             ext.update(cfg)
             cfg = ext
+        if "version" in cfg:
+            version_check = cfg["version"].split(".")
+            if len(version_check) > 3:
+                raise Exception(
+                    f"Layout version number **must** follow `x.y.z` format\nCurrently got `version={cfg['version']}`"
+                )
+            missing_digits = (3 - len(version_check)) * ["0"]
+            cfg["version"] = ".".join(version_check + missing_digits)
+        else:
+            cfg["version"] = MetaDescr.version
+
         return cfg
 
     except Exception as exc:
@@ -148,6 +159,7 @@ class KeyboardLayout:
         self.has_altgr = False
         self.has_1dk = False
         self.qwerty_shortcuts = qwerty_shortcuts
+        self.angle_mod = angle_mod
 
         # metadata: self.meta
         for k in layout_data:
@@ -176,6 +188,7 @@ class KeyboardLayout:
                 click.echo(
                     "Warning: geometry does not support angle-mod; ignoring the --angle-mod argument"
                 )
+                self.angle_mod = False
 
         if "full" in layout_data:
             full = text_to_lines(layout_data["full"])

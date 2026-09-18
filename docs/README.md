@@ -76,7 +76,7 @@ Dead keys are preceded by a `*` sign. They can be used in the `base` layer:
 
                    +-----+
     shift -------> |*"   |  = dead diaeresis
-    base --------> |*'   |  = dead acute accent
+    base --------> |*´   |  = dead acute accent
                    +-----+
 
 … as well as in the `altgr` layer:
@@ -85,6 +85,13 @@ Dead keys are preceded by a `*` sign. They can be used in the `base` layer:
     shift = " ---> | "*" | <----- altgr+shift+key = dead diaeresis
     base = ' ----> | '*' | <----- altgr+key       = dead acute accent
                    +-----+
+
+… and combined in the `full` layer:
+
+                    +-----+
+  shift+key = A --> | A*" | <----- altgr+shift+key = dead diaeresis
+        key = a --> | a*´ | <----- altgr+key       = dead acute accent
+                    +-----+
 
 
 ### Standard Dead Keys

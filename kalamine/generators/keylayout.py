@@ -66,7 +66,7 @@ def macos_keymap(layout: "KeyboardLayout") -> List[List[str]]:
                     symbol = _xml_proof(key.upper() if caps else key)
                     final_key = not has_dead_keys(key.upper())
 
-            char = f"code=\"{SCAN_CODES['osx'][key_name]}\"".ljust(10)
+            char = f'code="{SCAN_CODES["osx"][key_name]}"'.ljust(10)
             if final_key:
                 action = f'output="{symbol}"'
             elif symbol.startswith("dead_"):

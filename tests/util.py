@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Dict
 
-import tomli
+import tomllib
 
 
 def get_layout_dict(filename: str) -> Dict:
@@ -11,4 +11,4 @@ def get_layout_dict(filename: str) -> Dict:
 
     file_path = Path(__file__).parent.parent / f"layouts/{filename}.toml"
     with file_path.open(mode="rb") as file:
-        return tomli.load(file)
+        return tomllib.load(file)
